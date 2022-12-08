@@ -1,15 +1,14 @@
-import { ApolloServer } from '@apollo/server';
-import { startStandaloneServer } from '@apollo/server/standalone';
-import { PostService } from './services/posts-service';
-import { AuthenticationService } from './services/authentication-service';
-import dotenv from 'dotenv';
-
-dotenv.config({path: 'env/configuration.env'});
+import { ApolloServer } from "@apollo/server";
+import { startStandaloneServer } from "@apollo/server/standalone";
+import { PostService } from "./services/posts-service";
+import { AuthenticationService } from "./services/authentication-service";
+import { environment } from "./environment/environment";
+import gql from 'graphql-tag';
 
 // A schema is a collection of type definitions (hence "typeDefs")
 // that together define the "shape" of queries that are executed against
 // your data.
-const typeDefs = `#graphql
+const typeDefs = gql`#graphql
   # Comments in GraphQL strings (such as this one) start with the hash (#) symbol.
 
   # This "Book" type defines the queryable fields for every book in our data source.
@@ -28,12 +27,12 @@ const typeDefs = `#graphql
 
 const books = [
   {
-    title: 'The Awakening',
-    author: 'Kate Chopin',
+    title: "The Awakening",
+    author: "Kate Chopin",
   },
   {
-    title: 'City of Glass',
-    author: 'Paul Auster',
+    title: "City of Glass",
+    author: "Paul Auster",
   },
 ];
 
@@ -52,25 +51,25 @@ const server = new ApolloServer({
   resolvers,
 });
 
-
-
-
 // Passing an ApolloServer instance to the `startStandaloneServer` function:
 //  1. creates an Express app
 //  2. installs your ApolloServer instance as middleware
 //  3. prepares your app to handle incoming requests
 const { url } = await startStandaloneServer(server, {
-  listen: { port: parseInt(process.env.PORT) },
+  listen: { port: environment.graphqlServer.port },
   context: async ({ req }) => {
-    const token = await new AuthenticationService().getToken();
+    const authenticationService = new AuthenticationService(environment.dataServer.baseUrl);
+    const accessToken = await authenticationService.register(environment.dataServer.clientInfo);
 
     // We'll take Apollo Server's cache
     // and pass it to each of our data sources
-
-    const { cache } = server;
     return {
       dataSources: {
-        postsApi: new PostService({ cache, token }),
+        postsApi: new PostService(environment.dataServer.baseUrl, {
+          cache: server.cache,
+          token: accessToken.getToken(),
+          pageCount: environment.dataServer.pageCount,
+        }),
       },
     };
   },

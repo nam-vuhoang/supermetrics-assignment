@@ -8,25 +8,30 @@ interface RawPostData {
 }
 
 export class PostService extends RESTDataSource {
-  override baseURL = "https://api.supermetrics.com/assignment";
-
-  static readonly MIN_PAGE = 1;
-  static readonly MAX_PAGE = 10;
-
   private token: string;
+  private pageCount: number;
 
-  constructor(options: { token: string; cache: KeyValueCache }) {
+  constructor(public baseURL: string, options: { token: string; cache: KeyValueCache; pageCount: number }) {
     super(options); // this sends our server's `cache` through
-    this.token = options.token;
     this.memoizeGetRequests = true;
+
+    this.token = options.token;
+    this.pageCount = options.pageCount;
   }
 
+  /**
+   * Fetchs all posts of all users.
+   * @returns
+   */
   async fetchPosts(): Promise<Post[]> {
-    const pageIndexes = Array.from(Array(PostService.MAX_PAGE).keys()); // from 0 to N-1;
-    const pagePromises$: Promise<Post[]>[] = pageIndexes.map((i) => this.fetchPostsByPage(i));
-    return Promise.all(pagePromises$).then((data) => data.flat());
+    return this.internalFetchPosts(this.fetchPostsByPage);
   }
 
+  /**
+   * Fetchs all
+   * @param pageIndex
+   * @returns
+   */
   async fetchPostsByPage(pageIndex: number): Promise<Post[]> {
     const pageNumber = pageIndex + 1;
     return this.get<RawPostData>("posts", {
@@ -43,14 +48,16 @@ export class PostService extends RESTDataSource {
   }
 
   async fetchPostsByUser(userId: string): Promise<Post[]> {
-    const pages$: Promise<Post[]>[] = [];
-    for (let i = PostService.MIN_PAGE; i <= PostService.MAX_PAGE; ++i) {
-      pages$.push(this.fetchPostsByPageAndUser(i, userId));
-    }
-    return Promise.all(pages$).then((data) => data.flat());
+    return this.internalFetchPosts((i) => this.internalFetchPostsByPageAndUser(i, userId));
   }
 
-  async fetchPostsByPageAndUser(pageIndex: number, userId: string): Promise<Post[]> {
+  private async internalFetchPostsByPageAndUser(pageIndex: number, userId: string): Promise<Post[]> {
     return this.fetchPostsByPage(pageIndex).then((posts) => posts.filter((p) => p.from_id === userId));
+  }
+
+  private async internalFetchPosts(getSinglePageFn: (pageIndex: number) => Promise<Post[]>) {
+    const pageIndexes: number[] = Array.from(Array(this.pageCount).keys()); // from 0 to N-1;
+    const pagePromises$: Promise<Post[]>[] = pageIndexes.map(getSinglePageFn);
+    return Promise.all(pagePromises$).then((data) => data.flat());
   }
 }
