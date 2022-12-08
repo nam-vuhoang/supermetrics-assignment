@@ -1,10 +1,15 @@
 import { RESTDataSource } from '@apollo/datasource-rest';
 import { KeyValueCache } from '@apollo/utils.keyvaluecache';
+import { ApolloServerErrorCode } from '@apollo/server/errors';
+
 import { GraphQLContext } from '../graphql/graphql-context';
 import { UserPost } from '../models/user-post';
 import { HttpResponse } from '../models/http-response';
 import { logger } from '../utils/logger';
 import { GraphQLError } from 'graphql';
+import { log } from 'console';
+import { StatusCodes } from 'http-status-codes';
+import { UserStats } from '../models/user-stats';
 
 interface RawPostData {
   page: number;
@@ -29,7 +34,7 @@ export class UserPostService extends RESTDataSource {
    * @returns
    */
   async fetchPosts(): Promise<UserPost[]> {
-    return this.internalFetchPosts(this.fetchPostsByPage);
+    return this.fetchPostsAndMerge(this.fetchPostsByPage);
   }
 
   /**
@@ -37,7 +42,7 @@ export class UserPostService extends RESTDataSource {
    * @param pageIndex
    * @returns
    */
-  async fetchPostsByPage(pageIndex: number): Promise<UserPost[]> {
+  async fetchPostsByPage(pageIndex: number, retryIfUnauthorized: boolean = true): Promise<UserPost[]> {
     if (pageIndex < 0 || pageIndex >= this.pageCount) {
       throw new GraphQLError('Invalid argument value', {
         extensions: {
@@ -47,12 +52,13 @@ export class UserPostService extends RESTDataSource {
       });
     }
 
-    if (this.context.cache.)
-
     const pageNumber = pageIndex + 1;
-    const token = await this.getToken({ forceRefresh: false });
-
     logger.info('Fetching posts from page %d', pageNumber);
+
+    const token = retryIfUnauthorized
+      ? await this.context.authenticationService.getToken()
+      : await this.context.authenticationService.forceRefreshToken();
+
     return this.get<HttpResponse<RawPostData>>(UserPostService.REQUEST_PATH, {
       params: {
         sl_token: token,
@@ -72,26 +78,48 @@ export class UserPostService extends RESTDataSource {
         }
         return data.posts;
       })
-      .finally(() => logger.info('Fetching posts completed'));
+      .catch((error: GraphQLError) => {
+        if (retryIfUnauthorized && (<any>error.extensions?.response)?.status === StatusCodes.UNAUTHORIZED) {
+          logger.info('Re-fetching posts from page %d due to expired SL token', pageNumber);
+          return this.fetchPostsByPage(pageIndex, false);
+        }
+        throw error;
+      });
   }
 
   async fetchPostsByUser(userId: string): Promise<UserPost[]> {
-    return this.internalFetchPosts((i) => this.internalFetchPostsByPageAndUser(i, userId));
+    return this.fetchPostsAndMerge((pageIndex) =>
+      this.fetchPostsByPage(pageIndex).then((posts) => posts.filter((p) => p.from_id === userId))
+    );
   }
 
-  private async internalFetchPostsByPageAndUser(pageIndex: number, userId: string): Promise<UserPost[]> {
-    return this.fetchPostsByPage(pageIndex).then((posts) => posts.filter((p) => p.from_id === userId));
-  }
-
-  private async internalFetchPosts(getSinglePageFn: (pageIndex: number) => Promise<UserPost[]>) {
+  private async fetchPostsAndMerge(getSinglePageFn: (pageIndex: number) => Promise<UserPost[]>) {
     const pageIndexes: number[] = Array.from(Array(this.pageCount).keys()); // from 0 to N-1;
     const pagePromises$: Promise<UserPost[]>[] = pageIndexes.map(getSinglePageFn);
     return Promise.all(pagePromises$).then((data) => data.flat());
   }
 
-  private async getToken(options: { forceRefresh: boolean }): Promise<string> {
-    return options.forceRefresh
-      ? this.context.authenticationService.forceRefreshToken()
-      : this.context.authenticationService.getToken();
+  async fetchStatsByUser(userId: string): Promise<UserStats> {
+    const posts$ = this.fetchPostsByUser(userId);
+    return posts$.then((posts) => {
+      let maxLength = 0;
+      let totalLength = 0.0;
+
+      for (let post of posts) {
+        if (maxLength < post.message.length) {
+          maxLength = post.message.length;
+        }
+
+        totalLength += post.message.length;
+      }
+
+      return {
+        id: userId,
+        name: posts[0].from_name,
+        totalNumber: posts.length,
+        averageLength: totalLength / posts.length,
+        maxLength,
+      };
+    });
   }
 }

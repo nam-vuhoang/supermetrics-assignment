@@ -1,7 +1,6 @@
 import gql from 'graphql-tag';
 import { environment } from '../environment/environment';
 import { UserPostService } from '../services/user-post-service';
-import { logger } from '../utils/logger';
 import { GraphQLContext } from './graphql-context';
 
 function createUserPostService(context: GraphQLContext) {
@@ -9,12 +8,12 @@ function createUserPostService(context: GraphQLContext) {
 }
 
 export const graphQLOptions = {
-  
   typeDefs: gql`
     #graphql
     type Query {
-      userPostsByPage(pageIndex: Int!): [UserPost!]
-      userPostsByUser(userId: ID!): [UserPost!]
+      postsByPage(pageIndex: Int!): [UserPost!]
+      postsByUser(userId: ID!): [UserPost!]
+      statsByUser(userId: ID!): UserStats!
     }
 
     type UserPost {
@@ -25,15 +24,26 @@ export const graphQLOptions = {
       type: String!
       created_time: String!
     }
+
+    type UserStats {
+      id: ID!
+      name: String!
+      totalNumber: Int!
+      averageLength: Float!
+      maxLength: Int!
+    }
   `,
 
   resolvers: {
     Query: {
-      userPostsByPage: (_: any, args: any, contextValue: any) => {
+      postsByPage: (_: any, args: any, contextValue: any) => {
         return createUserPostService(contextValue).fetchPostsByPage(args.pageIndex);
       },
-      userPostsByUser: (_: any, args: any, contextValue: any) => {
+      postsByUser: (_: any, args: any, contextValue: any) => {
         return createUserPostService(contextValue).fetchPostsByUser(args.userId);
+      },
+      statsByUser: (_: any, args: any, contextValue: any) => {
+        return createUserPostService(contextValue).fetchStatsByUser(args.userId);
       },
     },
   },
