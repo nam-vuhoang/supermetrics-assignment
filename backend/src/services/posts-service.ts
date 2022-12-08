@@ -1,6 +1,6 @@
-import { RESTDataSource } from "@apollo/datasource-rest";
-import { KeyValueCache } from "@apollo/utils.keyvaluecache";
-import { Post } from "../models/post";
+import { RESTDataSource } from '@apollo/datasource-rest';
+import { KeyValueCache } from '@apollo/utils.keyvaluecache';
+import { Post } from '../models/post';
 
 interface RawPostData {
   page: number;
@@ -34,7 +34,7 @@ export class PostService extends RESTDataSource {
    */
   async fetchPostsByPage(pageIndex: number): Promise<Post[]> {
     const pageNumber = pageIndex + 1;
-    return this.get<RawPostData>("posts", {
+    return this.get<RawPostData>('posts', {
       params: {
         sl_token: this.token,
         pageIndex: pageNumber.toString(),
