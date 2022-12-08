@@ -5,7 +5,6 @@ import { AuthenticationService } from '../services/authentication-service';
 import { environment } from '../environment/environment';
 import { GraphQLContext } from './graphql-context';
 import { graphQLOptions } from './graphql-options';
-import { logger } from '../utils/logger';
 
 export class GraphQLServer {
   private authenticationService: AuthenticationService;

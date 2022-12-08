@@ -4,11 +4,17 @@ import { UserPostService } from '../services/user-post-service';
 import { logger } from '../utils/logger';
 import { GraphQLContext } from './graphql-context';
 
+function createUserPostService(context: GraphQLContext) {
+  return new UserPostService(context, environment.dataServer.baseUrl, environment.dataServer.pageCount);
+}
+
 export const graphQLOptions = {
+  
   typeDefs: gql`
     #graphql
     type Query {
       userPostsByPage(pageIndex: Int!): [UserPost!]
+      userPostsByUser(userId: ID!): [UserPost!]
     }
 
     type UserPost {
@@ -20,15 +26,14 @@ export const graphQLOptions = {
       created_time: String!
     }
   `,
+
   resolvers: {
     Query: {
-      userPostsByPage: (parent, args, contextValue, info) => {
-        const userPostService = new UserPostService(
-          <GraphQLContext>contextValue,
-          environment.dataServer.baseUrl,
-          environment.dataServer.pageCount
-        );
-        return userPostService.fetchPostsByPage(args.pageIndex);
+      userPostsByPage: (_: any, args: any, contextValue: any) => {
+        return createUserPostService(contextValue).fetchPostsByPage(args.pageIndex);
+      },
+      userPostsByUser: (_: any, args: any, contextValue: any) => {
+        return createUserPostService(contextValue).fetchPostsByUser(args.userId);
       },
     },
   },

@@ -4,6 +4,7 @@ import { GraphQLContext } from '../graphql/graphql-context';
 import { UserPost } from '../models/user-post';
 import { HttpResponse } from '../models/http-response';
 import { logger } from '../utils/logger';
+import { GraphQLError } from 'graphql';
 
 interface RawPostData {
   page: number;
@@ -37,6 +38,17 @@ export class UserPostService extends RESTDataSource {
    * @returns
    */
   async fetchPostsByPage(pageIndex: number): Promise<UserPost[]> {
+    if (pageIndex < 0 || pageIndex >= this.pageCount) {
+      throw new GraphQLError('Invalid argument value', {
+        extensions: {
+          code: 'BAD_USER_INPUT',
+          argumentName: 'pageIndex',
+        },
+      });
+    }
+
+    if (this.context.cache.)
+
     const pageNumber = pageIndex + 1;
     const token = await this.getToken({ forceRefresh: false });
 
@@ -51,7 +63,12 @@ export class UserPostService extends RESTDataSource {
       .then((data) => {
         logger.info('Loaded page: %d (size: %d)', data.page, data.posts.length);
         if (data.page !== pageNumber) {
-          throw new Error(`Invalid data: expected page ${pageNumber}, but got page ${data.page}.`);
+          throw new GraphQLError(`Invalid data: expected page ${pageNumber}, but got page ${data.page}.`, {
+            extensions: {
+              code: 'DATA_SERVER_ERROR',
+              argumentName: 'pageIndex',
+            },
+          });
         }
         return data.posts;
       })
