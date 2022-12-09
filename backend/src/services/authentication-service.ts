@@ -11,7 +11,6 @@ export class AuthenticationService extends RESTDataSource {
 
   constructor(public baseURL: string, private clientInfo: ClientInfo) {
     super();
-    this.memoizeGetRequests = false;
   }
 
   async getToken(): Promise<string> {
@@ -19,7 +18,7 @@ export class AuthenticationService extends RESTDataSource {
   }
 
   async forceRefreshToken(): Promise<string> {
-    logger.info('Refreshing token');
+    logger.debug('Refreshing token');
 
     this.token$ = this.post<HttpResponse<AccessToken>>(AuthenticationService.REQUEST_PATH, {
       body: this.clientInfo,

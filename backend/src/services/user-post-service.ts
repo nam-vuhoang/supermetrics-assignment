@@ -32,6 +32,7 @@ export class UserPostService extends RESTDataSource {
 
   constructor(context: GraphQLContext, public baseURL: string, pageCount: number) {
     super(context); // this sends our server's `cache` through
+    // cache get-request results
     this.memoizeGetRequests = true;
     this.context = context;
     this.pageCount = pageCount;
@@ -39,13 +40,15 @@ export class UserPostService extends RESTDataSource {
 
   /**
    * Fetchs all raw user posts from a single page, filtered by userId if specified.
+   * In case of the Unauthorized error due to the short-lived token expiration,
+   * this method retries again with the refreshed token.
    * @param pageIndex
    * @returns
    */
-  private async fetchRawPostsByPage(
+  private async fetchRawPostsByPageAndUser(
     pageIndex: number,
     userId: string | undefined,
-    retryIfUnauthorized: boolean = true
+    retryIfUnauthorized: boolean
   ): Promise<RawUserPost[]> {
     if (pageIndex < 0 || pageIndex >= this.pageCount) {
       throw new GraphQLError('Invalid argument value', {
@@ -57,7 +60,7 @@ export class UserPostService extends RESTDataSource {
     }
 
     const pageNumber = pageIndex + 1;
-    logger.info('Fetching posts from page %d', pageNumber);
+    logger.debug('Fetching posts from page %d', pageNumber);
 
     const token = retryIfUnauthorized
       ? await this.context.authenticationService.getToken()
@@ -71,7 +74,8 @@ export class UserPostService extends RESTDataSource {
     })
       .then((response) => response.data)
       .then((data) => {
-        logger.info('Loaded page: %d (size: %d)', data.page, data.posts.length);
+        logger.debug('Loaded page: %d (size: %d)', data.page, data.posts.length);
+        // Validate page number
         if (data.page !== pageNumber) {
           throw new GraphQLError(`Invalid data: expected page ${pageNumber}, but got page ${data.page}.`, {
             extensions: {
@@ -84,13 +88,16 @@ export class UserPostService extends RESTDataSource {
       })
       .catch((error: GraphQLError) => {
         if (retryIfUnauthorized && (<any>error.extensions?.response)?.status === StatusCodes.UNAUTHORIZED) {
-          logger.info('Re-fetching posts from page %d due to expired SL token', pageNumber);
-          return this.fetchRawPostsByPage(pageIndex, undefined, false);
+          logger.warn('Re-fetching posts from page %d due to expired SL token', pageNumber);
+          // retry again with new token, but without user filter.
+          return this.fetchRawPostsByPageAndUser(pageIndex, undefined, false);
         }
         throw error;
       });
 
-    return userId ? rawPosts$.then((posts) => posts.filter((p) => p.from_id === userId)) : rawPosts$;
+    return userId
+            ? rawPosts$.then((posts) => posts.filter((p) => p.from_id === userId))
+            : rawPosts$;
   }
 
   /**
@@ -105,12 +112,12 @@ export class UserPostService extends RESTDataSource {
     logger.info('Fetching all posts from %d pages', this.pageCount);
     const pageIndexes: number[] = Array.from(Array(this.pageCount).keys()); // from 0 to N-1;
     let pages$: Promise<RawUserPost[]>[] = pageIndexes.map((pageIndex) =>
-      this.fetchRawPostsByPage(pageIndex, userId, true)
+      this.fetchRawPostsByPageAndUser(pageIndex, userId, true)
     );
 
     // Merge pages and normalize posts
-    const posts$ = Promise.all(pages$).then((data) =>
-      data.flat().map((p) => {
+    const posts$: Promise<UserPost[]> = Promise.all(pages$).then((rawPosts) =>
+      rawPosts.flat().map((p) => {
         return {
           id: p.id,
           userId: p.from_id,
@@ -139,10 +146,8 @@ export class UserPostService extends RESTDataSource {
     sortByCreatedTimeAsc?: boolean
   ): UserPostCollection {
     if (sortByCreatedTimeAsc !== undefined || page) {
-      if (sortByCreatedTimeAsc == undefined) {
-        sortByCreatedTimeAsc = true;
-      }
-      posts = sortArray(posts, (p) => p.createdTime.getTime(), !sortByCreatedTimeAsc);
+      const reverse = sortByCreatedTimeAsc !== undefined ? !sortByCreatedTimeAsc : false;
+      posts = sortArray(posts, (p) => p.createdTime.getTime(), reverse);
     }
 
     if (page) {
