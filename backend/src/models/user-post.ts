@@ -1,8 +1,8 @@
 export interface UserPost {
   id: string;
-  from_id: string;
-  from_name: string;
+  userId: string;
+  userName: string;
   message: string;
   type: string;
-  created_time: string;
+  createdTime: Date;
 }

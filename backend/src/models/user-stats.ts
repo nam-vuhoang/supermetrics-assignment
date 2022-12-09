@@ -1,7 +1,10 @@
+import { Frequency } from "./frequency";
+
 export interface UserStats {
-  id: string;
-  name: string;
-  totalNumber: number;
+  userId: string;
+  userName: string;
+  totalCount: number;
   averageLength: number;
   maxLength: number;
+  frequencies: Frequency[];
 }

@@ -1,50 +1,103 @@
 import gql from 'graphql-tag';
+import { GraphQLScalarType, Kind } from 'graphql';
 import { environment } from '../environment/environment';
+import { UserPostFilter } from '../models/user-post-filter';
 import { UserPostService } from '../services/user-post-service';
 import { GraphQLContext } from './graphql-context';
 
-function createUserPostService(context: GraphQLContext) {
-  return new UserPostService(context, environment.dataServer.baseUrl, environment.dataServer.pageCount);
-}
-
 export const graphQLOptions = {
   typeDefs: gql`
-    #graphql
     type Query {
-      postsByPage(pageIndex: Int!): [UserPost!]
-      postsByUser(userId: ID!): [UserPost!]
-      statsByUser(userId: ID!): UserStats!
+      userPosts(filter: UserPostFilter): UserPostCollection
+    }
+
+    type UserPostCollection {
+      size: Int!
+      posts: [UserPost!]!
+      stats: [UserStats!]!
     }
 
     type UserPost {
       id: ID!
-      from_id: ID!
-      from_name: String!
+      userId: ID!
+      userName: String!
       message: String!
       type: String!
-      created_time: String!
+      createdTime: Date!
     }
-
+    
     type UserStats {
-      id: ID!
-      name: String!
-      totalNumber: Int!
+      userId: ID!
+      userName: String!
+      totalCount: Int!
       averageLength: Float!
       maxLength: Int!
+      frequencies: [Frequency!]!
     }
+
+    type Frequency {
+      month: Date!
+      count: Int!
+    }
+
+    input UserPostFilter {
+      userId: ID
+      page: PageFilter
+      sortByCreatedTimeAsc: Boolean
+    }
+
+    input PageFilter {
+      index: Int!
+      size: Int!
+    }
+
+    scalar Date
   `,
 
   resolvers: {
+    Date: new GraphQLScalarType({
+      name: 'Date',
+      description: 'Date custom scalar type',
+
+      serialize(value: Date) {
+        return value.getTime(); // Convert outgoing Date to integer for JSON
+      },
+
+      parseValue(value: number) {
+        return new Date(value); // Convert incoming integer to Date
+      },
+
+      parseLiteral(ast) {
+        if (ast.kind === Kind.INT) {
+          // Convert hard-coded AST string to integer and then to Date
+          return new Date(parseInt(ast.value, 10));
+        }
+
+        // Invalid hard-coded value (not an integer)
+        return null;
+      },
+    }),
+
     Query: {
-      postsByPage: (_: any, args: any, contextValue: any) => {
-        return createUserPostService(contextValue).fetchPostsByPage(args.pageIndex);
+      userPosts(root: any, args: { filter: UserPostFilter }, context: GraphQLContext) {
+        return new UserPostService(
+          context,
+          environment.dataServer.baseUrl,
+          environment.dataServer.pageCount
+        ).fetchPosts(args.filter);
       },
-      postsByUser: (_: any, args: any, contextValue: any) => {
-        return createUserPostService(contextValue).fetchPostsByUser(args.userId);
-      },
-      statsByUser: (_: any, args: any, contextValue: any) => {
-        return createUserPostService(contextValue).fetchStatsByUser(args.userId);
-      },
+      // postsByPage: (_: any, args: any, contextValue: any) => {
+      //   return createUserPostService(contextValue).fetchPostsByPage(args.pageIndex);
+      // },
+      // postsByUser: (_: any, args: any, contextValue: any) => {
+      //   return createUserPostService(contextValue).fetchPostsByUser(args.userId);
+      // },
+      // statsByUser: (_: any, args: any, contextValue: any) => {
+      //   return createUserPostService(contextValue).fetchStatsByUser(args.userId);
+      // },
+      // stats: (_: any, args: any, contextValue: any) => {
+      //   return createUserPostService(contextValue).fetchStats();
+      // },
     },
   },
 };

@@ -1,38 +1,20 @@
 import dotenv from 'dotenv';
-import { env, exit } from 'process';
-import { logger } from '../utils/logger';
-
-const configurationFilePath = 'env/configuration.env';
-
-function requireConfigParam(name: string) {
-  if (!env[name]) {
-    logger.error(`Param '${name}' is undefined in the configuration file '${configurationFilePath}'.`);
-    logger.info('Application is exiting...');
-    exit();
-  }
-}
+import { ENVIRONMENT_FILE_PATH, requireIntEnvParam, requireStringEnvParam } from '../utils/environment-utils';
 
 function loadConfig() {
-  dotenv.config({ path: configurationFilePath });
-  requireConfigParam('PORT');
-  requireConfigParam('DATA_SERVER_BASE_URL');
-  requireConfigParam('DATA_SERVER_CLIENT_ID');
-  requireConfigParam('DATA_SERVER_CLIENT_EMAIL');
-  requireConfigParam('DATA_SERVER_CLIENT_NAME');
-  requireConfigParam('DATA_POSTS_MAX_PAGE_COUNT');
-
+  dotenv.config({ path: ENVIRONMENT_FILE_PATH });
   return {
     graphqlServer: {
-      port: parseInt(env.PORT!),
+      port: requireIntEnvParam('PORT'),
     },
     dataServer: {
-      baseUrl: env.DATA_SERVER_BASE_URL!,
+      baseUrl: requireStringEnvParam('DATA_SERVER_BASE_URL'),
       clientInfo: {
-        client_id: env.DATA_SERVER_CLIENT_ID!,
-        email: env.DATA_SERVER_CLIENT_EMAIL!,
-        name: env.DATA_SERVER_CLIENT_NAME!,
+        client_id: requireStringEnvParam('DATA_SERVER_CLIENT_ID'),
+        email: requireStringEnvParam('DATA_SERVER_CLIENT_EMAIL'),
+        name: requireStringEnvParam('DATA_SERVER_CLIENT_NAME'),
       },
-      pageCount: parseInt(env.DATA_POSTS_MAX_PAGE_COUNT!),
+      pageCount: requireIntEnvParam('DATA_POSTS_MAX_PAGE_COUNT'),
     },
   };
 }

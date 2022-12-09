@@ -1,19 +1,27 @@
 import { RESTDataSource } from '@apollo/datasource-rest';
-import { KeyValueCache } from '@apollo/utils.keyvaluecache';
-import { ApolloServerErrorCode } from '@apollo/server/errors';
-
 import { GraphQLContext } from '../graphql/graphql-context';
 import { UserPost } from '../models/user-post';
 import { HttpResponse } from '../models/http-response';
 import { logger } from '../utils/logger';
 import { GraphQLError } from 'graphql';
-import { log } from 'console';
 import { StatusCodes } from 'http-status-codes';
-import { UserStats } from '../models/user-stats';
+import { UserPostFilter } from '../models/user-post-filter';
+import { UserPostCollection } from '../models/user-post-collection';
+import { PageFilter } from '../models/page-filter';
+import { sortArray } from '../utils/utils';
+
+interface RawUserPost {
+  id: string;
+  from_id: string;
+  from_name: string;
+  message: string;
+  type: string;
+  created_time: string;
+}
 
 interface RawPostData {
   page: number;
-  posts: Array<UserPost>;
+  posts: Array<RawUserPost>;
 }
 
 export class UserPostService extends RESTDataSource {
@@ -30,19 +38,11 @@ export class UserPostService extends RESTDataSource {
   }
 
   /**
-   * Fetchs all posts of all users.
-   * @returns
-   */
-  async fetchPosts(): Promise<UserPost[]> {
-    return this.fetchPostsAndMerge(this.fetchPostsByPage);
-  }
-
-  /**
    * Fetchs all
    * @param pageIndex
    * @returns
    */
-  async fetchPostsByPage(pageIndex: number, retryIfUnauthorized: boolean = true): Promise<UserPost[]> {
+  private async fetchPostsByPage(pageIndex: number, retryIfUnauthorized: boolean = true): Promise<UserPost[]> {
     if (pageIndex < 0 || pageIndex >= this.pageCount) {
       throw new GraphQLError('Invalid argument value', {
         extensions: {
@@ -78,6 +78,18 @@ export class UserPostService extends RESTDataSource {
         }
         return data.posts;
       })
+      .then((posts) =>
+        posts.map((p) => {
+          return {
+            id: p.id,
+            userId: p.from_id,
+            userName: p.from_name,
+            message: p.message,
+            type: p.type,
+            createdTime: new Date(p.created_time),
+          };
+        })
+      )
       .catch((error: GraphQLError) => {
         if (retryIfUnauthorized && (<any>error.extensions?.response)?.status === StatusCodes.UNAUTHORIZED) {
           logger.info('Re-fetching posts from page %d due to expired SL token', pageNumber);
@@ -87,39 +99,39 @@ export class UserPostService extends RESTDataSource {
       });
   }
 
-  async fetchPostsByUser(userId: string): Promise<UserPost[]> {
-    return this.fetchPostsAndMerge((pageIndex) =>
-      this.fetchPostsByPage(pageIndex).then((posts) => posts.filter((p) => p.from_id === userId))
-    );
-  }
-
-  private async fetchPostsAndMerge(getSinglePageFn: (pageIndex: number) => Promise<UserPost[]>) {
+  async fetchPosts(filter?: UserPostFilter): Promise<UserPostCollection> | null {
+    const { userId, page, sortByCreatedTimeAsc } = filter || {};
+    // Get all pages
+    logger.info('Fetching all posts from %d pages', this.pageCount);
     const pageIndexes: number[] = Array.from(Array(this.pageCount).keys()); // from 0 to N-1;
-    const pagePromises$: Promise<UserPost[]>[] = pageIndexes.map(getSinglePageFn);
-    return Promise.all(pagePromises$).then((data) => data.flat());
+    let pages$: Promise<UserPost[]>[] = pageIndexes.map(pageIndex => this.fetchPostsByPage(pageIndex));
+    if (userId) {
+      const postFilter = (p: UserPost) => p.userId === userId;
+      pages$ = pages$.map(posts$ => posts$.then(posts => posts.filter(postFilter)));
+    }
+
+    // Merge pages
+    const posts$ = Promise.all(pages$).then((data) => data.flat());
+
+    // Sort and paginate
+    return posts$.then((posts) => UserPostService.sortAndPaginate(posts, page, sortByCreatedTimeAsc));
   }
 
-  async fetchStatsByUser(userId: string): Promise<UserStats> {
-    const posts$ = this.fetchPostsByUser(userId);
-    return posts$.then((posts) => {
-      let maxLength = 0;
-      let totalLength = 0.0;
-
-      for (let post of posts) {
-        if (maxLength < post.message.length) {
-          maxLength = post.message.length;
-        }
-
-        totalLength += post.message.length;
+  private static sortAndPaginate(
+    posts: UserPost[],
+    page?: PageFilter,
+    sortByCreatedTimeAsc?: boolean
+  ): UserPostCollection {
+    if (sortByCreatedTimeAsc !== undefined || page) {
+      if (sortByCreatedTimeAsc == undefined) {
+        sortByCreatedTimeAsc = true;
       }
+      posts = sortArray(posts, (p) => p.createdTime.getTime(), !sortByCreatedTimeAsc);
+    }
 
-      return {
-        id: userId,
-        name: posts[0].from_name,
-        totalNumber: posts.length,
-        averageLength: totalLength / posts.length,
-        maxLength,
-      };
-    });
+    if (page) {
+      posts = posts.slice(page.start, page.end);
+    }
+    return new UserPostCollection(posts);
   }
 }
