@@ -25,7 +25,7 @@ export const graphQLOptions = {
       type: String!
       createdTime: Date!
     }
-    
+
     type UserStats {
       userId: ID!
       userName: String!
@@ -86,18 +86,6 @@ export const graphQLOptions = {
           environment.dataServer.pageCount
         ).fetchPosts(args.filter);
       },
-      // postsByPage: (_: any, args: any, contextValue: any) => {
-      //   return createUserPostService(contextValue).fetchPostsByPage(args.pageIndex);
-      // },
-      // postsByUser: (_: any, args: any, contextValue: any) => {
-      //   return createUserPostService(contextValue).fetchPostsByUser(args.userId);
-      // },
-      // statsByUser: (_: any, args: any, contextValue: any) => {
-      //   return createUserPostService(contextValue).fetchStatsByUser(args.userId);
-      // },
-      // stats: (_: any, args: any, contextValue: any) => {
-      //   return createUserPostService(contextValue).fetchStats();
-      // },
     },
   },
 };
