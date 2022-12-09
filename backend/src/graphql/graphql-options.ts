@@ -82,7 +82,7 @@ export const graphQLOptions = {
     }),
 
     Query: {
-      userPosts(root: any, args: { filter: UserPostFilter }, context: GraphQLContext) {
+      userPosts(_: any, args: { filter: UserPostFilter }, context: GraphQLContext) {
         return new UserPostService(
           context,
           environment.dataServer.baseUrl,
