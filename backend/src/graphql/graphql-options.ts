@@ -70,7 +70,10 @@ export const graphQLOptions = {
       parseLiteral(ast) {
         if (ast.kind === Kind.INT) {
           // Convert hard-coded AST string to integer and then to Date
-          return new Date(parseInt(ast.value, 10));
+          const time = Number(ast.value);
+          if (!isNaN(time)) {
+            return new Date(time);
+          }
         }
 
         // Invalid hard-coded value (not an integer)
