@@ -62,13 +62,9 @@ export class UserPostService extends RESTDataSource {
     const pageNumber = pageIndex + 1;
     logger.debug('Fetching posts from page %d', pageNumber);
 
-    const token = retryIfUnauthorized
-      ? await this.context.authenticationService.getToken()
-      : await this.context.authenticationService.forceRefreshToken();
-
     let rawPosts$: Promise<RawUserPost[]> = this.get<HttpResponse<RawPostData>>(UserPostService.REQUEST_PATH, {
       params: {
-        sl_token: token,
+        sl_token: await this.context.authenticationService.getToken(),
         page: pageNumber.toString(),
       },
     })
@@ -90,6 +86,7 @@ export class UserPostService extends RESTDataSource {
         if (retryIfUnauthorized && (<any>error.extensions?.response)?.status === StatusCodes.UNAUTHORIZED) {
           logger.warn('Re-fetching posts from page %d due to expired SL token', pageNumber);
           // retry again with new token, but without user filter.
+          this.context.authenticationService.notifyTokenExpired();
           return this.fetchRawPostsByPageAndUser(pageIndex, undefined, false);
         }
         throw error;
