@@ -103,6 +103,8 @@ export class UserPostService extends RESTDataSource {
    * @returns 
    */
   async fetchPosts(filter?: UserPostFilter): Promise<UserPostCollection> | null {
+    logger.info('Fetching posts with filter %s', JSON.stringify(filter));
+
     const { userId, page, sortByCreatedTimeAsc } = filter || {};
 
     // Get all raw posts from all pages
@@ -148,8 +150,12 @@ export class UserPostService extends RESTDataSource {
     }
 
     if (pageFilter) {
-      posts = posts.slice(pageFilter.start, pageFilter.end);
+      const start = pageFilter.size * pageFilter.index;
+      const end = pageFilter.size * (pageFilter.index + 1);
+      posts = posts.slice(start, end);
     }
+
+    logger.debug('Returning %d posts', posts.length);
     return new UserPostCollection(posts);
   }
 }
