@@ -133,22 +133,22 @@ export class UserPostService extends RESTDataSource {
   /**
    * Create a UserPostCollection, sort and paginate if needed.
    * @param posts 
-   * @param page 
+   * @param pageFilter 
    * @param sortByCreatedTimeAsc 
    * @returns 
    */
   private static sortAndPaginate(
     posts: UserPost[],
-    page?: PageFilter,
+    pageFilter?: PageFilter,
     sortByCreatedTimeAsc?: boolean
   ): UserPostCollection {
-    if (sortByCreatedTimeAsc !== undefined || page) {
-      const reverse = sortByCreatedTimeAsc !== undefined ? !sortByCreatedTimeAsc : false;
-      posts = sortArray(posts, (p) => p.createdTime.getTime(), reverse);
+    if (pageFilter || sortByCreatedTimeAsc !== undefined) {
+      // reverse order if sortByCreatedTimeAsc is undefined or false
+      posts = sortArray(posts, (p) => p.createdTime.getTime(), !sortByCreatedTimeAsc);
     }
 
-    if (page) {
-      posts = posts.slice(page.start, page.end);
+    if (pageFilter) {
+      posts = posts.slice(pageFilter.start, pageFilter.end);
     }
     return new UserPostCollection(posts);
   }
