@@ -2,6 +2,7 @@ import prettyMilliseconds from "pretty-ms";
 import moment from "moment";
 import { Component } from "react";
 import { Post } from "../models/post";
+import { Button, Tooltip } from "@nextui-org/react";
 
 export class PostView extends Component<{ post: Post }, { showFull: boolean }> {
   static readonly MAX_SHORT_MESSAGE_LENGTH = 200;
@@ -37,10 +38,12 @@ export class PostView extends Component<{ post: Post }, { showFull: boolean }> {
     const createdTime = moment(this.props.post.createdTime);
     const diff = moment().diff(createdTime);
 
-    return `${createdTime.format("dddd, D MMMM YYYY [at] LT")} (${prettyMilliseconds(diff, {
-      compact: true,
-      secondsDecimalDigits: 0,
-    })} ago)`;
+    return (
+      <Tooltip content={createdTime.format("dddd, D MMMM YYYY [at] LT")} placement="bottom">{`${prettyMilliseconds(diff, {
+        compact: true,
+        secondsDecimalDigits: 0,
+      })} ago`}</Tooltip>
+    );
   }
 
   render() {

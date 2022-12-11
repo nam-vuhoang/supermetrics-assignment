@@ -14,7 +14,27 @@ export const getStaticProps: GetStaticProps = async (context) => {
 };
 
 function Blog(props: { posts: Post[] }) {
-  return <PostsView posts={props.posts} />;
+  return (
+    <>
+      <header>
+        <div className="main-header">
+          <div className="horizontal-line"></div>
+          <div id="header-panel">
+            <a href="/">
+              <img id="header-logo" src="assets/images/synergy-header-logo.svg" />
+            </a>
+            <div id="header-text">RENOVATION TOOL</div>
+          </div>
+        </div>
+      </header>
+      <section>
+        <div className="content">
+          <PostsView posts={props.posts} />;
+        </div>
+      </section>
+      ;
+    </>
+  );
 }
 
 export default Blog;
