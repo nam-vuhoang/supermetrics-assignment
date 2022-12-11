@@ -1,3 +1,4 @@
+import { Favorite } from "@mui/icons-material";
 import { GetStaticProps, InferGetStaticPropsType } from "next";
 import { PostsView } from "../components/posts-view";
 import { getRecentPosts } from "../lib/posts";
@@ -23,7 +24,9 @@ function Blog(props: { posts: Post[] }) {
             <a href="/">
               <img id="header-logo" src="assets/images/synergy-header-logo.svg" />
             </a>
-            <div id="header-text">RENOVATION TOOL</div>
+            <div id="header-text">
+              <h1><Favorite color="primary" /> HEARTBOOK <Favorite color="primary" /></h1>
+            </div>
           </div>
         </div>
       </header>

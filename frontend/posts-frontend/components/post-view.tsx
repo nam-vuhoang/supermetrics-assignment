@@ -3,6 +3,8 @@ import moment from "moment";
 import { Component } from "react";
 import { Post } from "../models/post";
 import { Button, Tooltip } from "@nextui-org/react";
+import { AccountBox } from "@mui/icons-material";
+import styles from "./post-view.module.scss";
 
 export class PostView extends Component<{ post: Post }, { showFull: boolean }> {
   static readonly MAX_SHORT_MESSAGE_LENGTH = 200;
@@ -53,11 +55,11 @@ export class PostView extends Component<{ post: Post }, { showFull: boolean }> {
 
     return (
       <div>
+        <AccountBox />
         <strong>{post.userName}</strong>
         <br />
         {this.formattedCreatedTime}
-        <br />
-        {showFull ? post.message : this.shortMessage}
+        <div className={styles.message}>{showFull ? post.message : this.shortMessage}</div>
         <br />
         <br />
       </div>

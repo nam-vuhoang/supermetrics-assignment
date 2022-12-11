@@ -8,28 +8,25 @@
 * Color codes
 ***********************************/
 
-//
-// SYNERGY template colors (see ../guideline/200901_SYNERGY_Profile and Style guide.pdf)
-//
-$color-dark-green: hsl(185, 56%, 34%); // #267d85;
-// $color-blue-green: hsl(187, 100%, 30%); // #008a9b;
-$color-deep-blue: hsl(185, 32%, 47%); // #51979d;
+// https://nextui.org/docs/theme/default-theme#colors
+// generic colors
+$white: #ffffff;
+$black: #000000;
 
-// $color-pink: hsl(331, 57%, 45%); // #b53272;
-// $color-anthracite: #515151;
-// $color-orange: hsl(28, 69%, 55%); // #db873c;
-// $color-turquoise: hsl(185, 75%, 66%); // #69dfea;
+// // background colors (light)
+$background: $white;
+$backgroundAlpha: "rgba(255, 255, 255, 0.8)"; // used for semi-transparent backgrounds like the navbar
+$foreground: "$black";
+$backgroundContrast: $white;
 
-$color-primary: $color-dark-green;
 
-// $color-acccent: $color-pink;
-
-$color-primary-lighter: $color-deep-blue;
+$color-primary: #0075F5;
+$color-primary-light: #96c1f2;
+$color-primary-lighter: #CEE4FE;
 $color-primary-low-saturation: rgba($color-primary, 0.9);
 
-// $color-primary-light: #b1d9dd;
 
-$color-accent: hsl(28, 100%, 63%); // ff9a42
+$color-accent: #7828C8;
 // $color-accent-lighter: hsl(28, 100%, 70%);
 
 
