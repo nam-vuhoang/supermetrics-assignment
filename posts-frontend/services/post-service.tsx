@@ -27,8 +27,10 @@ export class PostService {
       .then((response) => response.data.blog);
   }
 
-  async getPostCount(userId?: string): Promise<number> {
+  async getPageCount(pageSize: number, userId: string | null): Promise<number> {
     const userFilter = userId ? `userId: "${userId}"` : '';
+
+    logger.debug(`Fetching page count with filter {${userFilter}}`);
     const query = gql`
       query GetLastPostsFromAllUsers {
         blog(filter: { ${userFilter} }) {
@@ -37,20 +39,23 @@ export class PostService {
       }
     `;
 
-    return this.queryBlog(query).then((blog) => blog.size);
+    return this.queryBlog(query).then((blog) =>
+      Math.ceil(blog.size / pageSize)
+    );
   }
 
   async getPosts(
     pageIndex: number,
     pageSize: number,
-    userId?: string
+    userId: string | null
   ): Promise<any> {
     const pageFilter = `page: { index: ${pageIndex}, size: ${pageSize} }`;
     const userFilter = userId ? `, userId: "${userId}"` : '';
-    logger.debug(`Fetching posts with filter: ${pageFilter} ${userFilter}`);
+
+    logger.debug(`Fetching posts with filter {${pageFilter}${userFilter}}`);
     const query = gql`
       query GetLastPostsFromAllUsers {
-        blog(filter: { ${pageFilter} ${userFilter} }) {
+        blog(filter: { ${pageFilter}${userFilter} }) {
           posts {
             id
             userId

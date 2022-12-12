@@ -4,15 +4,15 @@ import React from 'react';
 import { BlogView } from '../components/blog-view';
 import { Post } from '../models/post';
 import { PostService } from '../services/post-service';
-import { logger } from '../utils/logger';
-
 
 const PAGE_SIZE = 15;
 
 interface PageProps {
-  posts?: Post[];
-  pageCount?: number;
-  error?: any;
+  posts: Post[];
+  userId: string | null;
+  pageNumber: number;
+  pageCount: number;
+  error: any;
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
@@ -25,25 +25,37 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     };
   }
 
+  const pageCount = Number(context.query.pageCount || '0');
+  if (isNaN(pageNumber)) {
+    return {
+      props: {
+        error: 'Invalid page count number',
+      },
+    };
+  }
+
   const { userId } = context.query;
-  const userFilter = Array.isArray(userId) ? userId[0] : userId;
+  const userFilter = userId
+    ? decodeURIComponent(Array.isArray(userId) ? userId[0] : userId)
+    : null;
   const posts$: Promise<Post[]> = PostService.getInstance().getPosts(
     pageNumber - 1,
     PAGE_SIZE,
     userFilter
   );
 
-  const maxPostCount$: Promise<number> = Promise.resolve(1000);
-    // PostService.getInstance().getPostCount(userFilter);
+  const pageCount$: Promise<number> = pageCount
+    ? Promise.resolve(pageCount)
+    : PostService.getInstance().getPageCount(PAGE_SIZE, userFilter);
 
-  return await Promise.all([posts$, maxPostCount$])
+  return await Promise.all([posts$, pageCount$])
     .then((result) => {
-      const posts = result[0];
-      const maxPostCount = result[1];
       return {
         props: {
-          posts,
-          pageCount: Math.ceil(maxPostCount / PAGE_SIZE),
+          posts: result[0],
+          pageCount: result[1],
+          pageNumber,
+          userId: userFilter,
         },
       };
     })
@@ -57,11 +69,15 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 };
 
 export default function Home(props: PageProps) {
-  const [page, setPage] = React.useState(1);
-  const { posts, pageCount, error } = props;
+  const { posts, pageNumber, pageCount, userId, error } = props;
 
   if (error) {
     return <Alert severity="error">{error}</Alert>;
+  }
+
+  let pageQuery = `pageCount=${pageCount}`;
+  if (userId) {
+    pageQuery += `&userId=${encodeURIComponent(userId)}`;
   }
 
   return (
@@ -74,13 +90,18 @@ export default function Home(props: PageProps) {
         alignItems="center"
       >
         <Pagination
+          page={pageNumber}
           count={pageCount}
-          page={page}
-          onChange={(_, page) => setPage(page)}
+          showFirstButton
+          showLastButton
           renderItem={(item) => (
             <PaginationItem
               component={Link}
-              href={`/${item.page === 1 ? '' : `?page=${item.page}`}`}
+              href={`/${
+                item.page === 1
+                  ? `?${pageQuery}`
+                  : `?page=${item.page}&${pageQuery}`
+              }`}
               {...item}
             />
           )}
