@@ -1,7 +1,6 @@
-import Link from "next/link";
-import { Component } from "react";
-import { Post } from "../models/post";
-import { PostView } from "./post-view";
+import { Component } from 'react';
+import { Post } from '../models/post';
+import { PostView } from './post-view';
 import { Box, Grid } from '@mui/material';
 
 export class PostsView extends Component<{ posts: Post[] }> {
@@ -10,14 +9,13 @@ export class PostsView extends Component<{ posts: Post[] }> {
     return (
       <div>
         <Box sx={{ flexGrow: 1 }}>
-        <Grid container spacing={6}>
-          {posts.map((p) => (
-            <Grid key={p.id} item xs={4}>
-               <PostView post={p}></PostView>
-            </Grid>
-          ))}
-        </Grid>
-
+          <Grid container spacing={6}>
+            {posts.map((p) => (
+              <Grid item key={p.id} xs={4}>
+                <PostView post={p} />
+              </Grid>
+            ))}
+          </Grid>
         </Box>
       </div>
     );
