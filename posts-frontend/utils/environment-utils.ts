@@ -3,8 +3,9 @@ import { env } from "process";
 export const ENVIRONMENT_FILE_PATH = 'env/configuration.env';
 
 export function requireStringEnvParam(name: string): string {
-  if (env[name]) {
-    return env[name];
+  const value = env[name];
+  if (value) {
+    return value;
   }
   throw new EvalError(`Param '${name}' in configuration file '${ENVIRONMENT_FILE_PATH}' is undefined .`);
 }
