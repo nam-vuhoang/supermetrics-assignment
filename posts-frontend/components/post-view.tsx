@@ -1,4 +1,3 @@
-import prettyMilliseconds from 'pretty-ms';
 import moment from 'moment';
 import { Component } from 'react';
 import { Post } from '../models/post';
@@ -48,10 +47,7 @@ export class PostView extends Component<
     const createdTime = moment(this.props.post.createdTime);
     const createdTimeString = createdTime.format('dddd, D MMMM YYYY [at] LT');
     const diff = moment().diff(createdTime);
-    const diffString = prettyMilliseconds(diff, {
-      compact: true,
-      secondsDecimalDigits: 0,
-    });
+    const diffString = moment.duration(diff).humanize();
 
     return (
       <>
