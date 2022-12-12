@@ -3,10 +3,10 @@ import moment from 'moment';
 import { Component } from 'react';
 import { Post } from '../models/post';
 import { AccountBox, AccessTime, Visibility } from '@mui/icons-material';
-import { IconButton, Tooltip, Typography } from '@mui/material';
+import { Grid, IconButton, Tooltip, Typography } from '@mui/material';
 
 export class PostView extends Component<{ post: Post }, { showFull: boolean }> {
-  static readonly MAX_SHORT_MESSAGE_LENGTH = 250;
+  static readonly MAX_SHORT_MESSAGE_LENGTH = 150;
   state = { showFull: false };
 
   private formatShortMessage(): string | JSX.Element {
@@ -66,17 +66,31 @@ export class PostView extends Component<{ post: Post }, { showFull: boolean }> {
       // https://mui.com/material-ui/icons/
       // List of icons: https://mui.com/material-ui/material-icons/
       <div>
-        <AccountBox fontSize="large" />
-        <strong>{post.userName}</strong>
-        <br />
-        {/* {post.type === "status" ? <ChatBubbleOutline fontSize="small" /> : <ChatBubbleOutline fontSize="small" />} */}
+        <Grid container direction="row" alignItems="center">
+          <Grid item>
+            <Tooltip title={post.userName}>
+              <AccountBox color="primary" fontSize="large" />
+            </Tooltip>
+          </Grid>
+          <Grid item>
+            <Typography
+              variant="caption"
+              fontSize="large"
+              color="primary"
+              fontWeight="bold"
+              gutterBottom
+            >
+              {post.userName}
+            </Typography>
+          </Grid>
+        </Grid>
         {this.formatCreatedTime()}
 
         <Typography
           variant="body1"
           align="justify"
-          gutterBottom
           fontStyle="italic"
+          gutterBottom
         >
           {showFull ? post.message : this.formatShortMessage()}
         </Typography>

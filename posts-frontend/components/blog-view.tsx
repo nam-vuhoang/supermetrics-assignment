@@ -8,7 +8,7 @@ export class BlogView extends Component<{ posts: Post[]; page: PageFilter }> {
     const { posts, page } = this.props;
     return (
       <div>
-        <PostsView posts={posts} />
+        <PostsView posts={posts} />        
       </div>
     );
   }
