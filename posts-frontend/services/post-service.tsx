@@ -3,6 +3,7 @@ import { NormalizedCacheObject } from '@apollo/client/cache';
 import { DocumentNode } from '@apollo/client/core';
 import { environment } from '../environment/environment';
 import { Blog } from '../models/blog';
+import { UserStats } from '../models/user-stats';
 import { logger } from '../utils/logger';
 
 export class PostService {
@@ -69,5 +70,28 @@ export class PostService {
     `;
 
     return this.queryBlog(query).then((blog) => blog.posts);
+  }
+
+  async getStats(): Promise<UserStats[]> {
+    logger.debug('Fetching user stats');
+    const query = gql`
+      query GetStats {
+        blog {
+          stats {
+            userId
+            userName
+            averageLength
+            maxLength
+            totalCount
+            frequencies {
+              month
+              count
+            }
+          }
+        }
+      }
+    `;
+
+    return this.queryBlog(query).then((blog) => blog.stats);
   }
 }

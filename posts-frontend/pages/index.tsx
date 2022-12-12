@@ -1,3 +1,4 @@
+import { ApolloError } from '@apollo/client';
 import {
   Alert,
   Box,
@@ -11,6 +12,7 @@ import React from 'react';
 import { BlogView } from '../components/blog-view';
 import { Post } from '../models/post';
 import { PostService } from '../services/post-service';
+import { logger } from '../utils/logger';
 
 const PAGE_SIZE = 15;
 
@@ -67,11 +69,16 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       };
     })
     .catch((error) => {
-      return {
-        props: {
-          error,
-        },
-      };
+      logger.error(error);
+      if (error instanceof ApolloError) {
+        const apolloError = error as ApolloError;
+        return {
+          props: {
+            error: `${apolloError.message}. ${JSON.stringify(apolloError)}`,
+          },
+        };
+      }
+      return { props: { error: `Unexpected error: JSON.stringify(error)` } };
     });
 };
 
