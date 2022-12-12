@@ -4,5 +4,5 @@ export interface Post {
   userName: string;
   message: string;
   type: string;
-  createdTime: number | Date;
+  createdTime: number; // | Date
 }

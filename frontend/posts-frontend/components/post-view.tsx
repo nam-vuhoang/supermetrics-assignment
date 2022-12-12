@@ -3,7 +3,7 @@ import moment from "moment";
 import { Component } from "react";
 import { Post } from "../models/post";
 import { Button, Tooltip } from "@nextui-org/react";
-import { AccountBox } from "@mui/icons-material";
+import { AccountBox, AccessTime } from "@mui/icons-material";
 import styles from "./post-view.module.scss";
 
 export class PostView extends Component<{ post: Post }, { showFull: boolean }> {
@@ -11,7 +11,7 @@ export class PostView extends Component<{ post: Post }, { showFull: boolean }> {
   state = { showFull: false };
 
   private get formattedShortMessage() {
-    const message = this.props.post.message;
+    const { message } = this.props.post;
     if (message.length <= PostView.MAX_SHORT_MESSAGE_LENGTH) {
       return message;
     }
@@ -22,7 +22,7 @@ export class PostView extends Component<{ post: Post }, { showFull: boolean }> {
     }
 
     return (
-      <>      
+      <>
         {`${shortMessage} ... `}
         <a href="#" onClick={() => this.setState({ showFull: true })}>
           See more
@@ -32,15 +32,17 @@ export class PostView extends Component<{ post: Post }, { showFull: boolean }> {
   }
 
   private get formattedCreatedTime() {
-    // TODO: display as tooltip
     const createdTime = moment(this.props.post.createdTime);
     const diff = moment().diff(createdTime);
 
     return (
-      <Tooltip content={createdTime.format("dddd, D MMMM YYYY [at] LT")} placement="right">{`${prettyMilliseconds(diff, {
-        compact: true,
-        secondsDecimalDigits: 0,
-      })} ago`}</Tooltip>
+      <Tooltip content={createdTime.format("dddd, D MMMM YYYY [at] LT")} placement="right">
+        <AccessTime sx={{ fontSize: 14 }} />
+        {`${prettyMilliseconds(diff, {
+          compact: true,
+          secondsDecimalDigits: 0,
+        })} ago`}
+      </Tooltip>
     );
   }
 
@@ -50,10 +52,13 @@ export class PostView extends Component<{ post: Post }, { showFull: boolean }> {
     const { showFull } = this.state;
 
     return (
+      // https://mui.com/material-ui/icons/
+      // List of icons: https://mui.com/material-ui/material-icons/
       <div>
-        <AccountBox />
+        <AccountBox fontSize="large" />
         <strong>{post.userName}</strong>
         <br />
+        {/* {post.type === "status" ? <ChatBubbleOutline fontSize="small" /> : <ChatBubbleOutline fontSize="small" />} */}
         {this.formattedCreatedTime}
         <div className={styles.message}>{showFull ? post.message : this.formattedShortMessage}</div>
         <br />
