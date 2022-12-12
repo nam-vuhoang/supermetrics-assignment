@@ -1,0 +1,6 @@
+archive/pages/_app.tsx
+archive/pages/_document.tsx
+archive/pages/home.tsx
+archive/pages/index.tsx
+archive/pages/api/hello.ts
+archive/services/post-service.tsx
