@@ -1,9 +1,9 @@
 import { sortArray } from '../utils/utils';
-import { UserPost } from './user-post';
+import { Post } from './post';
 import { UserStats } from './user-stats';
 
-export class UserPostCollection {
-  constructor(public posts: UserPost[]) {}
+export class Blog {
+  constructor(public posts: Post[]) {}
 
   get size(): number {
     return this.posts.length;

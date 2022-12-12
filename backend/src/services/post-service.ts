@@ -1,16 +1,16 @@
 import { RESTDataSource } from '@apollo/datasource-rest';
 import { GraphQLContext } from '../graphql/graphql-context';
-import { UserPost } from '../models/user-post';
+import { Post } from '../models/post';
 import { HttpResponse } from '../models/http-response';
 import { logger } from '../utils/logger';
 import { GraphQLError } from 'graphql';
 import { StatusCodes } from 'http-status-codes';
-import { UserPostFilter } from '../models/user-post-filter';
-import { UserPostCollection } from '../models/user-post-collection';
+import { PostFilter } from '../models/post-filter';
+import { Blog } from '../models/blog';
 import { PageFilter } from '../models/page-filter';
 import { sortArray } from '../utils/utils';
 
-interface RawUserPost {
+interface RawPost {
   id: string;
   from_id: string;
   from_name: string;
@@ -21,10 +21,10 @@ interface RawUserPost {
 
 interface RawPostData {
   page: number;
-  posts: Array<RawUserPost>;
+  posts: Array<RawPost>;
 }
 
-export class UserPostService extends RESTDataSource {
+export class PostService extends RESTDataSource {
   static readonly REQUEST_PATH = 'posts';
 
   private context: GraphQLContext;
@@ -49,7 +49,7 @@ export class UserPostService extends RESTDataSource {
     pageIndex: number,
     userId: string | undefined,
     retryIfUnauthorized: boolean
-  ): Promise<RawUserPost[]> {
+  ): Promise<RawPost[]> {
     if (pageIndex < 0 || pageIndex >= this.pageCount) {
       throw new GraphQLError('Invalid argument value', {
         extensions: {
@@ -62,7 +62,7 @@ export class UserPostService extends RESTDataSource {
     const pageNumber = pageIndex + 1;
     logger.debug('Fetching posts from page %d', pageNumber);
 
-    let rawPosts$: Promise<RawUserPost[]> = this.get<HttpResponse<RawPostData>>(UserPostService.REQUEST_PATH, {
+    let rawPosts$: Promise<RawPost[]> = this.get<HttpResponse<RawPostData>>(PostService.REQUEST_PATH, {
       params: {
         sl_token: await this.context.authenticationService.getToken(),
         page: pageNumber.toString(),
@@ -102,7 +102,7 @@ export class UserPostService extends RESTDataSource {
    * @param filter 
    * @returns 
    */
-  async fetchPosts(filter?: UserPostFilter): Promise<UserPostCollection> | null {
+  async fetchPosts(filter?: PostFilter): Promise<Blog> | null {
     logger.info('Fetching posts with filter %s', JSON.stringify(filter));
 
     const { userId, page, sortByCreatedTimeAsc } = filter || {};
@@ -110,12 +110,12 @@ export class UserPostService extends RESTDataSource {
     // Get all raw posts from all pages
     logger.info('Fetching all posts from %d pages', this.pageCount);
     const pageIndexes: number[] = Array.from(Array(this.pageCount).keys()); // from 0 to N-1;
-    let pages$: Promise<RawUserPost[]>[] = pageIndexes.map((pageIndex) =>
+    let pages$: Promise<RawPost[]>[] = pageIndexes.map((pageIndex) =>
       this.fetchRawPostsByPageAndUser(pageIndex, userId, true)
     );
 
     // Merge pages and normalize posts
-    const posts$: Promise<UserPost[]> = Promise.all(pages$).then((rawPosts) =>
+    const posts$: Promise<Post[]> = Promise.all(pages$).then((rawPosts) =>
       rawPosts.flat().map((p) => {
         return {
           id: p.id,
@@ -129,21 +129,21 @@ export class UserPostService extends RESTDataSource {
     );
 
     // Sort and paginate if needed
-    return posts$.then((posts) => UserPostService.sortAndPaginate(posts, page, sortByCreatedTimeAsc));
+    return posts$.then((posts) => PostService.sortAndPaginate(posts, page, sortByCreatedTimeAsc));
   }
 
   /**
-   * Create a UserPostCollection, sort and paginate if needed.
+   * Create a PostCollection, sort and paginate if needed.
    * @param posts 
    * @param pageFilter 
    * @param sortByCreatedTimeAsc 
    * @returns 
    */
   private static sortAndPaginate(
-    posts: UserPost[],
+    posts: Post[],
     pageFilter?: PageFilter,
     sortByCreatedTimeAsc?: boolean
-  ): UserPostCollection {
+  ): Blog {
     if (pageFilter || sortByCreatedTimeAsc !== undefined) {
       // reverse order if sortByCreatedTimeAsc is undefined or false
       posts = sortArray(posts, (p) => p.createdTime.getTime(), !sortByCreatedTimeAsc);
@@ -156,6 +156,6 @@ export class UserPostService extends RESTDataSource {
     }
 
     logger.debug('Returning %d posts', posts.length);
-    return new UserPostCollection(posts);
+    return new Blog(posts);
   }
 }

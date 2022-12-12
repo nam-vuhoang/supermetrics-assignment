@@ -7,14 +7,10 @@ import { AccountBox } from "@mui/icons-material";
 import styles from "./post-view.module.scss";
 
 export class PostView extends Component<{ post: Post }, { showFull: boolean }> {
-  static readonly MAX_SHORT_MESSAGE_LENGTH = 200;
+  static readonly MAX_SHORT_MESSAGE_LENGTH = 250;
   state = { showFull: false };
 
-  private setShowFull() {
-    this.setState({ showFull: true });
-  }
-
-  private get shortMessage() {
+  private get formattedShortMessage() {
     const message = this.props.post.message;
     if (message.length <= PostView.MAX_SHORT_MESSAGE_LENGTH) {
       return message;
@@ -26,9 +22,9 @@ export class PostView extends Component<{ post: Post }, { showFull: boolean }> {
     }
 
     return (
-      <>
-        {shortMessage + " ... "}
-        <a href="#" onClick={() => this.setShowFull()}>
+      <>      
+        {`${shortMessage} ... `}
+        <a href="#" onClick={() => this.setState({ showFull: true })}>
           See more
         </a>
       </>
@@ -41,7 +37,7 @@ export class PostView extends Component<{ post: Post }, { showFull: boolean }> {
     const diff = moment().diff(createdTime);
 
     return (
-      <Tooltip content={createdTime.format("dddd, D MMMM YYYY [at] LT")} placement="bottom">{`${prettyMilliseconds(diff, {
+      <Tooltip content={createdTime.format("dddd, D MMMM YYYY [at] LT")} placement="right">{`${prettyMilliseconds(diff, {
         compact: true,
         secondsDecimalDigits: 0,
       })} ago`}</Tooltip>
@@ -59,7 +55,7 @@ export class PostView extends Component<{ post: Post }, { showFull: boolean }> {
         <strong>{post.userName}</strong>
         <br />
         {this.formattedCreatedTime}
-        <div className={styles.message}>{showFull ? post.message : this.shortMessage}</div>
+        <div className={styles.message}>{showFull ? post.message : this.formattedShortMessage}</div>
         <br />
         <br />
       </div>

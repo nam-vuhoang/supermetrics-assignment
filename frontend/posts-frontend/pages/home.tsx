@@ -3,9 +3,11 @@ import { GetStaticProps, InferGetStaticPropsType } from "next";
 import { PostsView } from "../components/posts-view";
 import { getRecentPosts } from "../lib/posts";
 import { Post } from "../models/post";
+import { PostService } from "../services/post-service";
 
 export const getStaticProps: GetStaticProps = async (context) => {
-  const posts: Post[] = getRecentPosts();
+  // const posts: Post[] = getRecentPosts();
+  const posts = await PostService.getInstance().getLastPosts(10);
 
   return {
     props: {
@@ -20,10 +22,7 @@ function Blog(props: { posts: Post[] }) {
       <header>
         <div className="main-header">
           <div className="horizontal-line"></div>
-          <div id="header-panel">
-            <a href="/">
-              <img id="header-logo" src="assets/images/synergy-header-logo.svg" />
-            </a>
+          <div id="header-panel">            
             <div id="header-text">
               <h1><Favorite color="primary" /> HEARTBOOK <Favorite color="primary" /></h1>
             </div>

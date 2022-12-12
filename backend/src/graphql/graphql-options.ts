@@ -1,23 +1,23 @@
 import gql from 'graphql-tag';
 import { GraphQLScalarType, Kind } from 'graphql';
 import { environment } from '../environment/environment';
-import { UserPostFilter } from '../models/user-post-filter';
-import { UserPostService } from '../services/user-post-service';
+import { PostFilter } from '../models/post-filter';
+import { PostService } from '../services/post-service';
 import { GraphQLContext } from './graphql-context';
 
 export const graphQLOptions = {
   typeDefs: gql`
     type Query {
-      userPosts(filter: UserPostFilter): UserPostCollection
+      blog(filter: PostFilter): Blog
     }
 
-    type UserPostCollection {
+    type Blog {
       size: Int!
-      posts: [UserPost!]!
+      posts: [Post!]!
       stats: [UserStats!]!
     }
 
-    type UserPost {
+    type Post {
       id: ID!
       userId: ID!
       userName: String!
@@ -40,7 +40,7 @@ export const graphQLOptions = {
       count: Int!
     }
 
-    input UserPostFilter {
+    input PostFilter {
       userId: ID
       page: PageFilter
       sortByCreatedTimeAsc: Boolean
@@ -82,8 +82,8 @@ export const graphQLOptions = {
     }),
 
     Query: {
-      userPosts(_: any, args: { filter: UserPostFilter }, context: GraphQLContext) {
-        return new UserPostService(
+      blog(_: any, args: { filter: PostFilter }, context: GraphQLContext) {
+        return new PostService(
           context,
           environment.dataServer.baseUrl,
           environment.dataServer.pageCount

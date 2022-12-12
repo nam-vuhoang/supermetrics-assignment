@@ -1,6 +1,5 @@
 import { ApolloServer } from '@apollo/server';
 import { startStandaloneServer } from '@apollo/server/standalone';
-import { UserPostService } from '../services/user-post-service';
 import { AuthenticationService } from '../services/authentication-service';
 import { environment } from '../environment/environment';
 import { GraphQLContext } from './graphql-context';
