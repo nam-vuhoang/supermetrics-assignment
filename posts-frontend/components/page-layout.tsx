@@ -15,7 +15,7 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import Link from '@mui/material/Link';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { Diversity1 } from '@mui/icons-material';
+import { Diversity1, FormatQuote } from '@mui/icons-material';
 import styles from '../styles/Layout.module.scss';
 import Head from 'next/head';
 
@@ -55,8 +55,8 @@ export default function PageLayout(props: { children: any }) {
             </Typography>
           </Toolbar>
         </AppBar>
+        {/* Main */}
         <main>
-          {/* Hero unit */}
           <Box
             sx={{
               bgcolor: 'background.paper',
@@ -64,33 +64,8 @@ export default function PageLayout(props: { children: any }) {
               pb: 6,
             }}
           >
-            <Container maxWidth="sm">
-              <Typography
-                component="h1"
-                variant="h4"
-                align="center"
-                color="text.primary"
-                gutterBottom
-              >
-                You Share Means You Care
-              </Typography>
-              {/* <Typography variant="h5" align="center" color="text.secondary" paragraph>
-              Something short and leading about the collection below—its contents,
-              the creator, etc. Make it short and sweet, but not too short so folks
-              don&apos;t simply skip over it entirely.
-            </Typography> */}
-              {/* <Stack
-              sx={{ pt: 4 }}
-              direction="row"
-              spacing={2}
-              justifyContent="center"
-            >
-              <Button variant="contained">Main call to action</Button>
-              <Button variant="outlined">Secondary action</Button>
-            </Stack> */}
-            </Container>
+            <Container fixed>{props.children}</Container>
           </Box>
-          {props.children}
         </main>
         {/* Footer */}
         <footer>
