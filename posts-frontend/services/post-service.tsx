@@ -27,6 +27,19 @@ export class PostService {
       .then((response) => response.data.blog);
   }
 
+  async getPostCount(userId?: string): Promise<number> {
+    const userFilter = userId ? `userId: "${userId}"` : '';
+    const query = gql`
+      query GetLastPostsFromAllUsers {
+        blog(filter: { ${userFilter} }) {
+          size
+        }
+      }
+    `;
+
+    return this.queryBlog(query).then((blog) => blog.size);
+  }
+
   async getPosts(
     pageIndex: number,
     pageSize: number,

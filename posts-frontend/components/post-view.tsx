@@ -93,13 +93,10 @@ export class PostView extends Component<
   }
 
   render() {
-    // const [isMounted, setIsMounted] = useState(false);
     const { post } = this.props;
     const { displayFull } = this.state;
 
     return (
-      // https://mui.com/material-ui/icons/
-      // List of icons: https://mui.com/material-ui/material-icons/
       <Card>
         <CardHeader
           avatar={MaterialUtils.formatAvatar(post.userName)}
