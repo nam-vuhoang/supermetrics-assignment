@@ -9,7 +9,7 @@ export class PostsView extends Component<{ posts: Post[] }> {
     return (
       <div>
         <Box sx={{ flexGrow: 1 }}>
-          <Grid container spacing={6}>
+          <Grid container columnSpacing={4} rowSpacing={6}>
             {posts.map((p) => (
               <Grid item key={p.id} xs={4}>
                 <PostView post={p} />

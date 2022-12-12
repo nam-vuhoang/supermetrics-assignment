@@ -1,4 +1,11 @@
-import { Alert, Box, Link, Pagination, PaginationItem } from '@mui/material';
+import {
+  Alert,
+  Box,
+  Link,
+  Pagination,
+  PaginationItem,
+  PaginationRenderItemParams,
+} from '@mui/material';
 import { GetServerSideProps } from 'next';
 import React from 'react';
 import { BlogView } from '../components/blog-view';
@@ -75,9 +82,9 @@ export default function Home(props: PageProps) {
     return <Alert severity="error">{error}</Alert>;
   }
 
-  let pageQuery = `pageCount=${pageCount}`;
+  let href = `?pageCount=${pageCount}`;
   if (userId) {
-    pageQuery += `&userId=${encodeURIComponent(userId)}`;
+    href += `&userId=${encodeURIComponent(userId)}`;
   }
 
   return (
@@ -97,11 +104,7 @@ export default function Home(props: PageProps) {
           renderItem={(item) => (
             <PaginationItem
               component={Link}
-              href={`/${
-                item.page === 1
-                  ? `?${pageQuery}`
-                  : `?page=${item.page}&${pageQuery}`
-              }`}
+              href={href + (item.page === 1 ? '' : `&page=${item.page}`)}
               {...item}
             />
           )}
