@@ -3,6 +3,7 @@ import { NormalizedCacheObject } from '@apollo/client/cache';
 import { DocumentNode } from '@apollo/client/core';
 import { environment } from '../environment/environment';
 import { Blog } from '../models/blog';
+import { logger } from '../utils/logger';
 
 export class PostService {
   private static readonly instance = new PostService();
@@ -46,6 +47,7 @@ export class PostService {
   ): Promise<any> {
     const pageFilter = `page: { index: ${pageIndex}, size: ${pageSize} }`;
     const userFilter = userId ? `, userId: "${userId}"` : '';
+    logger.debug(`Fetching posts with filter: ${pageFilter} ${userFilter}`);
     const query = gql`
       query GetLastPostsFromAllUsers {
         blog(filter: { ${pageFilter} ${userFilter} }) {

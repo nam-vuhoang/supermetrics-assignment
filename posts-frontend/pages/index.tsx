@@ -1,11 +1,11 @@
-import { Alert, Box, Pagination } from '@mui/material';
-import { Container } from '@mui/system';
-import { GetServerSideProps, GetStaticProps } from 'next';
-import React, { useEffect } from 'react';
+import { Alert, Box, Link, Pagination, PaginationItem } from '@mui/material';
+import { GetServerSideProps } from 'next';
+import React from 'react';
 import { BlogView } from '../components/blog-view';
 import { Post } from '../models/post';
 import { PostService } from '../services/post-service';
 import { logger } from '../utils/logger';
+
 
 const PAGE_SIZE = 15;
 
@@ -13,14 +13,6 @@ interface PageProps {
   posts?: Post[];
   pageCount?: number;
   error?: any;
-}
-
-async function getPagePosts(
-  pageIndex: number,
-  userId?: string
-): Promise<Post[]> {
-  logger.debug(`Fetching page ${pageIndex}`);
-  return PostService.getInstance().getPosts(pageIndex, PAGE_SIZE, userId);
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
@@ -41,8 +33,8 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     userFilter
   );
 
-  const maxPostCount$: Promise<number> =
-    PostService.getInstance().getPostCount(userFilter);
+  const maxPostCount$: Promise<number> = Promise.resolve(1000);
+    // PostService.getInstance().getPostCount(userFilter);
 
   return await Promise.all([posts$, maxPostCount$])
     .then((result) => {
@@ -85,6 +77,13 @@ export default function Home(props: PageProps) {
           count={pageCount}
           page={page}
           onChange={(_, page) => setPage(page)}
+          renderItem={(item) => (
+            <PaginationItem
+              component={Link}
+              href={`/${item.page === 1 ? '' : `?page=${item.page}`}`}
+              {...item}
+            />
+          )}
         />
       </Box>
     </>
