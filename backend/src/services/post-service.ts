@@ -48,7 +48,7 @@ export class PostService extends RESTDataSource {
   private async fetchRawPostsByPageAndUser(
     pageIndex: number,
     userId: string | undefined,
-    retryIfUnauthorized: boolean
+    retryCount: number = 0
   ): Promise<RawPost[]> {
     if (pageIndex < 0 || pageIndex >= this.pageCount) {
       throw new GraphQLError('Invalid argument value', {
@@ -83,24 +83,25 @@ export class PostService extends RESTDataSource {
         return data.posts;
       })
       .catch((error: GraphQLError) => {
-        if (retryIfUnauthorized && (<any>error.extensions?.response)?.status === StatusCodes.UNAUTHORIZED) {
+        if ((<any>error.extensions?.response)?.status === StatusCodes.UNAUTHORIZED && retryCount < 5) {
           logger.warn('Re-fetching posts from page %d due to expired SL token', pageNumber);
-          // retry again with new token, but without user filter.
+
+          // notify authentication service about token expiration
           this.context.authenticationService.notifyTokenExpired();
-          return this.fetchRawPostsByPageAndUser(pageIndex, undefined, false);
+
+          // retry again (without any filter)
+          return this.fetchRawPostsByPageAndUser(pageIndex, undefined, ++retryCount);
         }
         throw error;
       });
 
-    return userId
-            ? rawPosts$.then((posts) => posts.filter((p) => p.from_id === userId))
-            : rawPosts$;
+    return userId ? rawPosts$.then((posts) => posts.filter((p) => p.from_id === userId)) : rawPosts$;
   }
 
   /**
    * Fetchs all user posts filtered by userId with sorting and pagination if required.
-   * @param filter 
-   * @returns 
+   * @param filter
+   * @returns
    */
   async fetchPosts(filter?: PostFilter): Promise<Blog> | null {
     logger.info('Fetching posts with filter %s', JSON.stringify(filter));
@@ -111,7 +112,7 @@ export class PostService extends RESTDataSource {
     logger.info('Fetching all posts from %d pages', this.pageCount);
     const pageIndexes: number[] = Array.from(Array(this.pageCount).keys()); // from 0 to N-1;
     let pages$: Promise<RawPost[]>[] = pageIndexes.map((pageIndex) =>
-      this.fetchRawPostsByPageAndUser(pageIndex, userId, true)
+      this.fetchRawPostsByPageAndUser(pageIndex, userId)
     );
 
     // Merge pages and normalize posts
@@ -134,16 +135,12 @@ export class PostService extends RESTDataSource {
 
   /**
    * Create a PostCollection, sort and paginate if needed.
-   * @param posts 
-   * @param pageFilter 
-   * @param sortByCreatedTimeAsc 
-   * @returns 
+   * @param posts
+   * @param pageFilter
+   * @param sortByCreatedTimeAsc
+   * @returns
    */
-  private static sortAndPaginate(
-    posts: Post[],
-    pageFilter?: PageFilter,
-    sortByCreatedTimeAsc?: boolean
-  ): Blog {
+  private static sortAndPaginate(posts: Post[], pageFilter?: PageFilter, sortByCreatedTimeAsc?: boolean): Blog {
     if (pageFilter || sortByCreatedTimeAsc !== undefined) {
       // reverse order if sortByCreatedTimeAsc is undefined or false
       posts = sortArray(posts, (p) => p.createdTime.getTime(), !sortByCreatedTimeAsc);

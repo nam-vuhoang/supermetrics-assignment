@@ -7,9 +7,11 @@ import { logger } from '../utils/logger';
 
 export class AuthenticationService extends RESTDataSource {
   static readonly REQUEST_PATH = 'register';
+  static readonly MIN_TOKEN_EXPIRATION_DURATION = 5 * 60 * 1000; // 5 mins (in ms)
 
   private token$?: Promise<string>;
-  private isTokenExpired?: boolean;
+  private tokenUpdatedTime?: number;
+  private isTokenExpired: boolean;
 
   constructor(public baseURL: string, private clientInfo: ClientInfo) {
     super();
@@ -23,6 +25,7 @@ export class AuthenticationService extends RESTDataSource {
         body: this.clientInfo,
       }).then((response) => response.data.sl_token);
 
+      this.tokenUpdatedTime = Date.now();
       this.isTokenExpired = false;
     }
 
@@ -30,6 +33,7 @@ export class AuthenticationService extends RESTDataSource {
   }
 
   notifyTokenExpired(): void {
-    this.isTokenExpired = true;
+    // wait at least a certain period before refreshing token
+     this.isTokenExpired ||= Date.now() - this.tokenUpdatedTime > AuthenticationService.MIN_TOKEN_EXPIRATION_DURATION;
   }
 }
