@@ -5,8 +5,8 @@ import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
 
 import type { AppProps } from "next/app";
-import Layout from "../app/Layout";
-import PageLayout from "../app/PageLayout";
+// import Layout from "../app/Layout";
+import PageLayout from "../components/page-layout";
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
