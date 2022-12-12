@@ -17,21 +17,30 @@ import {
   Grid,
   IconButton,
   IconButtonProps,
+  Link,
   Tooltip,
   Typography,
 } from '@mui/material';
 import { MaterialUtils } from '../utils/material/material-utils';
 
-export class PostView extends Component<{ post: Post }, { displayFull: boolean }> {
+export class PostView extends Component<
+  { post: Post },
+  { displayFull: boolean }
+> {
   static readonly MAX_SHORT_MESSAGE_LENGTH = 150;
   state = { displayFull: false };
 
   private formatCaption(): JSX.Element {
-    const { userName } = this.props.post;
+    const { userId, userName } = this.props.post;
     return (
-      <Typography variant="body1" fontWeight="bold">
+      <Link
+        href={`?userId=${userId}`}
+        variant="body1"
+        fontWeight="bold"
+        underline="hover"
+      >
         {userName}
-      </Typography>
+      </Link>
     );
   }
 

@@ -27,10 +27,16 @@ export class PostService {
       .then((response) => response.data.blog);
   }
 
-  async getPosts(pageIndex: number, pageSize: number): Promise<any> {
+  async getPosts(
+    pageIndex: number,
+    pageSize: number,
+    userId?: string
+  ): Promise<any> {
+    const pageFilter = `page: { index: ${pageIndex}, size: ${pageSize} }`;
+    const userFilter = userId ? `, userId: "${userId}"` : '';
     const query = gql`
       query GetLastPostsFromAllUsers {
-        blog(filter: { page: { index: ${pageIndex}, size: ${pageSize} } }) {
+        blog(filter: { ${pageFilter} ${userFilter} }) {
           posts {
             id
             userId
