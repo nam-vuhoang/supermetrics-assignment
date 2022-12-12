@@ -1,14 +1,6 @@
-import dotenv from 'dotenv';
-import {
-  ENVIRONMENT_FILE_PATH,
-  requireStringEnvParam,
-} from '../utils/environment-utils';
+import { requireStringEnvParam } from '../utils/environment-utils';
 
-function loadConfig() {
-  dotenv.config({ path: ENVIRONMENT_FILE_PATH });
-  return {
-    backendUrl: requireStringEnvParam('BACKEND_URL'),
-  };
-}
-
-export const environment = loadConfig();
+export const environment = {
+  appName: process.env.APP_NAME!, // requireStringEnvParam('APP_NAME'),
+  backendUrl: process.env.BACKEND_URL!, // requireStringEnvParam('BACKEND_URL'),
+};

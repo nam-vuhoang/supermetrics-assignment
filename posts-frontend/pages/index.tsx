@@ -1,4 +1,4 @@
-import { Box, Pagination } from '@mui/material';
+import { Alert, Box, Pagination } from '@mui/material';
 import { Container } from '@mui/system';
 import { GetServerSideProps, GetStaticProps } from 'next';
 import React, { useEffect } from 'react';
@@ -10,9 +10,9 @@ import { logger } from '../utils/logger';
 const PAGE_SIZE = 15;
 
 interface PageProps {
-  posts: Post[];
+  posts?: Post[];
   pageCount?: number;
-  error?: string;
+  error?: any;
 }
 
 async function getPagePosts(
@@ -28,39 +28,59 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   if (isNaN(pageNumber)) {
     return {
       props: {
-        posts: [],
         error: 'Invalid page number',
       },
     };
   }
 
   const { userId } = context.query;
-  const posts = await getPagePosts(
+  const userFilter = Array.isArray(userId) ? userId[0] : userId;
+  const posts$: Promise<Post[]> = PostService.getInstance().getPosts(
     pageNumber - 1,
-    Array.isArray(userId) ? userId[0] : userId
+    PAGE_SIZE,
+    userFilter
   );
 
-  const maxPostCount = await PostService.getInstance().getPostCount(
-    Array.isArray(userId) ? userId[0] : userId
-  );
+  const maxPostCount$: Promise<number> =
+    PostService.getInstance().getPostCount(userFilter);
 
-  return {
-    props: {
-      posts,
-      pageCount: Math.ceil(maxPostCount / PAGE_SIZE),
-    },
-  };
+  return await Promise.all([posts$, maxPostCount$])
+    .then((result) => {
+      const posts = result[0];
+      const maxPostCount = result[1];
+      return {
+        props: {
+          posts,
+          pageCount: Math.ceil(maxPostCount / PAGE_SIZE),
+        },
+      };
+    })
+    .catch((error) => {
+      return {
+        props: {
+          error,
+        },
+      };
+    });
 };
 
 export default function Home(props: PageProps) {
   const [page, setPage] = React.useState(1);
   const { posts, pageCount, error } = props;
 
-  // TODO: Show error if any
+  if (error) {
+    return <Alert severity="error">{error}</Alert>;
+  }
+
   return (
     <>
-      <BlogView posts={posts} />
-      <Box sx={{ pt: 6 }} display="flex" justifyContent="center" alignItems="center">
+      <BlogView posts={posts || []} />
+      <Box
+        sx={{ pt: 6 }}
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+      >
         <Pagination
           count={pageCount}
           page={page}

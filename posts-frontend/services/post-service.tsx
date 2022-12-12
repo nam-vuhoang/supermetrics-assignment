@@ -3,7 +3,6 @@ import { NormalizedCacheObject } from '@apollo/client/cache';
 import { DocumentNode } from '@apollo/client/core';
 import { environment } from '../environment/environment';
 import { Blog } from '../models/blog';
-import { requireStringEnvParam } from '../utils/environment-utils';
 
 export class PostService {
   private static readonly instance = new PostService();
