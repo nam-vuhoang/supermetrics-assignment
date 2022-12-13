@@ -8,7 +8,7 @@ import {
 import { useRouter } from 'next/router';
 import { ParsedUrlQuery } from 'querystring';
 import React, { ReactNode } from 'react';
-import { BlogView } from '../components/blog-view';
+import { BlogComponent } from '../components/blog-component';
 import { Post } from '../models/post';
 import { PostService } from '../services/post-service';
 import useSWR from 'swr';
@@ -95,7 +95,7 @@ export default function Home(): ReactNode {
 
   return (
     <>
-      <BlogView posts={posts} />
+      <BlogComponent posts={posts} />
       <Box
         sx={{ pt: 6 }}
         display="flex"

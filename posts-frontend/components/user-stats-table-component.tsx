@@ -13,7 +13,7 @@ import { UserStats } from '../models/user-stats';
 import { MomentUtils } from '../utils/moment-utils';
 import { getArrayMax, getArrayMin } from '../utils/utils';
 
-export class UserStatsTableView extends Component<{ stats: UserStats[] }> {
+export class UserStatsTableComponent extends Component<{ stats: UserStats[] }> {
   private findMonthlyRecords(frequencies: Frequency[]): Map<number, number> {
     const recordMap = new Map<number, number>();
 

@@ -16,9 +16,9 @@ import { Component, ReactNode } from 'react';
 import { UserStats } from '../models/user-stats';
 import { MaterialUtils } from '../utils/material/material-utils';
 import { MomentUtils } from '../utils/moment-utils';
-import { PostView } from './post-view';
+import { PostComponent } from './post-component';
 
-export class UserStatsView extends Component<{ stats: UserStats }> {
+export class UserStatsComponent extends Component<{ stats: UserStats }> {
   render(): ReactNode {
     const { stats } = this.props;
 
@@ -30,7 +30,7 @@ export class UserStatsView extends Component<{ stats: UserStats }> {
       <Card>
         <CardHeader
           avatar={MaterialUtils.formatAvatar(stats.userName)}
-          title={PostView.formatCaption(stats.userId, stats.userName)}
+          title={PostComponent.formatCaption(stats.userId, stats.userName)}
           subheader="User statistics"
         ></CardHeader>
         <CardContent>

@@ -1,6 +1,6 @@
 import { Alert } from '@mui/material';
 import { GetStaticProps } from 'next';
-import { UserStatsTableView } from '../../components/user-stats-table-view';
+import { UserStatsTableComponent } from '../../components/user-stats-table-component';
 import { environment } from '../../environment/environment';
 import { UserStats } from '../../models/user-stats';
 import { PostService } from '../../services/post-service';
@@ -34,5 +34,5 @@ export default function Dashboard(props: PageProps) {
     return <Alert severity="error">{error}</Alert>;
   }
 
-  return <UserStatsTableView stats={stats} />;
+  return <UserStatsTableComponent stats={stats} />;
 }

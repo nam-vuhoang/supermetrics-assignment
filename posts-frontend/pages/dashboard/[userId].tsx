@@ -9,8 +9,8 @@ import {
 } from '@mui/material';
 import { GetStaticPaths, GetStaticProps } from 'next';
 import { ReactNode } from 'react';
-import { BlogView } from '../../components/blog-view';
-import { UserStatsView } from '../../components/user-stats-view';
+import { BlogComponent } from '../../components/blog-component';
+import { UserStatsComponent } from '../../components/user-stats-component';
 import { environment } from '../../environment/environment';
 import { Post } from '../../models/post';
 import { UserStats } from '../../models/user-stats';
@@ -59,10 +59,10 @@ export default function UserDashboard(props: PageProps): ReactNode {
       <Box sx={{ flexGrow: 1 }}>
         <Grid container columnSpacing={4} rowSpacing={6}>
           <Grid item xs={3}>
-            <UserStatsView stats={stats[0]} />
+            <UserStatsComponent stats={stats[0]} />
           </Grid>
           <Grid item xs={9}>
-            <BlogView posts={longestPosts} expand={true} />
+            <BlogComponent posts={longestPosts} expand={true} />
           </Grid>
         </Grid>
       </Box>

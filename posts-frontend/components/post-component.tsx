@@ -23,7 +23,7 @@ import {
 } from '@mui/material';
 import { MaterialUtils } from '../utils/material/material-utils';
 
-export class PostView extends Component<
+export class PostComponent extends Component<
   { post: Post; expand: boolean },
   { displayFull: boolean }
 > {
@@ -63,13 +63,13 @@ export class PostView extends Component<
 
   private formatShortMessage(): ReactNode {
     const { message } = this.props.post;
-    if (message.length <= PostView.MAX_SHORT_MESSAGE_LENGTH) {
+    if (message.length <= PostComponent.MAX_SHORT_MESSAGE_LENGTH) {
       return message;
     }
 
     const shortMessage = message.substring(
       0,
-      message.lastIndexOf(' ', PostView.MAX_SHORT_MESSAGE_LENGTH)
+      message.lastIndexOf(' ', PostComponent.MAX_SHORT_MESSAGE_LENGTH)
     );
     if (message === shortMessage) {
       return message;
@@ -96,7 +96,7 @@ export class PostView extends Component<
       <Card>
         <CardHeader
           avatar={MaterialUtils.formatAvatar(post.userName)}
-          title={PostView.formatCaption(post.userId, post.userName)}
+          title={PostComponent.formatCaption(post.userId, post.userName)}
           subheader={this.formatCreatedTime()}
           action={
             <IconButton
