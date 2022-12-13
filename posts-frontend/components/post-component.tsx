@@ -103,7 +103,7 @@ export class PostComponent extends Component<
               href={`/dashboard/${encodeURIComponent(post.userId)}`}
               aria-label="dashboard"
             >
-              <BarChart />
+              <BarChart fontSize='small' />
             </IconButton>
           }
         ></CardHeader>
