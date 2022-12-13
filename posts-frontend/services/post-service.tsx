@@ -20,7 +20,7 @@ export class PostService {
     pageSize: number,
     userId: string | null
   ): Promise<number> {
-    logger.debug(`Fetching page count for user ${userId}.`);
+    logger.debug(`Fetching page count for user: ${userId}.`);
     const query = gql`
       query GetLastPostsFromAllUsers($userId: ID) {
         blog(filter: { userId: $userId }) {
@@ -69,7 +69,7 @@ export class PostService {
   }
 
   async fetchStats(): Promise<UserStats[]> {
-    logger.debug('Fetching user stats');
+    logger.debug('Fetching user stats.');
     const query = gql`
       query GetStats {
         blog {

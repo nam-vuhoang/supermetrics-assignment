@@ -28,8 +28,12 @@ interface PageProps {
 
 export async function fetchDataOnClientSide(
   backendUrl: string,
-  query: ParsedUrlQuery
-): Promise<PageProps> {
+  query?: ParsedUrlQuery
+): Promise<PageProps | null> {
+  if (!query) {
+    return Promise.resolve(null);
+  }
+
   console.info(`fetchDataOnClientSide()`);
   console.warn(backendUrl);
   console.warn(query.page);
@@ -63,14 +67,15 @@ export async function fetchDataOnClientSide(
     posts: data[0],
     pageCount: data[1],
     userId: userFilter,
-    pageNumber: 2,
+    pageNumber,
   };
 }
 
 export default function Home() {
   const router = useRouter();
+
   const { data, error } = useSWR(
-    [environment.backendUrl, router.query],
+    [environment.backendUrl, router.isReady ? router.query : undefined],
     ([url, query]) => fetchDataOnClientSide(url, query)
   );
 
