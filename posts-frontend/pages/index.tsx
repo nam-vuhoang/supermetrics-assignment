@@ -7,11 +7,15 @@ import {
   PaginationRenderItemParams,
 } from '@mui/material';
 import { GetServerSideProps } from 'next';
-import React from 'react';
+import { useRouter } from 'next/router';
+import { ParsedUrlQuery } from 'querystring';
+import React, { ReactNode } from 'react';
 import { BlogView } from '../components/blog-view';
 import { Post } from '../models/post';
 import { PostService } from '../services/post-service';
 import { logger } from '../utils/logger';
+import useSWR from 'swr';
+import { environment } from '../environment/environment';
 
 const PAGE_SIZE = 15;
 
@@ -20,33 +24,30 @@ interface PageProps {
   userId: string | null;
   pageNumber: number;
   pageCount: number;
-  error: any;
 }
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const pageNumber = Number(context.query.page || '1');
+export async function fetchDataOnClientSide(
+  backendUrl: string,
+  query: ParsedUrlQuery
+): Promise<PageProps> {
+  console.info(`fetchDataOnClientSide()`);
+  console.warn(backendUrl);
+  console.warn(query.page);
+  const pageNumber = Number(query.page || '1');
   if (isNaN(pageNumber)) {
-    return {
-      props: {
-        error: 'Invalid page number',
-      },
-    };
+    throw new Error('Invalid page number');
   }
 
-  const pageCount = Number(context.query.pageCount || '0');
+  const pageCount = Number(query.pageCount || '0');
   if (isNaN(pageNumber)) {
-    return {
-      props: {
-        error: 'Invalid page count number',
-      },
-    };
+    throw new Error('Invalid page count number');
   }
 
-  const { userId } = context.query;
+  const { userId } = query;
   const userFilter = userId
     ? decodeURIComponent(Array.isArray(userId) ? userId[0] : userId)
     : null;
-  const postService = new PostService();
+  const postService = new PostService(backendUrl);
   const posts$: Promise<Post[]> = postService.fetchPosts(
     pageNumber - 1,
     PAGE_SIZE,
@@ -57,33 +58,35 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     ? Promise.resolve(pageCount)
     : postService.fetchPageCount(PAGE_SIZE, userFilter);
 
-  return await Promise.all([posts$, pageCount$])
-    .then((result) => {
-      return {
-        props: {
-          posts: result[0],
-          pageCount: result[1],
-          pageNumber,
-          userId: userFilter,
-        },
-      };
-    })
-    .catch((error) => {
-      logger.error(error);
-      return {
-        props: {
-          error: `Unexpected error: ${JSON.stringify(error, undefined, 2)}`,
-        },
-      };
-    });
-};
+  const data = await Promise.all([posts$, pageCount$]);
+  return {
+    posts: data[0],
+    pageCount: data[1],
+    userId: userFilter,
+    pageNumber: 2,
+  };
+}
 
-export default function Home(props: PageProps) {
-  const { posts, pageNumber, pageCount, userId, error } = props;
+export default function Home() {
+  const router = useRouter();
+  const { data, error } = useSWR(
+    [environment.backendUrl, router.query],
+    ([url, query]) => fetchDataOnClientSide(url, query)
+  );
 
   if (error) {
-    return <Alert severity="error">{error}</Alert>;
+    return (
+      <Alert severity="error">
+        <>Error: {JSON.stringify(error, undefined, 2)}</>
+      </Alert>
+    );
   }
+
+  if (!data) {
+    return <Alert severity="info">Loading...</Alert>;
+  }
+
+  const { posts, pageCount, userId, pageNumber } = data;
 
   let href = `?pageCount=${pageCount}`;
   if (userId) {
@@ -92,7 +95,7 @@ export default function Home(props: PageProps) {
 
   return (
     <>
-      <BlogView posts={posts || []} />
+      <BlogView posts={posts} />
       <Box
         sx={{ pt: 6 }}
         display="flex"

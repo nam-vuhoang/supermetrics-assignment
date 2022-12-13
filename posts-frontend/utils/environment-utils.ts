@@ -1,15 +1,12 @@
-import { env } from 'process';
-
-export function requireStringEnvParam(name: string): string {
-  const value = env[name];
+export function requireStringEnvParam(name: string, value?: string): string {
   if (value) {
     return value;
   }
   throw new EvalError(`Environment variable '${name}' is undefined (${process.env[name]}).`);
 }
 
-export function requireIntEnvParam(name: string): number {
-  const floatValue = Number(requireStringEnvParam(name));
+export function requireIntEnvParam(name: string, value?: string): number {
+  const floatValue = Number(requireStringEnvParam(name, value));
   if (isNaN(floatValue)) {
     throw new EvalError(`Environment variable '${name}' must be integer.`);
   }

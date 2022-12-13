@@ -1,6 +1,8 @@
 import { requireStringEnvParam } from '../utils/environment-utils';
 
+// process environment variables cannot be inlined via dynamic lookups:
+// https://nextjs.org/docs/basic-features/environment-variables
 export const environment = {
-  appName: process.env.APP_NAME!, // requireStringEnvParam('APP_NAME'),
-  backendUrl: process.env.BACKEND_URL!, // requireStringEnvParam('BACKEND_URL'),
+  appName: requireStringEnvParam('NEXT_PUBLIC_APP_NAME', process.env.NEXT_PUBLIC_APP_NAME),
+  backendUrl: requireStringEnvParam('NEXT_PUBLIC_ACKEND_URL', process.env.NEXT_PUBLIC_BACKEND_URL),
 };

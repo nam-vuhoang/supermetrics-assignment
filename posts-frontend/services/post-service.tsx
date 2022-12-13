@@ -1,14 +1,16 @@
 import request, { gql, Variables } from 'graphql-request';
-import { environment } from '../environment/environment';
 import { Blog } from '../models/blog';
 import { Post } from '../models/post';
 import { UserStats } from '../models/user-stats';
 import { logger } from '../utils/logger';
 
 export class PostService {
+  constructor(private backendUrl: string) {
+  }
+
   private async fetchBlog(query: string, variables?: Variables): Promise<Blog> {
     return request<{ blog: Blog }>(
-      environment.backendUrl,
+      this.backendUrl,
       query,
       variables
     ).then((data) => data.blog);

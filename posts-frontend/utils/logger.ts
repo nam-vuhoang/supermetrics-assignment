@@ -1,7 +1,8 @@
 import { default as Pino } from 'pino';
+import { environment } from '../environment/environment';
 
 export const logger = Pino({
-  name: process.env.APP_NAME,
+  name: environment.appName,
   level: 'debug',
 });
 

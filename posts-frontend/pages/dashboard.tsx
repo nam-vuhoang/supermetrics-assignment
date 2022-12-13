@@ -1,6 +1,7 @@
 import { Alert } from '@mui/material';
 import { GetStaticProps } from 'next';
 import { UserStatsTableView } from '../components/user-stats-table-view';
+import { environment } from '../environment/environment';
 import { UserStats } from '../models/user-stats';
 import { PostService } from '../services/post-service';
 import { logger } from '../utils/logger';
@@ -11,7 +12,7 @@ interface PageProps {
 }
 
 export const getStaticProps: GetStaticProps = async (context) => {
-  return await new PostService()
+  return await new PostService(environment.backendUrl)
     .fetchStats()
     .then((stats) => {
       return { props: { stats } };
