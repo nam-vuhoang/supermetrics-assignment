@@ -4,16 +4,13 @@ import {
   Link,
   Pagination,
   PaginationItem,
-  PaginationRenderItemParams,
 } from '@mui/material';
-import { GetServerSideProps } from 'next';
 import { useRouter } from 'next/router';
 import { ParsedUrlQuery } from 'querystring';
 import React, { ReactNode } from 'react';
 import { BlogView } from '../components/blog-view';
 import { Post } from '../models/post';
 import { PostService } from '../services/post-service';
-import { logger } from '../utils/logger';
 import useSWR from 'swr';
 import { environment } from '../environment/environment';
 
@@ -71,7 +68,7 @@ export async function fetchDataOnClientSide(
   };
 }
 
-export default function Home() {
+export default function Home(): ReactNode {
   const router = useRouter();
 
   const { data, error } = useSWR(
