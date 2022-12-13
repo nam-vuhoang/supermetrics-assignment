@@ -51,17 +51,15 @@ export class Blog {
     });
   }
 
-  get longestPost(): Post | null {
+  get longestPosts(): Post[] {
     let maxLength = 0;
-    let longestPost: Post | null = null;
     for (let post of this.posts) {
       const length = post.message.length;
       if (maxLength < length) {
         maxLength = length;
-        longestPost = post;
       }
     }
 
-    return longestPost;
+    return this.posts.filter((p) => p.message.length === maxLength);
   }
 }

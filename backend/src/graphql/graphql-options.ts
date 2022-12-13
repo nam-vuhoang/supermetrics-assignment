@@ -15,7 +15,7 @@ export const graphQLOptions = {
       size: Int!
       posts: [Post!]!
       stats: [UserStats!]!
-      longestPost: Post
+      longestPosts: [Post!]!
     }
 
     type Post {

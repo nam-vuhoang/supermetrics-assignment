@@ -11,7 +11,7 @@ interface PageProps {
 }
 
 export const getStaticProps: GetStaticProps = async (context) => {
-  return await PostService.getInstance()
+  return await new PostService()
     .fetchStats()
     .then((stats) => {
       return { props: { stats } };

@@ -1,5 +1,4 @@
-import request, { gql } from 'graphql-request';
-import useSWR, { SWRResponse } from 'swr';
+import request, { gql, Variables } from 'graphql-request';
 import { environment } from '../environment/environment';
 import { Blog } from '../models/blog';
 import { Post } from '../models/post';
@@ -7,34 +6,28 @@ import { UserStats } from '../models/user-stats';
 import { logger } from '../utils/logger';
 
 export class PostService {
-  private static readonly instance = new PostService();
-
-  static getInstance() {
-    return this.instance;
-  }
-
-  private async fetchBlog(query: string): Promise<Blog> {
-    return request<{ blog: Blog }>(environment.backendUrl, query).then(
-      (data) => data.blog
-    );
+  private async fetchBlog(query: string, variables?: Variables): Promise<Blog> {
+    return request<{ blog: Blog }>(
+      environment.backendUrl,
+      query,
+      variables
+    ).then((data) => data.blog);
   }
 
   async fetchPageCount(
     pageSize: number,
     userId: string | null
   ): Promise<number> {
-    const userFilter = userId ? `userId: "${userId}"` : '';
-
-    logger.debug(`Fetching page count with filter {${userFilter}}...`);
+    logger.debug(`Fetching page count for user ${userId}.`);
     const query = gql`
-      query GetLastPostsFromAllUsers {
-        blog(filter: { ${userFilter} }) {
+      query GetLastPostsFromAllUsers($userId: ID) {
+        blog(filter: { userId: $userId }) {
           size
         }
       }
     `;
 
-    return this.fetchBlog(query).then((blog) =>
+    return this.fetchBlog(query, { userId }).then((blog) =>
       Math.ceil(blog.size / pageSize)
     );
   }
@@ -44,13 +37,20 @@ export class PostService {
     pageSize: number,
     userId: string | null
   ): Promise<Post[]> {
-    const pageFilter = `page: { index: ${pageIndex}, size: ${pageSize} }`;
-    const userFilter = userId ? `, userId: "${userId}"` : '';
-
-    logger.debug(`Fetching posts with filter {${pageFilter}${userFilter}}...`);
+    const filter = { pageIndex, pageSize, userId };
+    logger.debug(`Fetching posts with filter ${JSON.stringify(filter)}.`);
     const query = gql`
-      query GetLastPostsFromAllUsers {
-        blog(filter: { ${pageFilter}${userFilter} }) {
+      query GetLastPostsFromAllUsers(
+        $pageIndex: Int!
+        $pageSize: Int!
+        $userId: ID
+      ) {
+        blog(
+          filter: {
+            page: { index: $pageIndex, size: $pageSize }
+            userId: $userId
+          }
+        ) {
           posts {
             id
             userId
@@ -63,7 +63,7 @@ export class PostService {
       }
     `;
 
-    return this.fetchBlog(query).then((blog) => blog.posts);
+    return this.fetchBlog(query, filter).then((blog) => blog.posts);
   }
 
   async fetchStats(): Promise<UserStats[]> {
@@ -90,14 +90,12 @@ export class PostService {
     return this.fetchBlog(query).then((blog) => blog.stats);
   }
 
-  async fetchLongestPost(userId: string): Promise<Post | null> {
-    const userFilter = `userId: "${userId}"`;
-
-    logger.debug(`Fetching posts with filter {${userFilter}}`);
+  async fetchLongestPost(userId: string): Promise<Post[]> {
+    logger.debug('Fetching user longest posts.');
     const query = gql`
-      query GetLastPostsFromAllUsers {
-        blog(filter: {${userFilter}}) {
-          longestPost {
+      query fetchLongestPost($userId: String!) {
+        blog(filter: { userId: $userId }) {
+          longestPosts {
             id
             userId
             userName
@@ -109,6 +107,6 @@ export class PostService {
       }
     `;
 
-    return this.fetchBlog(query).then((blog) => blog.longestPost);
+    return this.fetchBlog(query, { userId }).then((blog) => blog.longestPosts);
   }
 }

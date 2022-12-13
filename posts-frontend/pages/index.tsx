@@ -46,7 +46,8 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   const userFilter = userId
     ? decodeURIComponent(Array.isArray(userId) ? userId[0] : userId)
     : null;
-  const posts$: Promise<Post[]> = PostService.getInstance().fetchPosts(
+  const postService = new PostService();
+  const posts$: Promise<Post[]> = postService.fetchPosts(
     pageNumber - 1,
     PAGE_SIZE,
     userFilter
@@ -54,7 +55,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
   const pageCount$: Promise<number> = pageCount
     ? Promise.resolve(pageCount)
-    : PostService.getInstance().fetchPageCount(PAGE_SIZE, userFilter);
+    : postService.fetchPageCount(PAGE_SIZE, userFilter);
 
   return await Promise.all([posts$, pageCount$])
     .then((result) => {
@@ -69,7 +70,11 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     })
     .catch((error) => {
       logger.error(error);
-      return { props: { error: `Unexpected error: ${JSON.stringify(error, undefined, 2)}` } };
+      return {
+        props: {
+          error: `Unexpected error: ${JSON.stringify(error, undefined, 2)}`,
+        },
+      };
     });
 };
 
