@@ -11,7 +11,7 @@ import { Component, ReactNode } from 'react';
 import { Frequency } from '../models/frequency';
 import { UserStats } from '../models/user-stats';
 
-export class UserStatsView extends Component<{ stats: UserStats[] }> {
+export class UserStatsTableView extends Component<{ stats: UserStats[] }> {
   private findMonths(stats: UserStats[]): moment.Moment[] {
     let first: number = 0;
     let last: number = 0;

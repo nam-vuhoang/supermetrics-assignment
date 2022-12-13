@@ -1,7 +1,7 @@
 import { ApolloError } from '@apollo/client';
 import { Alert } from '@mui/material';
 import { GetStaticProps } from 'next';
-import { UserStatsView } from '../components/user-stats-view';
+import { UserStatsTableView } from '../components/user-stats-table-view';
 import { UserStats } from '../models/user-stats';
 import { PostService } from '../services/post-service';
 import { logger } from '../utils/logger';
@@ -38,5 +38,5 @@ export default function Dashboard(props: PageProps) {
     return <Alert severity="error">{error}</Alert>;
   }
 
-  return <UserStatsView stats={stats} />;
+  return <UserStatsTableView stats={stats} />;
 }
