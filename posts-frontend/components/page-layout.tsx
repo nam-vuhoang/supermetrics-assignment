@@ -9,6 +9,7 @@ import Link from '@mui/material/Link';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { Diversity1 } from '@mui/icons-material';
 import Head from 'next/head';
+import { IconButton, Button, Menu } from '@mui/material';
 
 function Copyright() {
   return (
@@ -38,17 +39,39 @@ export default function PageLayout(props: { children: any }) {
       </Head>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <AppBar position="relative">
-          <Toolbar>
-          <Link href='/' variant="h6" color="inherit" noWrap underline='none'>
-            <Diversity1 sx={{ mr: 2 }} />
-          </Link>
-          <Link href='/' variant="h6" color="inherit" noWrap underline='none'>
-              Heart Book
-            </Link>
-          </Toolbar>
-        </AppBar>
+        <Box sx={{ flexGrow: 1 }}>
+          <AppBar position="static">
+            <Toolbar>
+              <Link
+                href="/"
+                variant="h6"
+                color="inherit"
+                noWrap
+                underline="none"
+              >
+                <Diversity1 sx={{ mr: 2 }} />
+              </Link>
+              <Link
+                href="/"
+                variant="h6"
+                color="inherit"
+                noWrap
+                underline="none"
+                sx={{ flexGrow: 1 }}
+              >
+                Heart Book
+              </Link>
+              <Button href="/" color="inherit">
+                Home
+              </Button>
+              <Button href="/dashboard" color="inherit">
+                Dashboard
+              </Button>
+            </Toolbar>
+          </AppBar>
+        </Box>
         {/* Main */}
+
         <main>
           <Box
             sx={{
