@@ -19,6 +19,17 @@ interface RawPost {
   created_time: string;
 }
 
+function mapRawPostToPost(rawPost: RawPost): Post {
+  return {
+    id: rawPost.id,
+    userId: rawPost.from_id,
+    userName: rawPost.from_name,
+    message: rawPost.message,
+    type: rawPost.type,
+    createdTime: new Date(rawPost.created_time),
+  };
+}
+
 interface RawPostData {
   page: number;
   posts: Array<RawPost>;
@@ -116,18 +127,7 @@ export class PostService extends RESTDataSource {
     );
 
     // Merge pages and normalize posts
-    const posts$: Promise<Post[]> = Promise.all(pages$).then((rawPosts) =>
-      rawPosts.flat().map((p) => {
-        return {
-          id: p.id,
-          userId: p.from_id,
-          userName: p.from_name,
-          message: p.message,
-          type: p.type,
-          createdTime: new Date(p.created_time),
-        };
-      })
-    );
+    const posts$: Promise<Post[]> = Promise.all(pages$).then((rawPosts) => rawPosts.flat().map(mapRawPostToPost));
 
     // Sort and paginate if needed
     return posts$.then((posts) => PostService.sortAndPaginate(posts, page, sortByCreatedTimeAsc));
@@ -154,5 +154,38 @@ export class PostService extends RESTDataSource {
 
     logger.debug('Returning %d posts', posts.length);
     return new Blog(posts);
+  }
+
+  /**
+   * Fetchs all user posts filtered by userId with sorting and pagination if required.
+   * @param filter
+   * @returns
+   */
+  async fetchLongestPost(userId: string): Promise<Post> | null {
+    logger.info('Fetching posts with filter %s', userId);
+
+    // Get all raw posts from all pages
+    logger.info('Fetching all posts from %d pages', this.pageCount);
+    const pageIndexes: number[] = Array.from(Array(this.pageCount).keys()); // from 0 to N-1;
+    let pages$: Promise<RawPost[]>[] = pageIndexes.map((pageIndex) =>
+      this.fetchRawPostsByPageAndUser(pageIndex, userId)
+    );
+
+    // Merge pages and normalize posts
+    return Promise.all(pages$)
+      .then((rawPosts) => rawPosts.flat())
+      .then((rawPosts) => {
+        let maxLength = 0;
+        let longestPost: RawPost | null = null;
+        for (let post of rawPosts) {
+          const length = post.message.length;
+          if (maxLength < length) {
+            maxLength = length;
+            longestPost = post;
+          }
+        }
+
+        return longestPost && mapRawPostToPost(longestPost);
+      });
   }
 }

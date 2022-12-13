@@ -9,6 +9,7 @@ export const graphQLOptions = {
   typeDefs: gql`
     type Query {
       blog(filter: PostFilter): Blog
+      longestPost(userId: ID!): Post
     }
 
     type Blog {
@@ -90,6 +91,14 @@ export const graphQLOptions = {
           environment.dataServer.pageCount
         ).fetchPosts(args.filter);
       },
+      longestPost(_: any, args: { userId: string }, context: GraphQLContext) {
+        return new PostService(
+          context,
+          environment.dataServer.baseUrl,
+          environment.dataServer.pageCount
+        ).fetchLongestPost(args.userId);
+      },
+
     },
   },
 };

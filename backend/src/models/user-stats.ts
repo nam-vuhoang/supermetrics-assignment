@@ -6,6 +6,6 @@ export interface UserStats {
   totalCount: number;
   averageLength: number;
   minLength: number;
-  maxLength: number;
+  maxLength: number;  
   frequencies: Frequency[];
 }
