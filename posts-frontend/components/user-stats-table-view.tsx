@@ -1,4 +1,4 @@
-import { Link, Typography } from '@mui/material';
+import { Typography } from '@mui/material';
 import {
   DataGrid,
   GridColDef,
@@ -6,6 +6,7 @@ import {
   GridValueGetterParams,
 } from '@mui/x-data-grid';
 import moment, { Moment } from 'moment';
+import Link from 'next/link';
 import { Component, ReactNode } from 'react';
 import { Frequency } from '../models/frequency';
 import { UserStats } from '../models/user-stats';
@@ -56,7 +57,12 @@ export class UserStatsTableView extends Component<{ stats: UserStats[] }> {
         headerName: 'User Name',
         width: 200,
         renderCell: (params: GridRenderCellParams<string>) => (
-          <Link href={`dashboard/${encodeURIComponent(params.row.userId)}`}>
+          <Link
+            href={{
+              pathname: 'dashboard/[userId]',
+              query: { userId: params.row.userId },
+            }}
+          >
             {params.value}
           </Link>
         ),

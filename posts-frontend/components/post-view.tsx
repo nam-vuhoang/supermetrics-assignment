@@ -32,7 +32,7 @@ export class PostView extends Component<
   static formatCaption(userId: string, userName: string): ReactNode {
     return (
       <Link
-        href={`/?userId=${userId}`}
+        href={`/${encodeURIComponent(userId)}`}
         variant="body1"
         fontWeight="bold"
         underline="hover"

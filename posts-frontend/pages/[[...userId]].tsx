@@ -79,7 +79,7 @@ export default function Home(): ReactNode {
   if (error) {
     return (
       <Alert severity="error">
-        <>Error: {JSON.stringify(error, undefined, 2)}</>
+        Error: {JSON.stringify(error, undefined, 2)}
       </Alert>
     );
   }
@@ -90,10 +90,8 @@ export default function Home(): ReactNode {
 
   const { posts, pageCount, userId, pageNumber } = data;
 
-  let href = `?pageCount=${pageCount}`;
-  if (userId) {
-    href += `&userId=${encodeURIComponent(userId)}`;
-  }
+  let href = userId ? encodeURIComponent(userId) : '';
+  href += `?pageCount=${pageCount}`;
 
   return (
     <>
