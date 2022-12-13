@@ -56,7 +56,9 @@ export class UserStatsTableView extends Component<{ stats: UserStats[] }> {
         headerName: 'User Name',
         width: 200,
         renderCell: (params: GridRenderCellParams<string>) => (
-          <Link href={`/?userId=${params.row.userId}`}>{params.value}</Link>
+          <Link href={`dashboard/${encodeURIComponent(params.row.userId)}`}>
+            {params.value}
+          </Link>
         ),
       },
       this.addHighlightRecordCellRender(
