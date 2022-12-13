@@ -20,6 +20,7 @@ export class Blog {
           userName: post.userName,
           totalCount: 0,
           averageLength: 0,
+          minLength: 0,
           maxLength: 0,
           frequencies: [],
         };
@@ -28,6 +29,7 @@ export class Blog {
 
       userStats.totalCount += 1;
       const { length } = post.message;
+      userStats.minLength = userStats.minLength === 0 ? length : Math.min(userStats.minLength, length);
       userStats.maxLength = Math.max(userStats.maxLength, length);
       userStats.averageLength += length;
 

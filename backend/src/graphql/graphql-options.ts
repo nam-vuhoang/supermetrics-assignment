@@ -31,6 +31,7 @@ export const graphQLOptions = {
       userName: String!
       totalCount: Int!
       averageLength: Float!
+      minLength: Int!
       maxLength: Int!
       frequencies: [Frequency!]!
     }
