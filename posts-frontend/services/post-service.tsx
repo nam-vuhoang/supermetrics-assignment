@@ -3,6 +3,7 @@ import { NormalizedCacheObject } from '@apollo/client/cache';
 import { DocumentNode } from '@apollo/client/core';
 import { environment } from '../environment/environment';
 import { Blog } from '../models/blog';
+import { Post } from '../models/post';
 import { UserStats } from '../models/user-stats';
 import { logger } from '../utils/logger';
 
@@ -49,7 +50,7 @@ export class PostService {
     pageIndex: number,
     pageSize: number,
     userId: string | null
-  ): Promise<any> {
+  ): Promise<Post[]> {
     const pageFilter = `page: { index: ${pageIndex}, size: ${pageSize} }`;
     const userFilter = userId ? `, userId: "${userId}"` : '';
 
@@ -94,5 +95,27 @@ export class PostService {
     `;
 
     return this.queryBlog(query).then((blog) => blog.stats);
+  }
+
+  async getLongestPost(userId: string): Promise<Post> {
+    const userFilter = `userId: "${userId}"`;
+
+    logger.debug(`Fetching posts with filter {${userFilter}}`);
+    const query = gql`
+      query GetLastPostsFromAllUsers {
+        longestPost("${userFilter}") {
+          id
+          userId
+          userName
+          type
+          createdTime
+          message
+        }
+      }
+    `;
+
+    return this.apolloClient
+      .query<{ longestPost: Post }>({ query })
+      .then((response) => response.data.longestPost);
   }
 }
