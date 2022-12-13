@@ -1,10 +1,23 @@
-import { Component } from 'react';
+import { Component, ReactNode } from 'react';
 import { Post } from '../models/post';
-import { PostsView } from './posts-view';
+import { PostView } from './post-view';
+import { Box, Grid } from '@mui/material';
 
 export class BlogView extends Component<{ posts: Post[] }> {
-  render() {
+  render(): ReactNode {
     const { posts } = this.props;
-    return <PostsView posts={posts} />;
+    return (
+      <div>
+        <Box sx={{ flexGrow: 1 }}>
+          <Grid container columnSpacing={4} rowSpacing={6}>
+            {posts.map((p) => (
+              <Grid item key={p.id} xs={4}>
+                <PostView post={p} />
+              </Grid>
+            ))}
+          </Grid>
+        </Box>
+      </div>
+    );
   }
 }
