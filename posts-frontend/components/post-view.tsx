@@ -9,26 +9,27 @@ import {
   Share as ShareIcon,
 } from '@mui/icons-material';
 import {
+  Box,
   Card,
   CardActions,
   CardContent,
   CardHeader,
   IconButton,
   Link,
+  Rating,
   Tooltip,
   Typography,
 } from '@mui/material';
 import { MaterialUtils } from '../utils/material/material-utils';
 
 export class PostView extends Component<
-  { post: Post },
+  { post: Post; expand: boolean },
   { displayFull: boolean }
 > {
   static readonly MAX_SHORT_MESSAGE_LENGTH = 150;
-  state = { displayFull: false };
+  state = { displayFull: this.props.expand };
 
-  private formatCaption(): ReactNode {
-    const { userId, userName } = this.props.post;
+  static formatCaption(userId: string, userName: string): ReactNode {
     return (
       <Link
         href={`?userId=${userId}`}
@@ -94,7 +95,7 @@ export class PostView extends Component<
       <Card>
         <CardHeader
           avatar={MaterialUtils.formatAvatar(post.userName)}
-          title={this.formatCaption()}
+          title={PostView.formatCaption(post.userId, post.userName)}
           subheader={this.formatCreatedTime()}
         ></CardHeader>
         <CardContent>
@@ -108,13 +109,18 @@ export class PostView extends Component<
             {displayFull ? post.message : this.formatShortMessage()}
           </Typography>
         </CardContent>
-        <CardActions disableSpacing>
-          <IconButton aria-label="add to favorites">
-            <FavoriteIcon />
-          </IconButton>
-          <IconButton aria-label="share">
-            <ShareIcon />
-          </IconButton>
+        <CardActions>
+          <Box>
+            <IconButton aria-label="add to favorites">
+              <FavoriteIcon />
+            </IconButton>
+            <IconButton aria-label="share">
+              <ShareIcon />
+            </IconButton>
+          </Box>{' '}
+          <Box sx={{ pr: 0 }}>
+            <Rating />
+          </Box>
         </CardActions>
       </Card>
     );

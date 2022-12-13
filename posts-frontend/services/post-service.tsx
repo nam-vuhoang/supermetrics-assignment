@@ -5,22 +5,19 @@ import { UserStats } from '../models/user-stats';
 import { logger } from '../utils/logger';
 
 export class PostService {
-  constructor(private backendUrl: string) {
-  }
+  constructor(private backendUrl: string) {}
 
   private async fetchBlog(query: string, variables?: Variables): Promise<Blog> {
-    return request<{ blog: Blog }>(
-      this.backendUrl,
-      query,
-      variables
-    ).then((data) => data.blog);
+    return request<{ blog: Blog }>(this.backendUrl, query, variables)
+      .then((data) => data.blog)
+      .finally(() => logger.debug('[GraphQL] Done.'));
   }
 
   async fetchPageCount(
     pageSize: number,
     userId: string | null
   ): Promise<number> {
-    logger.debug(`Fetching page count for user: ${userId}.`);
+    logger.debug(`[GraphQL] Fetching page count for user: ${userId}...`);
     const query = gql`
       query GetLastPostsFromAllUsers($userId: ID) {
         blog(filter: { userId: $userId }) {
@@ -40,7 +37,7 @@ export class PostService {
     userId: string | null
   ): Promise<Post[]> {
     const filter = { pageIndex, pageSize, userId };
-    logger.debug(`Fetching posts with filter ${JSON.stringify(filter)}.`);
+    logger.debug(`[GraphQL] Fetching posts with filter ${JSON.stringify(filter)}...`);
     const query = gql`
       query GetLastPostsFromAllUsers(
         $pageIndex: Int!
@@ -69,7 +66,7 @@ export class PostService {
   }
 
   async fetchStats(): Promise<UserStats[]> {
-    logger.debug('Fetching user stats.');
+    logger.debug('[GraphQL] Fetching user stats.');
     const query = gql`
       query GetStats {
         blog {
@@ -92,11 +89,42 @@ export class PostService {
     return this.fetchBlog(query).then((blog) => blog.stats);
   }
 
-  async fetchLongestPost(userId: string): Promise<Post[]> {
-    logger.debug('Fetching user longest posts.');
+  async fetchUserIds(): Promise<string[]> {
+    logger.debug('[GraphQL] Fetching user IDs...');
     const query = gql`
-      query fetchLongestPost($userId: String!) {
+      query GetStats {
+        blog {
+          stats {
+            userId
+          }
+        }
+      }
+    `;
+
+    return this.fetchBlog(query).then((blog) =>
+      blog.stats.map((s) => s.userId)
+    );
+  }
+
+  async fetchStatsAndLongestPosts(
+    userId?: string
+  ): Promise<{ stats: UserStats[]; longestPosts: Post[] }> {
+    logger.debug('[GraphQL] Fetching user stats and longest posts...');
+    const query = gql`
+      query fetchLongestPost($userId: ID) {
         blog(filter: { userId: $userId }) {
+          stats {
+            userId
+            userName
+            averageLength
+            minLength
+            maxLength
+            totalCount
+            frequencies {
+              month
+              count
+            }
+          }
           longestPosts {
             id
             userId
@@ -109,6 +137,6 @@ export class PostService {
       }
     `;
 
-    return this.fetchBlog(query, { userId }).then((blog) => blog.longestPosts);
+    return this.fetchBlog(query, { userId });
   }
 }

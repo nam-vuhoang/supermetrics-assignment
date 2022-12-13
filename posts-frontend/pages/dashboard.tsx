@@ -1,5 +1,6 @@
 import { Alert } from '@mui/material';
 import { GetStaticProps } from 'next';
+import { useState } from 'react';
 import { UserStatsTableView } from '../components/user-stats-table-view';
 import { environment } from '../environment/environment';
 import { UserStats } from '../models/user-stats';
@@ -8,7 +9,7 @@ import { logger } from '../utils/logger';
 
 interface PageProps {
   stats: UserStats[];
-  error: any;
+  error: string;
 }
 
 export const getStaticProps: GetStaticProps = async (context) => {

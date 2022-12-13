@@ -9,45 +9,17 @@ import moment, { Moment } from 'moment';
 import { Component, ReactNode } from 'react';
 import { Frequency } from '../models/frequency';
 import { UserStats } from '../models/user-stats';
+import { MomentUtils } from '../utils/moment-utils';
 import { getArrayMax, getArrayMin } from '../utils/utils';
 
 export class UserStatsTableView extends Component<{ stats: UserStats[] }> {
-  private findMonths(stats: UserStats[]): Moment[] {
-    let firstMonth: number = 0;
-    let lastMonth: number = 0;
-
-    for (let s of stats) {
-      for (let f of s.frequencies) {
-        if (firstMonth === 0 || firstMonth > f.month) {
-          firstMonth = f.month;
-        }
-
-        if (lastMonth === 0 || lastMonth < f.month) {
-          lastMonth = f.month;
-        }
-      }
-    }
-
-    const months: Moment[] = [];
-    for (
-      let month = moment(firstMonth);
-      !month.isAfter(lastMonth);
-      month = month.add(1, 'month')
-    ) {
-      months.push(month.clone());
-    }
-
-    return months;
-  }
-
-  private findMonthlyRecords(stats: UserStats[]): Map<number, number> {
+  private findMonthlyRecords(frequencies: Frequency[]): Map<number, number> {
     const recordMap = new Map<number, number>();
-    for (let s of stats) {
-      for (let f of s.frequencies) {
-        const currentRecord = recordMap.get(f.month) || 0;
-        if (currentRecord < f.count) {
-          recordMap.set(f.month, f.count);
-        }
+
+    for (let f of frequencies) {
+      const currentMonthRecord = recordMap.get(f.month) || 0;
+      if (currentMonthRecord < f.count) {
+        recordMap.set(f.month, f.count);
       }
     }
 
@@ -75,6 +47,9 @@ export class UserStatsTableView extends Component<{ stats: UserStats[] }> {
   render(): ReactNode {
     const { stats } = this.props;
 
+    //
+    // Add basic columns
+    //
     const columns: GridColDef[] = [
       {
         field: 'userName',
@@ -84,9 +59,6 @@ export class UserStatsTableView extends Component<{ stats: UserStats[] }> {
           <Link href={`/?userId=${params.row.userId}`}>{params.value}</Link>
         ),
       },
-    ];
-
-    columns.push(
       this.addHighlightRecordCellRender(
         {
           field: 'totalCount',
@@ -95,39 +67,17 @@ export class UserStatsTableView extends Component<{ stats: UserStats[] }> {
         },
         getArrayMax(stats.map((s) => s.totalCount)),
         true
-      )
-    );
+      ),
+    ];
 
-    columns.push(
-      this.addHighlightRecordCellRender(
-        { field: 'minLength', headerName: 'Min length', width: 90 },
-        getArrayMin(stats.map((s) => s.minLength)),
-        false
-      )
+    //
+    // Add frequency columns
+    //
+    const frequencies = stats.map((s) => s.frequencies).flat();
+    const months = MomentUtils.createMonthArray(
+      frequencies.map((f) => f.month)
     );
-
-    columns.push(
-      this.addHighlightRecordCellRender(
-        {
-          field: 'averageLength',
-          headerName: 'Av. length',
-          width: 90,
-        },
-        getArrayMax(stats.map((s) => s.averageLength)),
-        true
-      )
-    );
-
-    columns.push(
-      this.addHighlightRecordCellRender(
-        { field: 'maxLength', headerName: 'Max length', width: 90 },
-        getArrayMax(stats.map((s) => s.maxLength)),
-        true
-      )
-    );
-
-    const months = this.findMonths(stats);
-    const monthlyRecords = this.findMonthlyRecords(stats);
+    const monthlyRecords = this.findMonthlyRecords(frequencies);
 
     for (let month of months) {
       const monthValue = month.valueOf();
@@ -138,11 +88,9 @@ export class UserStatsTableView extends Component<{ stats: UserStats[] }> {
             headerName: month.format('MM/YY'),
             width: 80,
             valueGetter(params: GridValueGetterParams<Frequency[]>) {
-              return (
-                params.row.frequencies?.find(
-                  (f: Frequency) => f.month === monthValue
-                )?.count
-              );
+              return params.row.frequencies?.find(
+                (f: Frequency) => f.month === monthValue
+              )?.count;
             },
           },
           monthlyRecords.get(monthValue) || 0,
@@ -150,6 +98,31 @@ export class UserStatsTableView extends Component<{ stats: UserStats[] }> {
         )
       );
     }
+
+    //
+    // Add length columns
+    //
+    columns.push(
+      this.addHighlightRecordCellRender(
+        { field: 'minLength', headerName: 'Min length', width: 90 },
+        getArrayMin(stats.map((s) => s.minLength)),
+        false
+      ),
+      this.addHighlightRecordCellRender(
+        {
+          field: 'averageLength',
+          headerName: 'Av. length',
+          width: 90,
+        },
+        getArrayMax(stats.map((s) => s.averageLength)),
+        true
+      ),
+      this.addHighlightRecordCellRender(
+        { field: 'maxLength', headerName: 'Max length', width: 90 },
+        getArrayMax(stats.map((s) => s.maxLength)),
+        true
+      )
+    );
 
     return (
       <div style={{ height: 650, width: '100%' }}>
