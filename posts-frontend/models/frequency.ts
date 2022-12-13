@@ -1,4 +1,4 @@
 export interface Frequency {
-  month: Date;
+  month: number;
   count: number;
 }

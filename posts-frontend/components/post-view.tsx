@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { Component } from 'react';
+import { Component, ReactNode } from 'react';
 import { Post } from '../models/post';
 import {
   AccountBox as AccountBoxIcon,
@@ -13,9 +13,7 @@ import {
   CardActions,
   CardContent,
   CardHeader,
-  Grid,
   IconButton,
-  IconButtonProps,
   Link,
   Tooltip,
   Typography,
@@ -29,7 +27,7 @@ export class PostView extends Component<
   static readonly MAX_SHORT_MESSAGE_LENGTH = 150;
   state = { displayFull: false };
 
-  private formatCaption(): JSX.Element {
+  private formatCaption(): ReactNode {
     const { userId, userName } = this.props.post;
     return (
       <Link
@@ -43,7 +41,7 @@ export class PostView extends Component<
     );
   }
 
-  private formatCreatedTime(): JSX.Element {
+  private formatCreatedTime(): ReactNode {
     const createdTime = moment(this.props.post.createdTime);
     const createdTimeString = createdTime.format('dddd, D MMMM YYYY [at] LT');
     const diff = moment().diff(createdTime);
@@ -61,7 +59,7 @@ export class PostView extends Component<
     );
   }
 
-  private formatShortMessage(): string | JSX.Element {
+  private formatShortMessage(): ReactNode {
     const { message } = this.props.post;
     if (message.length <= PostView.MAX_SHORT_MESSAGE_LENGTH) {
       return message;
@@ -88,7 +86,7 @@ export class PostView extends Component<
     );
   }
 
-  render() {
+  render(): ReactNode {
     const { post } = this.props;
     const { displayFull } = this.state;
 
