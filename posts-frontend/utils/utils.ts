@@ -8,13 +8,13 @@ export function compare<T>(
     ? getField(a) < getField(b)
       ? 1
       : getField(a) > getField(b)
-        ? -1
-        : 0
-    : getField(a) < getField(b)
       ? -1
-      : getField(a) > getField(b)
-        ? 1
-        : 0;
+      : 0
+    : getField(a) < getField(b)
+    ? -1
+    : getField(a) > getField(b)
+    ? 1
+    : 0;
 }
 
 export function compareFn<T>(
@@ -30,4 +30,12 @@ export function sortArray<T>(
   reverse: boolean = false
 ): Array<T> {
   return items?.sort(compareFn(getField, reverse)) || [];
+}
+
+export function getArrayMin(items: Array<number>) {
+  return Math.min.apply(null, items);
+}
+
+export function getArrayMax(items: Array<number>) {
+  return Math.max.apply(null, items);
 }

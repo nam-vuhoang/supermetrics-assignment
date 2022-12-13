@@ -45,7 +45,7 @@ export class Blog {
     }
 
     return Array.from(userStatsMap.values()).map((stats) => {
-      stats.averageLength /= stats.totalCount;
+      stats.averageLength = Math.round(stats.averageLength / stats.totalCount);
       sortArray(stats.frequencies, (f) => f.month.getTime());
       return stats;
     });
