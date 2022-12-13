@@ -50,4 +50,18 @@ export class Blog {
       return stats;
     });
   }
+
+  get longestPost(): Post | null {
+    let maxLength = 0;
+    let longestPost: Post | null = null;
+    for (let post of this.posts) {
+      const length = post.message.length;
+      if (maxLength < length) {
+        maxLength = length;
+        longestPost = post;
+      }
+    }
+
+    return longestPost;
+  }
 }

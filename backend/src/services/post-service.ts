@@ -155,37 +155,4 @@ export class PostService extends RESTDataSource {
     logger.debug('Returning %d posts', posts.length);
     return new Blog(posts);
   }
-
-  /**
-   * Fetchs all user posts filtered by userId with sorting and pagination if required.
-   * @param filter
-   * @returns
-   */
-  async fetchLongestPost(userId: string): Promise<Post> | null {
-    logger.info('Fetching posts with filter %s', userId);
-
-    // Get all raw posts from all pages
-    logger.info('Fetching all posts from %d pages', this.pageCount);
-    const pageIndexes: number[] = Array.from(Array(this.pageCount).keys()); // from 0 to N-1;
-    let pages$: Promise<RawPost[]>[] = pageIndexes.map((pageIndex) =>
-      this.fetchRawPostsByPageAndUser(pageIndex, userId)
-    );
-
-    // Merge pages and normalize posts
-    return Promise.all(pages$)
-      .then((rawPosts) => rawPosts.flat())
-      .then((rawPosts) => {
-        let maxLength = 0;
-        let longestPost: RawPost | null = null;
-        for (let post of rawPosts) {
-          const length = post.message.length;
-          if (maxLength < length) {
-            maxLength = length;
-            longestPost = post;
-          }
-        }
-
-        return longestPost && mapRawPostToPost(longestPost);
-      });
-  }
 }

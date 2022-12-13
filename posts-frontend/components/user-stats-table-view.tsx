@@ -67,7 +67,7 @@ export class UserStatsTableView extends Component<{ stats: UserStats[] }> {
       console.log(month.format('MM/YYYY'));
       const m = month.valueOf();
       columns.push({
-        field: 'frequencies_' + m,
+        field: `frequencies_${m}`,
         headerName: month.format('MM/YY'),
         width: 80,
         valueGetter(params: GridValueGetterParams<Frequency[]>) {
