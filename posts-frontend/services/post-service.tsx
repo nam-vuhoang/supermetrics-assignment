@@ -81,6 +81,7 @@ export class PostService {
             userId
             userName
             averageLength
+            minLength
             maxLength
             totalCount
             frequencies {

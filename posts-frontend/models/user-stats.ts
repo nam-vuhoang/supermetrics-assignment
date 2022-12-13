@@ -5,6 +5,7 @@ export interface UserStats {
   userName: string;
   totalCount: number;
   averageLength: number;
+  minLength: number;
   maxLength: number;
   frequencies: Frequency[];
 }
