@@ -97,25 +97,25 @@ export class PostService {
     return this.queryBlog(query).then((blog) => blog.stats);
   }
 
-  async getLongestPost(userId: string): Promise<Post> {
+  async getLongestPost(userId: string): Promise<Post | null> {
     const userFilter = `userId: "${userId}"`;
 
     logger.debug(`Fetching posts with filter {${userFilter}}`);
     const query = gql`
       query GetLastPostsFromAllUsers {
-        longestPost("${userFilter}") {
-          id
-          userId
-          userName
-          type
-          createdTime
-          message
+        blog(filter: {${userFilter}}) {
+          longestPost {
+            id
+            userId
+            userName
+            type
+            createdTime
+            message
+          }
         }
       }
     `;
 
-    return this.apolloClient
-      .query<{ longestPost: Post }>({ query })
-      .then((response) => response.data.longestPost);
+    return this.queryBlog(query).then((blog) => blog.longestPost);
   }
 }
