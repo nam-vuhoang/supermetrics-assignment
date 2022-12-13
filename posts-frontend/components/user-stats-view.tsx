@@ -59,7 +59,7 @@ export class UserStatsView extends Component<{ stats: UserStats[] }> {
           Math.round(params.value),
       },
       { field: 'maxLength', headerName: 'Max length', width: 90 },
-    ];1
+    ];
 
     const months = this.findMonths(stats);
     
