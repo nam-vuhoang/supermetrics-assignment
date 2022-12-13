@@ -1,6 +1,5 @@
-import { ApolloClient, gql, InMemoryCache } from '@apollo/client';
-import { NormalizedCacheObject } from '@apollo/client/cache';
-import { DocumentNode } from '@apollo/client/core';
+import request, { gql } from 'graphql-request';
+import useSWR, { SWRResponse } from 'swr';
 import { environment } from '../environment/environment';
 import { Blog } from '../models/blog';
 import { Post } from '../models/post';
@@ -14,25 +13,19 @@ export class PostService {
     return this.instance;
   }
 
-  private apolloClient: ApolloClient<NormalizedCacheObject>;
-
-  constructor() {
-    this.apolloClient = new ApolloClient({
-      uri: environment.backendUrl,
-      cache: new InMemoryCache(),
-    });
+  private async fetchBlog(query: string): Promise<Blog> {
+    return request<{ blog: Blog }>(environment.backendUrl, query).then(
+      (data) => data.blog
+    );
   }
 
-  private async queryBlog(query: DocumentNode): Promise<Blog> {
-    return this.apolloClient
-      .query<{ blog: Blog }>({ query })
-      .then((response) => response.data.blog);
-  }
-
-  async getPageCount(pageSize: number, userId: string | null): Promise<number> {
+  async fetchPageCount(
+    pageSize: number,
+    userId: string | null
+  ): Promise<number> {
     const userFilter = userId ? `userId: "${userId}"` : '';
 
-    logger.debug(`Fetching page count with filter {${userFilter}}`);
+    logger.debug(`Fetching page count with filter {${userFilter}}...`);
     const query = gql`
       query GetLastPostsFromAllUsers {
         blog(filter: { ${userFilter} }) {
@@ -41,12 +34,12 @@ export class PostService {
       }
     `;
 
-    return this.queryBlog(query).then((blog) =>
+    return this.fetchBlog(query).then((blog) =>
       Math.ceil(blog.size / pageSize)
     );
   }
 
-  async getPosts(
+  async fetchPosts(
     pageIndex: number,
     pageSize: number,
     userId: string | null
@@ -54,7 +47,7 @@ export class PostService {
     const pageFilter = `page: { index: ${pageIndex}, size: ${pageSize} }`;
     const userFilter = userId ? `, userId: "${userId}"` : '';
 
-    logger.debug(`Fetching posts with filter {${pageFilter}${userFilter}}`);
+    logger.debug(`Fetching posts with filter {${pageFilter}${userFilter}}...`);
     const query = gql`
       query GetLastPostsFromAllUsers {
         blog(filter: { ${pageFilter}${userFilter} }) {
@@ -70,10 +63,10 @@ export class PostService {
       }
     `;
 
-    return this.queryBlog(query).then((blog) => blog.posts);
+    return this.fetchBlog(query).then((blog) => blog.posts);
   }
 
-  async getStats(): Promise<UserStats[]> {
+  async fetchStats(): Promise<UserStats[]> {
     logger.debug('Fetching user stats');
     const query = gql`
       query GetStats {
@@ -94,10 +87,10 @@ export class PostService {
       }
     `;
 
-    return this.queryBlog(query).then((blog) => blog.stats);
+    return this.fetchBlog(query).then((blog) => blog.stats);
   }
 
-  async getLongestPost(userId: string): Promise<Post | null> {
+  async fetchLongestPost(userId: string): Promise<Post | null> {
     const userFilter = `userId: "${userId}"`;
 
     logger.debug(`Fetching posts with filter {${userFilter}}`);
@@ -116,6 +109,6 @@ export class PostService {
       }
     `;
 
-    return this.queryBlog(query).then((blog) => blog.longestPost);
+    return this.fetchBlog(query).then((blog) => blog.longestPost);
   }
 }

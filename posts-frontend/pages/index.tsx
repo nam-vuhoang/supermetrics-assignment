@@ -1,4 +1,3 @@
-import { ApolloError } from '@apollo/client';
 import {
   Alert,
   Box,
@@ -47,7 +46,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   const userFilter = userId
     ? decodeURIComponent(Array.isArray(userId) ? userId[0] : userId)
     : null;
-  const posts$: Promise<Post[]> = PostService.getInstance().getPosts(
+  const posts$: Promise<Post[]> = PostService.getInstance().fetchPosts(
     pageNumber - 1,
     PAGE_SIZE,
     userFilter
@@ -55,7 +54,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
   const pageCount$: Promise<number> = pageCount
     ? Promise.resolve(pageCount)
-    : PostService.getInstance().getPageCount(PAGE_SIZE, userFilter);
+    : PostService.getInstance().fetchPageCount(PAGE_SIZE, userFilter);
 
   return await Promise.all([posts$, pageCount$])
     .then((result) => {
@@ -70,15 +69,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     })
     .catch((error) => {
       logger.error(error);
-      if (error instanceof ApolloError) {
-        const apolloError = error as ApolloError;
-        return {
-          props: {
-            error: `${apolloError.message}. ${JSON.stringify(apolloError)}`,
-          },
-        };
-      }
-      return { props: { error: `Unexpected error: JSON.stringify(error)` } };
+      return { props: { error: `Unexpected error: ${JSON.stringify(error, undefined, 2)}` } };
     });
 };
 

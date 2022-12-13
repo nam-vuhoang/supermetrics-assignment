@@ -1,4 +1,3 @@
-import { ApolloError } from '@apollo/client';
 import { Alert } from '@mui/material';
 import { GetStaticProps } from 'next';
 import { UserStatsTableView } from '../components/user-stats-table-view';
@@ -13,21 +12,17 @@ interface PageProps {
 
 export const getStaticProps: GetStaticProps = async (context) => {
   return await PostService.getInstance()
-    .getStats()
+    .fetchStats()
     .then((stats) => {
       return { props: { stats } };
     })
     .catch((error) => {
       logger.error(error);
-      if (error instanceof ApolloError) {
-        const apolloError = error as ApolloError;
-        return {
-          props: {
-            error: `${apolloError.message}. ${JSON.stringify(apolloError)}`,
-          },
-        };
-      }
-      return { props: { error: `Unexpected error: JSON.stringify(error)` } };
+      return {
+        props: {
+          error: `Unexpected error: ${JSON.stringify(error, undefined, 2)}`,
+        },
+      };
     });
 };
 
