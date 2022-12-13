@@ -74,7 +74,7 @@ export class UserStatsTableView extends Component<{ stats: UserStats[] }> {
     // Add frequency columns
     //
     const frequencies = stats.map((s) => s.frequencies).flat();
-    const months = MomentUtils.createMonthArray(
+    const months = MomentUtils.createMonthlyArray(
       frequencies.map((f) => f.month)
     );
     const monthlyRecords = this.findMonthlyRecords(frequencies);

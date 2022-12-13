@@ -22,7 +22,7 @@ export class UserStatsView extends Component<{ stats: UserStats }> {
   render(): ReactNode {
     const { stats } = this.props;
 
-    const months = MomentUtils.createMonthArray(
+    const months = MomentUtils.createMonthlyArray(
       stats.frequencies.map((f) => f.month)
     );
 

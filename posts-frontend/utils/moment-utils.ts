@@ -1,7 +1,7 @@
 import moment, { Moment, MomentInput } from 'moment';
 
 export class MomentUtils {
-  static createMonthArray(momentValues: number[]): Moment[] {
+  static createMonthlyArray(momentValues: number[]): Moment[] {
     const firstMoment = moment(Math.min.apply(null, momentValues));
     if (!firstMoment.isValid) {
       throw new EvalError('firstMoment is invalid date');
