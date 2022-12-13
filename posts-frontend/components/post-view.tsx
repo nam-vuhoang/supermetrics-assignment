@@ -7,6 +7,7 @@ import {
   Visibility as VisibilityIcon,
   Favorite as FavoriteIcon,
   Share as ShareIcon,
+  BarChart,
 } from '@mui/icons-material';
 import {
   Box,
@@ -97,6 +98,14 @@ export class PostView extends Component<
           avatar={MaterialUtils.formatAvatar(post.userName)}
           title={PostView.formatCaption(post.userId, post.userName)}
           subheader={this.formatCreatedTime()}
+          action={
+            <IconButton
+              href={`/dashboard/${encodeURIComponent(post.userId)}`}
+              aria-label="dashboard"
+            >
+              <BarChart />
+            </IconButton>
+          }
         ></CardHeader>
         <CardContent>
           <Typography
