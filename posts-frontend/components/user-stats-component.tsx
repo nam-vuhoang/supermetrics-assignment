@@ -57,8 +57,8 @@ export class UserStatsComponent extends Component<{
                   </TableHead>
                   <TableBody>
                     <TableRow>
-                      <TableCell>Total count</TableCell>
-                      <TableCell align="right">
+                      <TableCell className="bold">All time</TableCell>
+                      <TableCell className="bold right">
                         {stats.totalCount} posts
                       </TableCell>
                     </TableRow>
@@ -73,7 +73,7 @@ export class UserStatsComponent extends Component<{
                           {m.format('MMM YYYY')}
                         </TableCell>
                         <TableCell
-                          align="right"
+                          className="right"
                           sx={{
                             borderBottomWidth:
                               index === months.length - 1 ? 0 : undefined,
@@ -115,17 +115,27 @@ export class UserStatsComponent extends Component<{
                   <TableBody>
                     <TableRow>
                       <TableCell>Min length</TableCell>
-                      <TableCell align='right'>{stats.minLength} characters</TableCell>
+                      <TableCell className="right">
+                        {stats.minLength} characters
+                      </TableCell>
                     </TableRow>
                     <TableRow>
                       <TableCell>Av. length</TableCell>
-                      <TableCell align='right'>{stats.averageLength} characters</TableCell>
+                      <TableCell className="right">
+                        {stats.averageLength} characters
+                      </TableCell>
                     </TableRow>
                     <TableRow>
-                      <TableCell sx={{ borderBottomWidth: 0 }}>
+                      <TableCell
+                        className="bold nowrap"
+                        sx={{ borderBottomWidth: 0 }}
+                      >
                         Max length
                       </TableCell>
-                      <TableCell sx={{ borderBottomWidth: 0 }} align="right">
+                      <TableCell
+                        className="bold nowrap right"
+                        sx={{ borderBottomWidth: 0 }}
+                      >
                         {stats.maxLength} characters
                       </TableCell>
                     </TableRow>
