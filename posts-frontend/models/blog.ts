@@ -7,4 +7,5 @@ export interface Blog {
   size: number;
   stats: UserStats[];
   longestPosts: Post[];
+  totalPostCount: number;
 }

@@ -141,6 +141,8 @@ export class PostService extends RESTDataSource {
    * @returns
    */
   private static sortAndPaginate(posts: Post[], pageFilter?: PageFilter, sortByCreatedTimeAsc?: boolean): Blog {
+    const totalPostCount = posts.length;
+
     if (pageFilter || sortByCreatedTimeAsc !== undefined) {
       // reverse order if sortByCreatedTimeAsc is undefined or false
       posts = sortArray(posts, (p) => p.createdTime.getTime(), !sortByCreatedTimeAsc);
@@ -153,6 +155,6 @@ export class PostService extends RESTDataSource {
     }
 
     logger.debug('Returning %d posts', posts.length);
-    return new Blog(posts);
+    return new Blog(posts, totalPostCount);
   }
 }

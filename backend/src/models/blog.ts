@@ -3,7 +3,7 @@ import { Post } from './post';
 import { UserStats } from './user-stats';
 
 export class Blog {
-  constructor(public posts: Post[]) {}
+  constructor(public posts: Post[], public totalPostCount: number) {}
 
   get size(): number {
     return this.posts.length;

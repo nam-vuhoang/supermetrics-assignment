@@ -1,10 +1,4 @@
-import {
-  Alert,
-  Box,
-  Link,
-  Pagination,
-  PaginationItem,
-} from '@mui/material';
+import { Alert, Box, Link, Pagination, PaginationItem } from '@mui/material';
 import { useRouter } from 'next/router';
 import { ParsedUrlQuery } from 'querystring';
 import React, { ReactNode } from 'react';
@@ -34,38 +28,23 @@ export async function fetchDataOnClientSide(
   console.info(`fetchDataOnClientSide()`);
   console.warn(backendUrl);
   console.warn(query.page);
-  const pageNumber = Number(query.page || '1');
-  if (isNaN(pageNumber)) {
+  const pageParam = Number(query.page || '1');
+  if (isNaN(pageParam)) {
     throw new Error('Invalid page number');
-  }
-
-  const pageCount = Number(query.pageCount || '0');
-  if (isNaN(pageNumber)) {
-    throw new Error('Invalid page count number');
   }
 
   const { userId } = query;
   const userFilter = userId
     ? decodeURIComponent(Array.isArray(userId) ? userId[0] : userId)
     : null;
-  const postService = new PostService(backendUrl);
-  const posts$: Promise<Post[]> = postService.fetchPosts(
-    pageNumber - 1,
-    PAGE_SIZE,
-    userFilter
-  );
-
-  const pageCount$: Promise<number> = pageCount
-    ? Promise.resolve(pageCount)
-    : postService.fetchPageCount(PAGE_SIZE, userFilter);
-
-  const data = await Promise.all([posts$, pageCount$]);
-  return {
-    posts: data[0],
-    pageCount: data[1],
-    userId: userFilter,
-    pageNumber,
-  };
+  return new PostService(backendUrl)
+    .fetchPosts(pageParam - 1, PAGE_SIZE, userFilter)
+    .then((data: { posts: Post[]; totalPostCount: number }) => ({
+      posts: data.posts,
+      pageCount: Math.ceil(data.totalPostCount / PAGE_SIZE),
+      userId: userFilter,
+      pageNumber: pageParam,
+    }));
 }
 
 export default function Home(): ReactNode {
@@ -90,8 +69,7 @@ export default function Home(): ReactNode {
 
   const { posts, pageCount, userId, pageNumber } = data;
 
-  let href = userId ? encodeURIComponent(userId) : '';
-  href += `?pageCount=${pageCount}`;
+  const href = userId ? encodeURIComponent(userId) : '';
 
   return (
     <>
@@ -110,7 +88,7 @@ export default function Home(): ReactNode {
           renderItem={(item) => (
             <PaginationItem
               component={Link}
-              href={href + (item.page === 1 ? '' : `&page=${item.page}`)}
+              href={item.page === 1 ? href : `${href}?page=${item.page}`}
               {...item}
             />
           )}

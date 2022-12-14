@@ -14,29 +14,11 @@ export class PostService {
       .finally(() => logger.debug('[GraphQL] Done.'));
   }
 
-  async fetchPageCount(
-    pageSize: number,
-    userId: string | null
-  ): Promise<number> {
-    logger.debug(`[GraphQL] Fetching page count for user: ${userId}...`);
-    const query = gql`
-      query GetLastPostsFromAllUsers($userId: ID) {
-        blog(filter: { userId: $userId }) {
-          size
-        }
-      }
-    `;
-
-    return this.fetchBlog(query, { userId }).then((blog) =>
-      Math.ceil(blog.size / pageSize)
-    );
-  }
-
   async fetchPosts(
     pageIndex: number,
     pageSize: number,
     userId: string | null
-  ): Promise<Post[]> {
+  ): Promise<{posts: Post[], totalPostCount: number}> {
     const filter = { pageIndex, pageSize, userId };
     logger.debug(
       `[GraphQL] Fetching posts with filter ${JSON.stringify(filter)}...`
@@ -61,11 +43,12 @@ export class PostService {
             createdTime
             message
           }
+          totalPostCount
         }
       }
     `;
 
-    return this.fetchBlog(query, filter).then((blog) => blog.posts);
+    return this.fetchBlog(query, filter);
   }
 
   async fetchStats(): Promise<UserStats[]> {

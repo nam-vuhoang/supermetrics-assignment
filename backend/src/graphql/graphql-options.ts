@@ -16,6 +16,7 @@ export const graphQLOptions = {
       posts: [Post!]!
       stats: [UserStats!]!
       longestPosts: [Post!]!
+      totalPostCount: Int!
     }
 
     type Post {
