@@ -2,7 +2,6 @@ import request, { gql, Variables } from 'graphql-request';
 import { Blog } from '../models/blog';
 import { Post } from '../models/post';
 import { User } from '../models/user';
-import { UserStats } from '../models/user-stats';
 import { logger } from '../utils/logger';
 import { sortArray } from '../utils/utils';
 
