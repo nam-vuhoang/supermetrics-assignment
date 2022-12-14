@@ -9,10 +9,19 @@ import { sortArray } from '../utils/utils';
 export class PostService {
   constructor(private backendUrl: string) {}
 
+  private async fetchRawData<T>(
+    query: string,
+    variables?: Variables
+  ): Promise<T> {
+    return request<T>(this.backendUrl, query, variables).finally(() =>
+      logger.debug('[GraphQL] Done.')
+    );
+  }
+
   private async fetchBlog(query: string, variables?: Variables): Promise<Blog> {
-    return request<{ blog: Blog }>(this.backendUrl, query, variables)
-      .then((data) => data.blog)
-      .finally(() => logger.debug('[GraphQL] Done.'));
+    return this.fetchRawData<{ blog: Blog }>(query, variables).then(
+      (data) => data.blog
+    );
   }
 
   async fetchPosts(
@@ -55,18 +64,16 @@ export class PostService {
   async fetchUserIds(): Promise<string[]> {
     logger.debug('[GraphQL] Fetching user IDs...');
     const query = gql`
-      query GetStats {
-        blog {
-          authors {
-            userId
-            userName
-          }
+      query GetUsers {
+        users {
+          userId
+          userName
         }
       }
     `;
 
-    return this.fetchBlog(query).then((blog) =>
-      sortArray(blog.authors, (u) => u.userName).map((s) => s.userId)
+    return this.fetchRawData<{ users: User[] }>(query).then((data) =>
+      sortArray(data.users, (u) => u.userName).map((s) => s.userId)
     );
   }
 

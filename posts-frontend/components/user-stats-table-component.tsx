@@ -61,9 +61,11 @@ export class UserStatsTableComponent extends Component<{ users: User[] }> {
               pathname: 'dashboard/[userId]',
               query: { userId: params.row.userId },
             }}
+            shallow
           >
             {params.value}
           </Link>
+          
         ),
       },
       this.addHighlightRecordCellRender(
