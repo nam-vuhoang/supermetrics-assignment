@@ -58,25 +58,26 @@ export class UserStatsComponent extends Component<{
                   <TableBody>
                     <TableRow>
                       <TableCell>Total count</TableCell>
-                      <TableCell>{stats.totalCount} posts</TableCell>
+                      <TableCell align="right">
+                        {stats.totalCount} posts
+                      </TableCell>
                     </TableRow>
                     {months.map((m, index) => (
                       <TableRow key={m.valueOf()}>
                         <TableCell
-                          sx={
-                            index === months.length - 1
-                              ? { borderBottomWidth: 0 }
-                              : {}
-                          }
+                          sx={{
+                            borderBottomWidth:
+                              index === months.length - 1 ? 0 : undefined,
+                          }}
                         >
                           {m.format('MMM YYYY')}
                         </TableCell>
                         <TableCell
-                          sx={
-                            index === months.length - 1
-                              ? { borderBottomWidth: 0 }
-                              : {}
-                          }
+                          align="right"
+                          sx={{
+                            borderBottomWidth:
+                              index === months.length - 1 ? 0 : undefined,
+                          }}
                         >
                           {`${
                             stats.frequencies.find(
@@ -114,17 +115,17 @@ export class UserStatsComponent extends Component<{
                   <TableBody>
                     <TableRow>
                       <TableCell>Min length</TableCell>
-                      <TableCell>{stats.minLength} characters</TableCell>
+                      <TableCell align='right'>{stats.minLength} characters</TableCell>
                     </TableRow>
                     <TableRow>
                       <TableCell>Av. length</TableCell>
-                      <TableCell>{stats.averageLength} characters</TableCell>
+                      <TableCell align='right'>{stats.averageLength} characters</TableCell>
                     </TableRow>
                     <TableRow>
                       <TableCell sx={{ borderBottomWidth: 0 }}>
                         Max length
                       </TableCell>
-                      <TableCell sx={{ borderBottomWidth: 0 }}>
+                      <TableCell sx={{ borderBottomWidth: 0 }} align="right">
                         {stats.maxLength} characters
                       </TableCell>
                     </TableRow>
