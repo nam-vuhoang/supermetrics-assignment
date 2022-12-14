@@ -143,6 +143,7 @@ export class UserStatsComponent extends Component<{
             posts={user.stats.longestPosts}
             expandAll={true}
             caption="Longest post"
+            hideDashboardLink={true}
           />
         </Grid>
       </Grid>

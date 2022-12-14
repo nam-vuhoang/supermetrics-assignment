@@ -1,7 +1,4 @@
-import {
-  Alert,
-  Grid,
-} from '@mui/material';
+import { Alert, Grid, Typography } from '@mui/material';
 import { GetStaticPaths, GetStaticProps } from 'next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -62,11 +59,12 @@ export default function UserDashboard(props: PageProps): ReactNode {
           {users.map((u) => (
             <div key={u.userId}>
               <Link href={`/dashboard/${u.userId}`} shallow>
-                {u.userName}
+                <Typography color="primary">{u.userName}</Typography>
               </Link>
             </div>
           ))}
         </Grid>
+
         <Grid item xs={10}>
           <UserStatsComponent user={user} />
         </Grid>
