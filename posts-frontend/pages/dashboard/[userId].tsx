@@ -3,6 +3,9 @@ import {
   Card,
   CardHeader,
   Grid,
+  Link,
+  Pagination,
+  PaginationItem,
   Tab,
   TableContainer,
   Typography,
@@ -18,22 +21,41 @@ import { PostService } from '../../services/post-service';
 import { MaterialUtils } from '../../utils/material/material-utils';
 
 interface PageProps {
-  userId?: string;
+  userId: string;
+  allUserIds: string[];
   stats: UserStats[];
   longestPosts: Post[];
 }
 
 export const getStaticProps: GetStaticProps = async (context) => {
-  const userIds = context.params?.userId;
-  const userId = Array.isArray(userIds) ? userIds[0] : userIds;
-  return new PostService(environment.backendUrl)
-    .fetchStatsAndLongestPosts(userId)
-    .then((blog: { stats: UserStats[]; longestPosts: Post[] }) => {
-      const { stats, longestPosts } = blog;
+  const userIdParam = context.params?.userId;
+  const userId = Array.isArray(userIdParam) ? userIdParam[0] : userIdParam;
+
+  const postService = new PostService(environment.backendUrl);
+  const blog$ = postService.fetchStatsAndLongestPosts(userId);
+  const allUsersId$ = postService.fetchUserIds();
+
+  return Promise.all([blog$, allUsersId$]).then(
+    (
+      data: [
+        {
+          stats: UserStats[];
+          longestPosts: Post[];
+        },
+        string[]
+      ]
+    ) => {
+      const { stats, longestPosts } = data[0];
       return {
-        props: { userId, stats, longestPosts },
+        props: {
+          userId: userId!,
+          stats,
+          longestPosts,
+          allUserIds: data[1],
+        },
       };
-    });
+    }
+  );
 };
 
 export const getStaticPaths: GetStaticPaths = async () => {
@@ -53,7 +75,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
 };
 
 export default function UserDashboard(props: PageProps): ReactNode {
-  const { userId, stats, longestPosts } = props;
+  const { userId, stats, longestPosts, allUserIds } = props;
   return (
     <div>
       <Box sx={{ flexGrow: 1 }}>
@@ -65,6 +87,26 @@ export default function UserDashboard(props: PageProps): ReactNode {
             <BlogComponent posts={longestPosts} expand={true} />
           </Grid>
         </Grid>
+      </Box>
+      <Box
+        sx={{ pt: 6 }}
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+      >
+        <Pagination
+          page={allUserIds.findIndex((s) => s === userId) + 1}
+          count={allUserIds.length}
+          showFirstButton
+          showLastButton
+          renderItem={(item) => (
+            <PaginationItem
+              component={Link}
+              href={`/dashboard/${encodeURIComponent(allUserIds[item.page! - 1])}`}
+              {...item}
+            />
+          )}
+        />
       </Box>
     </div>
   );

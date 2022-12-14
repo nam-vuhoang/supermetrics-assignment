@@ -3,6 +3,7 @@ import { Blog } from '../models/blog';
 import { Post } from '../models/post';
 import { UserStats } from '../models/user-stats';
 import { logger } from '../utils/logger';
+import { sortArray } from '../utils/utils';
 
 export class PostService {
   constructor(private backendUrl: string) {}
@@ -37,7 +38,9 @@ export class PostService {
     userId: string | null
   ): Promise<Post[]> {
     const filter = { pageIndex, pageSize, userId };
-    logger.debug(`[GraphQL] Fetching posts with filter ${JSON.stringify(filter)}...`);
+    logger.debug(
+      `[GraphQL] Fetching posts with filter ${JSON.stringify(filter)}...`
+    );
     const query = gql`
       query GetLastPostsFromAllUsers(
         $pageIndex: Int!
@@ -96,13 +99,14 @@ export class PostService {
         blog {
           stats {
             userId
+            userName
           }
         }
       }
     `;
 
     return this.fetchBlog(query).then((blog) =>
-      blog.stats.map((s) => s.userId)
+      sortArray(blog.stats, (s) => s.userName).map((s) => s.userId)
     );
   }
 
