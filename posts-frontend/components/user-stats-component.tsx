@@ -16,6 +16,8 @@ import { MaterialUtils } from '../utils/material/material-utils';
 import { MomentUtils } from '../utils/moment-utils';
 import { BlogComponent } from './blog-component';
 import { PostComponent } from './post-component';
+import { PostCountStatsComponent } from './post-count-stats-component';
+import { PostLengthStatsComponent } from './post-length-stats-component';
 
 export class UserStatsComponent extends Component<{
   user: User;
@@ -23,122 +25,20 @@ export class UserStatsComponent extends Component<{
   render(): ReactNode {
     const { user } = this.props;
 
-    const months = MomentUtils.createMonthlyArray(
-      user.stats.frequencies.map((f) => f.month)
-    );
-
     return (
       <Grid container columnSpacing={4} rowSpacing={6}>
-        <Grid item xs={4}>
-          <Card>
-            <CardHeader
-              avatar={MaterialUtils.formatAvatar(user.userName)}
-              title={PostComponent.formatCaption(user.userId, user.userName)}
-              subheader="User statistics"
-            ></CardHeader>
-            <CardContent>
-              <TableContainer>
-                <Table sx={{ width: '100%' }}>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell colSpan={2} padding="none">
-                        <MaterialUtils.ButtonLike>
-                          Number of posts
-                        </MaterialUtils.ButtonLike>
-                      </TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    <TableRow>
-                      <TableCell className="bold">All time</TableCell>
-                      <TableCell className="bold right">
-                        {user.stats.totalCount} posts
-                      </TableCell>
-                    </TableRow>
-                    {months.map((m, index) => (
-                      <TableRow key={m.valueOf()}>
-                        <TableCell
-                          sx={{
-                            borderBottomWidth:
-                              index === months.length - 1 ? 0 : undefined,
-                          }}
-                        >
-                          {m.format('MMM YYYY')}
-                        </TableCell>
-                        <TableCell
-                          className="right"
-                          sx={{
-                            borderBottomWidth:
-                              index === months.length - 1 ? 0 : undefined,
-                          }}
-                        >
-                          {`${
-                            user.stats.frequencies.find(
-                              (f) => f.month === m.valueOf()
-                            )?.count || 0
-                          } posts`}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </CardContent>
-          </Card>
+        <Grid item xs={7}>
+          <Grid container columnSpacing={4} rowSpacing={6}>
+            <Grid item xs={6}>
+              <PostCountStatsComponent user={user} />
+            </Grid>
+            <Grid item xs={6}>
+              <PostLengthStatsComponent user={user} />
+            </Grid>
+          </Grid>
         </Grid>
-        <Grid item xs={4}>
-          <Card>
-            <CardHeader
-              avatar={MaterialUtils.formatAvatar(user.userName)}
-              title={PostComponent.formatCaption(user.userId, user.userName)}
-              subheader="User statistics"
-            ></CardHeader>
-            <CardContent>
-              <TableContainer>
-                <Table sx={{ width: '100%' }}>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell colSpan={2} padding="none">
-                        <MaterialUtils.ButtonLike>
-                          Lengths of posts
-                        </MaterialUtils.ButtonLike>
-                      </TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    <TableRow>
-                      <TableCell>Min length</TableCell>
-                      <TableCell className="right">
-                        {user.stats.minLength} characters
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell>Av. length</TableCell>
-                      <TableCell className="right">
-                        {user.stats.averageLength} characters
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell
-                        className="bold nowrap"
-                        sx={{ borderBottomWidth: 0 }}
-                      >
-                        Max length
-                      </TableCell>
-                      <TableCell
-                        className="bold nowrap right"
-                        sx={{ borderBottomWidth: 0 }}
-                      >
-                        {user.stats.maxLength} characters
-                      </TableCell>
-                    </TableRow>
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={4}>
+
+        <Grid item xs={5}>
           <BlogComponent
             posts={user.stats.longestPosts}
             expandAll={true}
