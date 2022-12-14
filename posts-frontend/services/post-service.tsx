@@ -77,32 +77,6 @@ export class PostService {
     );
   }
 
-  async fetchShortStats(): Promise<User[]> {
-    logger.debug('[GraphQL] Fetching short stats for all users.');
-    const query = gql`
-      query GetStats {
-        blog {
-          authors {
-            userId
-            userName
-            stats {
-              averageLength
-              minLength
-              maxLength
-              totalCount
-              frequencies {
-                month
-                count
-              }
-            }
-          }
-        }
-      }
-    `;
-
-    return this.fetchBlog(query).then((blog) => blog.authors);
-  }
-
   async fetchFullStats(userId?: string): Promise<User[]> {
     logger.debug(`[GraphQL] Fetching full stats for user ${userId}...`);
     const query = gql`
