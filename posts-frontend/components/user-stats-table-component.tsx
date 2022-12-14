@@ -5,15 +5,14 @@ import {
   GridRenderCellParams,
   GridValueGetterParams,
 } from '@mui/x-data-grid';
-import moment, { Moment } from 'moment';
 import Link from 'next/link';
 import { Component, ReactNode } from 'react';
 import { Frequency } from '../models/frequency';
-import { UserStats } from '../models/user-stats';
+import { User } from '../models/user';
 import { MomentUtils } from '../utils/moment-utils';
 import { getArrayMax, getArrayMin } from '../utils/utils';
 
-export class UserStatsTableComponent extends Component<{ stats: UserStats[] }> {
+export class UserStatsTableComponent extends Component<{ users: User[] }> {
   private findMonthlyRecords(frequencies: Frequency[]): Map<number, number> {
     const recordMap = new Map<number, number>();
 
@@ -46,7 +45,7 @@ export class UserStatsTableComponent extends Component<{ stats: UserStats[] }> {
   }
 
   render(): ReactNode {
-    const { stats } = this.props;
+    const { users } = this.props;
 
     //
     // Add basic columns
@@ -71,9 +70,10 @@ export class UserStatsTableComponent extends Component<{ stats: UserStats[] }> {
         {
           field: 'totalCount',
           headerName: 'Total count',
+          valueGetter: (params) => (params.row as User).stats.totalCount,
           width: 100,
         },
-        getArrayMax(stats.map((s) => s.totalCount)),
+        getArrayMax(users.map((u) => u.stats.totalCount)),
         true
       ),
     ];
@@ -81,7 +81,7 @@ export class UserStatsTableComponent extends Component<{ stats: UserStats[] }> {
     //
     // Add frequency columns
     //
-    const frequencies = stats.map((s) => s.frequencies).flat();
+    const frequencies = users.map((u) => u.stats.frequencies).flat();
     const months = MomentUtils.createMonthlyArray(
       frequencies.map((f) => f.month)
     );
@@ -96,7 +96,7 @@ export class UserStatsTableComponent extends Component<{ stats: UserStats[] }> {
             headerName: month.format('MM/YY'),
             width: 80,
             valueGetter(params: GridValueGetterParams<Frequency[]>) {
-              return params.row.frequencies?.find(
+              return (params.row as User).stats.frequencies?.find(
                 (f: Frequency) => f.month === monthValue
               )?.count;
             },
@@ -112,22 +112,33 @@ export class UserStatsTableComponent extends Component<{ stats: UserStats[] }> {
     //
     columns.push(
       this.addHighlightRecordCellRender(
-        { field: 'minLength', headerName: 'Min length', width: 90 },
-        getArrayMin(stats.map((s) => s.minLength)),
+        {
+          field: 'minLength',
+          headerName: 'Min length',
+          width: 90,
+          valueGetter: (params) => params.row.stats.minLength,
+        },
+        getArrayMin(users.map((u) => u.stats.minLength)),
         false
       ),
       this.addHighlightRecordCellRender(
         {
           field: 'averageLength',
           headerName: 'Av. length',
+          valueGetter: (params) => (params.row as User).stats.averageLength,
           width: 90,
         },
-        getArrayMax(stats.map((s) => s.averageLength)),
+        getArrayMax(users.map((u) => u.stats.averageLength)),
         true
       ),
       this.addHighlightRecordCellRender(
-        { field: 'maxLength', headerName: 'Max length', width: 90 },
-        getArrayMax(stats.map((s) => s.maxLength)),
+        {
+          field: 'stats.maxLength',
+          headerName: 'Max length',
+          valueGetter: (params) => (params.row as User).stats.maxLength,
+          width: 90,
+        },
+        getArrayMax(users.map((u) => u.stats.maxLength)),
         true
       )
     );
@@ -136,7 +147,7 @@ export class UserStatsTableComponent extends Component<{ stats: UserStats[] }> {
       <div style={{ height: 650, width: '100%' }}>
         <DataGrid
           getRowId={(row) => row.userId}
-          rows={stats}
+          rows={users}
           columns={columns}
           pageSize={10}
           autoPageSize

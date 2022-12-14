@@ -16,15 +16,14 @@ import { BlogComponent } from '../../components/blog-component';
 import { UserStatsComponent } from '../../components/user-stats-component';
 import { environment } from '../../environment/environment';
 import { Post } from '../../models/post';
+import { User } from '../../models/user';
 import { UserStats } from '../../models/user-stats';
 import { PostService } from '../../services/post-service';
 import { MaterialUtils } from '../../utils/material/material-utils';
 
 interface PageProps {
-  userId: string;
+  user: User;
   allUserIds: string[];
-  stats: UserStats[];
-  longestPosts: Post[];
 }
 
 export const getStaticProps: GetStaticProps = async (context) => {
@@ -32,30 +31,18 @@ export const getStaticProps: GetStaticProps = async (context) => {
   const userId = Array.isArray(userIdParam) ? userIdParam[0] : userIdParam;
 
   const postService = new PostService(environment.backendUrl);
-  const blog$ = postService.fetchStatsAndLongestPosts(userId);
+  const user$ = postService.fetchFullStats(userId);
   const allUsersId$ = postService.fetchUserIds();
 
-  return Promise.all([blog$, allUsersId$]).then(
-    (
-      data: [
-        {
-          stats: UserStats[];
-          longestPosts: Post[];
-        },
-        string[]
-      ]
-    ) => {
-      const { stats, longestPosts } = data[0];
-      return {
-        props: {
-          userId: userId!,
-          stats,
-          longestPosts,
-          allUserIds: data[1],
-        },
-      };
-    }
-  );
+  return Promise.all([user$, allUsersId$]).then((data: [User[], string[]]) => {
+    const [users, allUserIds] = data;
+    return {
+      props: {
+        user: users[0],
+        allUserIds,
+      },
+    };
+  });
 };
 
 export const getStaticPaths: GetStaticPaths = async () => {
@@ -75,11 +62,11 @@ export const getStaticPaths: GetStaticPaths = async () => {
 };
 
 export default function UserDashboard(props: PageProps): ReactNode {
-  const { userId, stats, longestPosts, allUserIds } = props;
+  const { user, allUserIds } = props;
   return (
     <div>
       <Box sx={{ flexGrow: 1 }}>
-        <UserStatsComponent stats={stats[0]} longestPosts={longestPosts} />
+        <UserStatsComponent user={user} />
       </Box>
       <Box
         sx={{ pt: 6 }}
@@ -88,7 +75,7 @@ export default function UserDashboard(props: PageProps): ReactNode {
         alignItems="center"
       >
         <Pagination
-          page={allUserIds.findIndex((s) => s === userId) + 1}
+          page={allUserIds.findIndex((s) => s === user.userId) + 1}
           count={allUserIds.length}
           showFirstButton
           showLastButton

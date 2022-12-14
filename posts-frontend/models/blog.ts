@@ -1,11 +1,10 @@
-import { sortArray } from '../utils/utils';
 import { Post } from './post';
-import { UserStats } from './user-stats';
+import { User } from './user';
 
 export interface Blog {
   posts: Post[];
   size: number;
-  stats: UserStats[];
+  authors: User[];
   longestPosts: Post[];
   totalPostCount: number;
 }

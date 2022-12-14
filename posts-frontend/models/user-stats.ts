@@ -1,11 +1,11 @@
 import { Frequency } from "./frequency";
+import { Post } from "./post";
 
 export interface UserStats {
-  userId: string;
-  userName: string;
   totalCount: number;
   averageLength: number;
   minLength: number;
-  maxLength: number;
+  maxLength: number;  
   frequencies: Frequency[];
+  longestPosts: Post[];
 }

@@ -1,11 +1,35 @@
-import { Frequency } from "./frequency";
+import { Frequency } from './frequency';
+import { Post } from './post';
 
 export interface UserStats {
-  userId: string;
-  userName: string;
+  /**
+   * User post count
+   */
   totalCount: number;
+
+  /**
+   * Average post length
+   */
   averageLength: number;
+
+  /**
+   * Min post length
+   */
   minLength: number;
-  maxLength: number;  
+
+  /**
+   * Max post length
+   */
+  maxLength: number;
+
+  /**
+   * Frequencies by month
+   */
   frequencies: Frequency[];
+
+  /**
+   * Longest posts (lazy load)
+   * @returns 
+   */
+  longestPosts: () => Post[];
 }

@@ -2,20 +2,21 @@ import { Alert } from '@mui/material';
 import { GetStaticProps } from 'next';
 import { UserStatsTableComponent } from '../../components/user-stats-table-component';
 import { environment } from '../../environment/environment';
+import { User } from '../../models/user';
 import { UserStats } from '../../models/user-stats';
 import { PostService } from '../../services/post-service';
 import { logger } from '../../utils/logger';
 
 interface PageProps {
-  stats: UserStats[];
+  users: User[];
   error: string;
 }
 
 export const getStaticProps: GetStaticProps = async (context) => {
   return await new PostService(environment.backendUrl)
-    .fetchStats()
-    .then((stats) => {
-      return { props: { stats } };
+    .fetchShortStats()
+    .then((users: User[]) => {
+      return { props: { users } };
     })
     .catch((error) => {
       logger.error(error);
@@ -28,11 +29,11 @@ export const getStaticProps: GetStaticProps = async (context) => {
 };
 
 export default function Dashboard(props: PageProps) {
-  const { stats, error } = props;
+  const { users, error } = props;
 
   if (error) {
     return <Alert severity="error">{error}</Alert>;
   }
 
-  return <UserStatsTableComponent stats={stats} />;
+  return <UserStatsTableComponent users={users} />;
 }

@@ -1,6 +1,7 @@
 import request, { gql, Variables } from 'graphql-request';
 import { Blog } from '../models/blog';
 import { Post } from '../models/post';
+import { User } from '../models/user';
 import { UserStats } from '../models/user-stats';
 import { logger } from '../utils/logger';
 import { sortArray } from '../utils/utils';
@@ -18,7 +19,7 @@ export class PostService {
     pageIndex: number,
     pageSize: number,
     userId: string | null
-  ): Promise<{posts: Post[], totalPostCount: number}> {
+  ): Promise<{ posts: Post[]; totalPostCount: number }> {
     const filter = { pageIndex, pageSize, userId };
     logger.debug(
       `[GraphQL] Fetching posts with filter ${JSON.stringify(filter)}...`
@@ -51,36 +52,12 @@ export class PostService {
     return this.fetchBlog(query, filter);
   }
 
-  async fetchStats(): Promise<UserStats[]> {
-    logger.debug('[GraphQL] Fetching user stats.');
-    const query = gql`
-      query GetStats {
-        blog {
-          stats {
-            userId
-            userName
-            averageLength
-            minLength
-            maxLength
-            totalCount
-            frequencies {
-              month
-              count
-            }
-          }
-        }
-      }
-    `;
-
-    return this.fetchBlog(query).then((blog) => blog.stats);
-  }
-
   async fetchUserIds(): Promise<string[]> {
     logger.debug('[GraphQL] Fetching user IDs...');
     const query = gql`
       query GetStats {
         blog {
-          stats {
+          authors {
             userId
             userName
           }
@@ -89,41 +66,67 @@ export class PostService {
     `;
 
     return this.fetchBlog(query).then((blog) =>
-      sortArray(blog.stats, (s) => s.userName).map((s) => s.userId)
+      sortArray(blog.authors, (u) => u.userName).map((s) => s.userId)
     );
   }
 
-  async fetchStatsAndLongestPosts(
-    userId?: string
-  ): Promise<{ stats: UserStats[]; longestPosts: Post[] }> {
-    logger.debug('[GraphQL] Fetching user stats and longest posts...');
+  async fetchShortStats(): Promise<User[]> {
+    logger.debug('[GraphQL] Fetching short stats for all users.');
     const query = gql`
-      query fetchLongestPost($userId: ID) {
-        blog(filter: { userId: $userId }) {
-          stats {
+      query GetStats {
+        blog {
+          authors {
             userId
             userName
-            averageLength
-            minLength
-            maxLength
-            totalCount
-            frequencies {
-              month
-              count
+            stats {
+              averageLength
+              minLength
+              maxLength
+              totalCount
+              frequencies {
+                month
+                count
+              }
             }
-          }
-          longestPosts {
-            id
-            userId
-            userName
-            type
-            createdTime
-            message
           }
         }
       }
     `;
 
-    return this.fetchBlog(query, { userId });
+    return this.fetchBlog(query).then((blog) => blog.authors);
+  }
+
+  async fetchFullStats(userId?: string): Promise<User[]> {
+    logger.debug(`[GraphQL] Fetching full stats for user ${userId}...`);
+    const query = gql`
+      query fetchLongestPost($userId: ID) {
+        blog(filter: { userId: $userId }) {
+          authors {
+            userId
+            userName
+            stats {
+              averageLength
+              minLength
+              maxLength
+              totalCount
+              frequencies {
+                month
+                count
+              }
+              longestPosts {
+                id
+                userId
+                userName
+                type
+                createdTime
+                message
+              }
+            }
+          }
+        }
+      }
+    `;
+
+    return this.fetchBlog(query, { userId }).then((blog) => blog.authors);
   }
 }

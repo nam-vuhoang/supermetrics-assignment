@@ -14,8 +14,7 @@ export const graphQLOptions = {
     type Blog {
       size: Int!
       posts: [Post!]!
-      stats: [UserStats!]!
-      longestPosts: [Post!]!
+      authors: [User!]!
       totalPostCount: Int!
     }
 
@@ -28,14 +27,19 @@ export const graphQLOptions = {
       createdTime: Date!
     }
 
-    type UserStats {
+    type User {
       userId: ID!
       userName: String!
+      stats: UserStats!
+    }
+
+    type UserStats {
       totalCount: Int!
       averageLength: Float!
       minLength: Int!
       maxLength: Int!
       frequencies: [Frequency!]!
+      longestPosts: [Post!]!
     }
 
     type Frequency {

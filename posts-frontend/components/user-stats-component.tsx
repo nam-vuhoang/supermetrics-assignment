@@ -1,5 +1,4 @@
 import {
-  Button,
   Card,
   CardContent,
   CardHeader,
@@ -10,28 +9,23 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Typography,
 } from '@mui/material';
-import { stat, Stats } from 'fs';
-import moment from 'moment';
-import { Moment } from 'moment';
 import { Component, ReactNode } from 'react';
 import { Post } from '../models/post';
-import { UserStats } from '../models/user-stats';
+import { User } from '../models/user';
 import { MaterialUtils } from '../utils/material/material-utils';
 import { MomentUtils } from '../utils/moment-utils';
 import { BlogComponent } from './blog-component';
 import { PostComponent } from './post-component';
 
 export class UserStatsComponent extends Component<{
-  stats: UserStats;
-  longestPosts: Post[];
+  user: User;
 }> {
   render(): ReactNode {
-    const { stats, longestPosts } = this.props;
+    const { user } = this.props;
 
     const months = MomentUtils.createMonthlyArray(
-      stats.frequencies.map((f) => f.month)
+      user.stats.frequencies.map((f) => f.month)
     );
 
     return (
@@ -39,8 +33,8 @@ export class UserStatsComponent extends Component<{
         <Grid item xs={3}>
           <Card>
             <CardHeader
-              avatar={MaterialUtils.formatAvatar(stats.userName)}
-              title={PostComponent.formatCaption(stats.userId, stats.userName)}
+              avatar={MaterialUtils.formatAvatar(user.userName)}
+              title={PostComponent.formatCaption(user.userId, user.userName)}
               subheader="User statistics"
             ></CardHeader>
             <CardContent>
@@ -59,7 +53,7 @@ export class UserStatsComponent extends Component<{
                     <TableRow>
                       <TableCell className="bold">All time</TableCell>
                       <TableCell className="bold right">
-                        {stats.totalCount} posts
+                        {user.stats.totalCount} posts
                       </TableCell>
                     </TableRow>
                     {months.map((m, index) => (
@@ -80,7 +74,7 @@ export class UserStatsComponent extends Component<{
                           }}
                         >
                           {`${
-                            stats.frequencies.find(
+                            user.stats.frequencies.find(
                               (f) => f.month === m.valueOf()
                             )?.count || 0
                           } posts`}
@@ -96,8 +90,8 @@ export class UserStatsComponent extends Component<{
         <Grid item xs={3}>
           <Card>
             <CardHeader
-              avatar={MaterialUtils.formatAvatar(stats.userName)}
-              title={PostComponent.formatCaption(stats.userId, stats.userName)}
+              avatar={MaterialUtils.formatAvatar(user.userName)}
+              title={PostComponent.formatCaption(user.userId, user.userName)}
               subheader="User statistics"
             ></CardHeader>
             <CardContent>
@@ -116,13 +110,13 @@ export class UserStatsComponent extends Component<{
                     <TableRow>
                       <TableCell>Min length</TableCell>
                       <TableCell className="right">
-                        {stats.minLength} characters
+                        {user.stats.minLength} characters
                       </TableCell>
                     </TableRow>
                     <TableRow>
                       <TableCell>Av. length</TableCell>
                       <TableCell className="right">
-                        {stats.averageLength} characters
+                        {user.stats.averageLength} characters
                       </TableCell>
                     </TableRow>
                     <TableRow>
@@ -136,7 +130,7 @@ export class UserStatsComponent extends Component<{
                         className="bold nowrap right"
                         sx={{ borderBottomWidth: 0 }}
                       >
-                        {stats.maxLength} characters
+                        {user.stats.maxLength} characters
                       </TableCell>
                     </TableRow>
                   </TableBody>
@@ -147,7 +141,7 @@ export class UserStatsComponent extends Component<{
         </Grid>
         <Grid item xs={6}>
           <BlogComponent
-            posts={longestPosts}
+            posts={user.stats.longestPosts}
             expandAll={true}
             caption="Longest post"
           />
