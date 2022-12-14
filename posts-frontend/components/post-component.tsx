@@ -24,7 +24,7 @@ import {
 import { MaterialUtils } from '../utils/material/material-utils';
 
 export class PostComponent extends Component<
-  { post: Post; expand: boolean },
+  { post: Post; caption?: string; expand: boolean },
   { displayFull: boolean }
 > {
   static readonly MAX_SHORT_MESSAGE_LENGTH = 150;
@@ -89,8 +89,15 @@ export class PostComponent extends Component<
   }
 
   render(): ReactNode {
-    const { post } = this.props;
+    const { post, caption } = this.props;
     const { displayFull } = this.state;
+
+    let captionText: ReactNode = '';
+    if (caption) {
+      captionText = (
+        <MaterialUtils.ButtonLike>{caption}</MaterialUtils.ButtonLike>
+      );
+    }
 
     return (
       <Card>
@@ -103,11 +110,12 @@ export class PostComponent extends Component<
               href={`/dashboard/${encodeURIComponent(post.userId)}`}
               aria-label="dashboard"
             >
-              <BarChart fontSize='small' />
+              <BarChart fontSize="small" />
             </IconButton>
           }
         ></CardHeader>
         <CardContent>
+          {captionText}
           <Typography
             variant="body2"
             color="text.secondary"

@@ -1,4 +1,5 @@
 import { Avatar } from '@mui/material';
+import { styled } from '@mui/material/styles';
 
 export class MaterialUtils {
   // https://mui.com/material-ui/react-avatar/
@@ -34,4 +35,11 @@ export class MaterialUtils {
   static formatAvatar(name: string): JSX.Element {
     return <Avatar {...MaterialUtils.stringAvatar(name)} />;
   }
+
+  static ButtonLike = styled('div')(({ theme }) => ({
+    ...theme.typography.button,
+    backgroundColor: theme.palette.background.paper,
+    padding: theme.spacing(1),
+    paddingLeft: 0
+  }));
 }

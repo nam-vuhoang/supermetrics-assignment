@@ -79,14 +79,7 @@ export default function UserDashboard(props: PageProps): ReactNode {
   return (
     <div>
       <Box sx={{ flexGrow: 1 }}>
-        <Grid container columnSpacing={4} rowSpacing={6}>
-          <Grid item xs={3}>
-            <UserStatsComponent stats={stats[0]} />
-          </Grid>
-          <Grid item xs={9}>
-            <BlogComponent posts={longestPosts} expand={true} />
-          </Grid>
-        </Grid>
+        <UserStatsComponent stats={stats[0]} longestPosts={longestPosts} />
       </Box>
       <Box
         sx={{ pt: 6 }}
@@ -102,7 +95,9 @@ export default function UserDashboard(props: PageProps): ReactNode {
           renderItem={(item) => (
             <PaginationItem
               component={Link}
-              href={`/dashboard/${encodeURIComponent(allUserIds[item.page! - 1])}`}
+              href={`/dashboard/${encodeURIComponent(
+                allUserIds[item.page! - 1]
+              )}`}
               {...item}
             />
           )}

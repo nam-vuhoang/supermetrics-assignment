@@ -6,12 +6,13 @@ import { Box, Grid } from '@mui/material';
 export class BlogComponent extends Component<{
   posts: Post[];
   columns?: number;
-  expand?: boolean;
+  expandAll?: boolean;
+  caption?: string;
 }> {
   static readonly DEFAULT_COLUMN_NUMBER = 3;
 
   render(): ReactNode {
-    const { posts, columns, expand: expandAll } = this.props;
+    const { posts, columns, expandAll, caption } = this.props;
     const columnNumber = Math.min(
       columns || BlogComponent.DEFAULT_COLUMN_NUMBER,
       posts.length
@@ -22,7 +23,7 @@ export class BlogComponent extends Component<{
           <Grid container columnSpacing={4} rowSpacing={6}>
             {posts.map((p) => (
               <Grid item key={p.id} xs={12 / columnNumber}>
-                <PostComponent post={p} expand={!!expandAll} />
+                <PostComponent post={p} expand={!!expandAll} caption={caption} />
               </Grid>
             ))}
           </Grid>
