@@ -57,15 +57,11 @@ export class UserStatsTableComponent extends Component<{ users: User[] }> {
         width: 200,
         renderCell: (params: GridRenderCellParams<string>) => (
           <Link
-            href={{
-              pathname: 'dashboard/[userId]',
-              query: { userId: params.row.userId },
-            }}
+            href={`/dashboard/${encodeURIComponent(params.row.userId)}`}
             shallow
           >
-            {params.value}
+            <Typography color="primary">{params.row.userName}</Typography>
           </Link>
-          
         ),
       },
       this.addHighlightRecordCellRender(
@@ -147,6 +143,9 @@ export class UserStatsTableComponent extends Component<{ users: User[] }> {
 
     return (
       <div style={{ height: 650, width: '100%' }}>
+        <Link href={`/dashboard/user_18`} shallow>
+          <Typography color="primary">User 18</Typography>
+        </Link>
         <DataGrid
           getRowId={(row) => row.userId}
           rows={users}
