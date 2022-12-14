@@ -11,7 +11,6 @@ import {
   TableRow,
 } from '@mui/material';
 import { Component, ReactNode } from 'react';
-import { Post } from '../models/post';
 import { User } from '../models/user';
 import { MaterialUtils } from '../utils/material/material-utils';
 import { MomentUtils } from '../utils/moment-utils';
@@ -30,7 +29,7 @@ export class UserStatsComponent extends Component<{
 
     return (
       <Grid container columnSpacing={4} rowSpacing={6}>
-        <Grid item xs={3}>
+        <Grid item xs={4}>
           <Card>
             <CardHeader
               avatar={MaterialUtils.formatAvatar(user.userName)}
@@ -87,7 +86,7 @@ export class UserStatsComponent extends Component<{
             </CardContent>
           </Card>
         </Grid>
-        <Grid item xs={3}>
+        <Grid item xs={4}>
           <Card>
             <CardHeader
               avatar={MaterialUtils.formatAvatar(user.userName)}
@@ -139,7 +138,7 @@ export class UserStatsComponent extends Component<{
             </CardContent>
           </Card>
         </Grid>
-        <Grid item xs={6}>
+        <Grid item xs={4}>
           <BlogComponent
             posts={user.stats.longestPosts}
             expandAll={true}

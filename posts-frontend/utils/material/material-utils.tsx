@@ -1,5 +1,6 @@
 import { Avatar } from '@mui/material';
 import { styled } from '@mui/material/styles';
+import { ReactNode } from 'react';
 
 export class MaterialUtils {
   // https://mui.com/material-ui/react-avatar/
@@ -40,6 +41,10 @@ export class MaterialUtils {
     ...theme.typography.button,
     backgroundColor: theme.palette.background.paper,
     padding: theme.spacing(1),
-    paddingLeft: 0
+    paddingLeft: 0,
   }));
+
+  static conditionalNode(condition: any, node: ReactNode) {
+    return condition ? node : <></>;
+  }
 }

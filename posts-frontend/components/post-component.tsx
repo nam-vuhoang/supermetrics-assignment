@@ -24,7 +24,12 @@ import {
 import { MaterialUtils } from '../utils/material/material-utils';
 
 export class PostComponent extends Component<
-  { post: Post; caption?: string; expand: boolean },
+  {
+    post: Post;
+    caption?: string;
+    expand: boolean;
+    hideDashboardLink?: boolean;
+  },
   { displayFull: boolean }
 > {
   static readonly MAX_SHORT_MESSAGE_LENGTH = 150;
@@ -50,14 +55,12 @@ export class PostComponent extends Component<
     const diffString = moment.duration(diff).humanize();
 
     return (
-      <>
-        <Tooltip title={createdTimeString}>
-          <span>
-            <AccessTimeIcon sx={{ fontSize: 14 }} />
-            {` ${diffString} ago`}
-          </span>
-        </Tooltip>
-      </>
+      <Tooltip title={createdTimeString}>
+        <span>
+          <AccessTimeIcon sx={{ fontSize: 14 }} />
+          {` ${diffString} ago`}
+        </span>
+      </Tooltip>
     );
   }
 
@@ -90,15 +93,8 @@ export class PostComponent extends Component<
   }
 
   render(): ReactNode {
-    const { post, caption } = this.props;
+    const { post, caption, hideDashboardLink } = this.props;
     const { displayFull } = this.state;
-
-    let captionText: ReactNode = '';
-    if (caption) {
-      captionText = (
-        <MaterialUtils.ButtonLike>{caption}</MaterialUtils.ButtonLike>
-      );
-    }
 
     return (
       <Card>
@@ -106,17 +102,22 @@ export class PostComponent extends Component<
           avatar={MaterialUtils.formatAvatar(post.userName)}
           title={PostComponent.formatCaption(post.userId, post.userName)}
           subheader={this.formatCreatedTime()}
-          action={
+          action={MaterialUtils.conditionalNode(
+            !hideDashboardLink,
             <IconButton
               href={`/dashboard/${encodeURIComponent(post.userId)}`}
               aria-label="dashboard"
             >
               <BarChart fontSize="small" />
             </IconButton>
-          }
-        ></CardHeader>
+          )}
+        />
+
         <CardContent>
-          {captionText}
+          {MaterialUtils.conditionalNode(
+            caption,
+            <MaterialUtils.ButtonLike>{caption}</MaterialUtils.ButtonLike>
+          )}
           <Typography
             variant="body2"
             color="text.secondary"
@@ -127,6 +128,7 @@ export class PostComponent extends Component<
             {displayFull ? post.message : this.formatShortMessage()}
           </Typography>
         </CardContent>
+
         <CardActions>
           <Box sx={{ flexGrow: 1 }}>
             <IconButton aria-label="add to favorites">
