@@ -60,10 +60,24 @@ export class UserStatsComponent extends Component<{
                       <TableCell>Total count</TableCell>
                       <TableCell>{stats.totalCount} posts</TableCell>
                     </TableRow>
-                    {months.map((m) => (
+                    {months.map((m, index) => (
                       <TableRow key={m.valueOf()}>
-                        <TableCell>{m.format('MMM YYYY')}</TableCell>
-                        <TableCell>
+                        <TableCell
+                          sx={
+                            index === months.length - 1
+                              ? { borderBottomWidth: 0 }
+                              : {}
+                          }
+                        >
+                          {m.format('MMM YYYY')}
+                        </TableCell>
+                        <TableCell
+                          sx={
+                            index === months.length - 1
+                              ? { borderBottomWidth: 0 }
+                              : {}
+                          }
+                        >
                           {`${
                             stats.frequencies.find(
                               (f) => f.month === m.valueOf()
@@ -107,8 +121,12 @@ export class UserStatsComponent extends Component<{
                       <TableCell>{stats.averageLength} characters</TableCell>
                     </TableRow>
                     <TableRow>
-                      <TableCell>Max length</TableCell>
-                      <TableCell>{stats.maxLength} characters</TableCell>
+                      <TableCell sx={{ borderBottomWidth: 0 }}>
+                        Max length
+                      </TableCell>
+                      <TableCell sx={{ borderBottomWidth: 0 }}>
+                        {stats.maxLength} characters
+                      </TableCell>
                     </TableRow>
                   </TableBody>
                 </Table>
