@@ -14,5 +14,5 @@ export interface User {
   /**
    * User statistics (lazy load)
    */
-  stats: () => UserStats;
+  stats?: () => UserStats;
 }

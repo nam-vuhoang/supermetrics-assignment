@@ -9,6 +9,8 @@ import { PostFilter } from '../models/post-filter';
 import { Blog } from '../models/blog';
 import { PageFilter } from '../models/page-filter';
 import { sortArray } from '../utils/utils';
+import { stringify } from 'querystring';
+import { User } from '../models/user';
 
 interface RawPost {
   id: string;
@@ -131,6 +133,37 @@ export class PostService extends RESTDataSource {
 
     // Sort and paginate if needed
     return posts$.then((posts) => PostService.sortAndPaginate(posts, page, sortByCreatedTimeAsc));
+  }
+
+  /**
+   * Fetchs all user posts filtered by userId with sorting and pagination if required.
+   * @param filter
+   * @returns
+   */
+  async fetchUsers(): Promise<User[]> {
+    logger.info('Fetching all users');
+
+    // Get all raw posts from all pages
+    logger.info('Fetching all posts from %d pages', this.pageCount);
+    const pageIndexes: number[] = Array.from(Array(this.pageCount).keys()); // from 0 to N-1;
+    let pages$: Promise<RawPost[]>[] = pageIndexes.map((pageIndex) =>
+      this.fetchRawPostsByPageAndUser(pageIndex, undefined)
+    );
+
+    // Merge pages and normalize posts
+    const userMap = new Map<string, User>();
+    return Promise.all(pages$).then((pages) => {
+      for (let page of pages) {
+        for (let rawPost of page) {
+          const { from_id: userId, from_name: userName } = rawPost;
+          const user = userMap.get(userId);
+          if (!user) {
+            userMap.set(userId, { userId, userName });
+          }
+        }
+      }
+      return Array.from(userMap.values());
+    });
   }
 
   /**

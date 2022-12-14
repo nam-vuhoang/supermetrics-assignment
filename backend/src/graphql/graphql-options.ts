@@ -9,6 +9,7 @@ export const graphQLOptions = {
   typeDefs: gql`
     type Query {
       blog(filter: PostFilter): Blog
+      users: [User!]!
     }
 
     type Blog {
@@ -93,6 +94,10 @@ export const graphQLOptions = {
         return new PostService(context, environment.dataServer.baseUrl, environment.dataServer.pageCount).fetchPosts(
           args.filter
         );
+      },
+
+      users(_: any, args: { filter: PostFilter }, context: GraphQLContext) {
+        return new PostService(context, environment.dataServer.baseUrl, environment.dataServer.pageCount).fetchUsers();
       },
     },
   },
