@@ -1,5 +1,7 @@
 import {
   Alert,
+  Card,
+  CardHeader,
   Grid,
   Table,
   TableCell,
@@ -85,18 +87,21 @@ export default function UserDashboard(props: PageProps): ReactNode {
   return (
     <div>
       {/* Menu */}
-      <Grid container>
+      <Grid container columnSpacing={4}>
         <Grid item xs={2}>
           <Table>
             <TableRow>
               <TableCell>
                 <Link href={`/dashboard/`} shallow>
-                  <Typography color="primary">Pivot table</Typography>
+                  <Typography fontWeight="bold" color="primary">
+                    Pivot table
+                  </Typography>
                 </Link>
               </TableCell>
             </TableRow>
+
             <TableRow>
-              <TableCell>
+              <TableCell sx={{ borderBottomWidth: 0 }}>
                 {users.map((u) => (
                   <div key={u.userId}>
                     <Link

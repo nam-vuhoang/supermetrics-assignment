@@ -143,9 +143,6 @@ export class UserStatsTableComponent extends Component<{ users: User[] }> {
 
     return (
       <div style={{ height: 650, width: '100%' }}>
-        <Link href={`/dashboard/user_18`} shallow>
-          <Typography color="primary">User 18</Typography>
-        </Link>
         <DataGrid
           getRowId={(row) => row.userId}
           rows={users}
