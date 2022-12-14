@@ -8,8 +8,7 @@ import { StatusCodes } from 'http-status-codes';
 import { PostFilter } from '../models/post-filter';
 import { Blog } from '../models/blog';
 import { PageFilter } from '../models/page-filter';
-import { sortArray } from '../utils/utils';
-import { stringify } from 'querystring';
+import { Utils } from '../utils/utils';
 import { User } from '../models/user';
 
 interface RawPost {
@@ -145,7 +144,7 @@ export class PostService extends RESTDataSource {
 
     // Get all raw posts from all pages
     logger.info('Fetching all posts from %d pages', this.pageCount);
-    const pageIndexes: number[] = Array.from(Array(this.pageCount).keys()); // from 0 to N-1;
+    const pageIndexes: number[] = Utils.createNumberRange(this.pageCount); // from 0 to N-1;
     let pages$: Promise<RawPost[]>[] = pageIndexes.map((pageIndex) =>
       this.fetchRawPostsByPageAndUser(pageIndex, undefined)
     );
@@ -178,7 +177,7 @@ export class PostService extends RESTDataSource {
 
     if (pageFilter || sortByCreatedTimeAsc !== undefined) {
       // reverse order if sortByCreatedTimeAsc is undefined or false
-      posts = sortArray(posts, (p) => p.createdTime.getTime(), !sortByCreatedTimeAsc);
+      posts = Utils.sortArray(posts, (p) => p.createdTime.getTime(), !sortByCreatedTimeAsc);
     }
 
     if (pageFilter) {

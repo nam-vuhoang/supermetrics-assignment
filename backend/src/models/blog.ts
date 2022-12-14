@@ -1,4 +1,4 @@
-import { sortArray } from '../utils/utils';
+import { Utils } from '../utils/utils';
 import { Post } from './post';
 import { User } from './user';
 import { UserStats } from './user-stats';
@@ -78,7 +78,7 @@ export class Blog {
       minLength: minLength || 0,
       averageLength: Math.round(totalLength / totalCount),
       maxLength,
-      frequencies: sortArray(frequencies, (f) => f.month.getTime()),
+      frequencies: Utils.sortArray(frequencies, (f) => f.month.getTime()),
       longestPosts: () => this.posts.filter((p) => p.userId === userId && p.message.length === maxLength),
     };
   }
