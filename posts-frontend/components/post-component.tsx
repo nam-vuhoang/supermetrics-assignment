@@ -81,6 +81,7 @@ export class PostComponent extends Component<
         <IconButton
           size="small"
           onClick={() => this.setState({ displayFull: true })}
+          aria-label="see more"
         >
           <VisibilityIcon />
         </IconButton>
@@ -127,17 +128,15 @@ export class PostComponent extends Component<
           </Typography>
         </CardContent>
         <CardActions>
-          <Box>
+          <Box sx={{ flexGrow: 1 }}>
             <IconButton aria-label="add to favorites">
               <FavoriteIcon />
             </IconButton>
             <IconButton aria-label="share">
               <ShareIcon />
             </IconButton>
-          </Box>{' '}
-          <Box sx={{ pr: 0 }}>
-            <Rating />
           </Box>
+          <Rating aria-label="rate" />
         </CardActions>
       </Card>
     );
