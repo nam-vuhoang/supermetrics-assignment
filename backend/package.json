@@ -8,7 +8,8 @@
     "compile": "tsc",
     "start": "ts-node ./src/index | pino-pretty",
     "dev": "concurrently \"tsc --watch\" \"nodemon --exec \"\"npm run start\"\"\"",
-    "test": "npx jest"
+    "test": "npx jest",
+    "test:watch": "npx jest --watch"
   },
   "keywords": [],
   "author": "",
