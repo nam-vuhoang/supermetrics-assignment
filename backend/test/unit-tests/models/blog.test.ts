@@ -43,7 +43,7 @@ describe('test blog', () => {
   });
 
   describe('authors', () => {
-    const { authors } = blog;
+    const authors = blog.authors();
 
     test('authors.length', () => {
       expect(authors.length).toBe(size);
