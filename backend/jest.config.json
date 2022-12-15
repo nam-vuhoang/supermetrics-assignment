@@ -7,5 +7,6 @@
   },
   "transformIgnorePatterns": ["<rootDir>/node_modules/"],
   // "testRegex": "test/(.+)\\.test\\.(jsx?|tsx?)$",
-  "moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json", "node"]
+  "moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json", "node"],
+  "setupFiles": ["dotenv/config"]
 }
