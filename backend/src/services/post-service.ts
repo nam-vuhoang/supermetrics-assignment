@@ -119,15 +119,6 @@ export class PostService extends RESTDataSource {
    * @returns
    */
   private async fetchRawPostsByPageAndUser(pageIndex: number, userId: string | undefined): Promise<RawPost[]> {
-    if (pageIndex < 0 || pageIndex >= this.pageCount) {
-      throw new GraphQLError('Invalid argument value', {
-        extensions: {
-          code: 'BAD_USER_INPUT',
-          argumentName: 'pageIndex',
-        },
-      });
-    }
-
     const pageNumber = pageIndex + 1;
     // logger.debug('Fetching posts from page %d', pageNumber);
 
