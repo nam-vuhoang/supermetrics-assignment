@@ -62,7 +62,7 @@ export class Blog {
         totalLength += length;
 
         const { createdTime } = post;
-        const createdMonth = new Date(Date.UTC(createdTime.getUTCFullYear(), createdTime.getUTCMonth()));
+        const createdMonth = Utils.getMonthUTC(createdTime);
         const frequency = frequencies.find((f) => f.month.getTime() === createdMonth.getTime());
 
         if (frequency) {

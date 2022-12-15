@@ -7,7 +7,7 @@ import { logger } from '../utils/logger';
 
 export class AuthenticationService extends RESTDataSource {
   static readonly REQUEST_PATH = 'register';
-  static readonly MIN_TOKEN_EXPIRATION_DURATION = 5 * 60 * 1000; // 5 mins (in ms)
+  static readonly MIN_TOKEN_EXPIRATION_DURATION_IN_MILLISECONDS = 3000; // 3 secs
 
   private token$?: Promise<string>;
   private tokenUpdatedTime?: number;
@@ -34,6 +34,6 @@ export class AuthenticationService extends RESTDataSource {
 
   notifyTokenExpired(): void {
     // wait at least a certain period before refreshing token
-     this.isTokenExpired ||= Date.now() - this.tokenUpdatedTime > AuthenticationService.MIN_TOKEN_EXPIRATION_DURATION;
+     this.isTokenExpired ||= Date.now() - this.tokenUpdatedTime > AuthenticationService.MIN_TOKEN_EXPIRATION_DURATION_IN_MILLISECONDS;
   }
 }

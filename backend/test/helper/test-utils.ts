@@ -10,3 +10,6 @@ export function getterValue<T>(t: TestType<T>): T {
   return t.value;
 }
 
+export function delay(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}

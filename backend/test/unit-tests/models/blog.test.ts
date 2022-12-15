@@ -4,11 +4,9 @@ import { User } from '../../../src/models/user';
 import { UserStats } from '../../../src/models/user-stats';
 import { Utils } from '../../../src/utils/utils';
 
-test('test blog', () => {
+describe('test blog', () => {
   const size = 10;
-  // const type = 'status';
-
-  // generate test posts
+  const totalSize = 1000;
   const posts: Post[] = Utils.createNumberRange(size)
     .map((n) => n + 1)
     .map((n) => {
@@ -28,55 +26,107 @@ test('test blog', () => {
     })
     .flat();
 
-  const totalSize = 1000;
   const blog = new Blog(posts, totalSize);
-  expect(blog.totalPostCount).toBe(totalSize);
 
-  expect(blog.posts).toStrictEqual(posts);
-  expect(blog.authors.length).toBe(size);
+  test('totalSize', () => {
+    expect(blog.totalPostCount).toBe(totalSize);
+  });
 
-  const expectedSize = Utils.sumArrayValues(Utils.createNumberRange(size), (i) => i + 1); // sum from 1 to 10
-  expect(expectedSize).toBe(55);
+  test('posts', () => {
+    expect(blog.posts).toStrictEqual(posts);
+  });
 
-  expect(blog.size).toBe(expectedSize);
+  test('expectedSize', () => {
+    const expectedSize = Utils.getArraySum(Utils.createNumberRange(size).map((i) => i + 1)); // sum from 1 to 10
+    expect(expectedSize).toBe(55);
+    expect(blog.size).toBe(expectedSize);
+  });
 
-  const authors: User[] = blog.authors;
-  expect(authors.length).toBe(size);
+  describe('authors', () => {
+    const { authors } = blog;
 
-  for (let author of authors) {
-    const n = Number(author.userId.substring(author.userId.indexOf('_') + 1));
-    expect(Number.isNaN(n)).toBe(false);
-    expect(author.userId).toBe(`user_${n}`);
-    expect(author.userName).toBe(`USER_${n}`);
+    test('authors.length', () => {
+      expect(authors.length).toBe(size);
+    });
 
-    const stats: UserStats = author.stats();
-    expect(stats.totalCount).toBe(n);
-    expect(stats.minLength).toBe(n);
-    expect(stats.maxLength).toBe(n * n);
+    describe.each(authors)('with each author', (author: User) => {
+      const n = Number(author.userId.substring(author.userId.indexOf('_') + 1));
+      expect(Number.isNaN(n)).toBe(false);
 
-    const expectedTotalLength = Utils.sumArrayValues(Utils.createNumberRange(n), (i) => i + 1) * n;
+      test('userId', () => {
+        expect(author.userId).toBe(`user_${n}`);
+      });
 
-    const expectedAverageLength = Math.ceil(expectedTotalLength / stats.totalCount);
-    // console.log(n, '=>', expectedTotalLength, '=>', expectedAverageLength);
-    expect(stats.averageLength).toBeCloseTo(expectedAverageLength);
+      test('userName', () => {
+        expect(author.userName).toBe(`USER_${n}`);
+      });
 
-    const { frequencies } = stats;
-    expect(frequencies.length).toBe(Math.ceil((n + 1) / 2));
-    // console.log(frequencies);
+      describe('stats', () => {
+        const stats: UserStats = author.stats();
 
-    expect(Utils.sumArrayValues(frequencies, (f) => f.count)).toBe(stats.totalCount);
+        test('stats.totalCount', () => {
+          expect(stats.totalCount).toBe(n);
+        });
 
-    for (let f of frequencies) {
-      // console.log('month', f.month);
-      expect(f.month.getFullYear()).toBe(2022);
-      expect(f.month.getDate()).toBe(1);
+        test('stats.minLength', () => {
+          expect(stats.minLength).toBe(n);
+        });
 
-      const m = f.month.getMonth();
-      const isLastMonth = m === frequencies.length - 1;
+        test('stats.maxLength', () => {
+          expect(stats.maxLength).toBe(n * n);
+        });
 
-      const expectedCount = m === 0 || (isLastMonth && n % 2 === 0) ? 1 : 2;
-      // console.log('n=', n, ', month=', m, ', expected count=', expectedCount);
-      expect(f.count).toBe(expectedCount);
-    }
-  }
+        test('stats.averageLength', () => {
+          const expectedTotalLength = Utils.getArraySum(Utils.createNumberRange(n).map((i) => i + 1)) * n;
+          const expectedAverageLength = Math.ceil(expectedTotalLength / stats.totalCount);
+          // console.log(n, '=>', expectedTotalLength, '=>', expectedAverageLength);
+          expect(stats.averageLength).toBeCloseTo(expectedAverageLength);
+        });
+
+        describe('stats.frequencies', () => {
+          const { frequencies } = stats;
+
+          test('frequencies.length', () => {
+            expect(frequencies.length).toBe(Math.ceil((n + 1) / 2));
+          });
+
+          test('stats.totalCount', () => {
+            expect(Utils.getArraySum(frequencies.map((f) => f.count))).toBe(stats.totalCount);
+          });
+
+          describe.each(frequencies)('with each frequency', (frequency) => {
+            test('frequency.month', () => {
+              const { month } = frequency;
+              expect(month.getFullYear()).toBe(2022);
+              expect(month.getDate()).toBe(1);
+            });
+
+            test('frequency.count', () => {
+              const m = frequency.month.getMonth();
+              const isLastMonth = m === frequencies.length - 1;
+
+              // first month => 1
+              // every next month => 2 (except the last month if n is even => 1)
+              const expectedCount = m === 0 || (isLastMonth && n % 2 === 0) ? 1 : 2;
+              expect(frequency.count).toBe(expectedCount);
+            });
+          });
+        });
+
+        describe('stats.longestPosts', () => {
+          const longestPosts = stats.longestPosts();
+
+          test('longestPosts.length', () => {
+            expect(longestPosts.length).toBe(1);
+          });
+
+          test.each(longestPosts)('with each longestPost', (longestPost) => {
+            const expectedLength = n * n;
+            expect(longestPost.message.length).toBe(expectedLength);
+            expect(longestPost.message).toBe('a'.repeat(expectedLength));
+          });
+        });
+      });
+    });
+  });
 });

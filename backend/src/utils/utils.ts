@@ -45,25 +45,56 @@ export class Utils {
   }
 
   /**
-   * Sum array values
-   * @param items 
-   * @param valueGetter 
-   * @returns 
-   */
-  static sumArrayValues<T>(
-    items: Array<T> | null,
-    valueGetter: (item: T) => number
-  ): number {
-    return items.reduce((accumulator, item) => {
-      return accumulator + valueGetter(item);
-    }, 0);
-  }
-
-  /**
    * Create number range from 0 to N-1.
    * @param n
    */
   static createNumberRange(n: number): number[] {
     return Array.from(Array(n).keys());
+  }
+
+  /**
+   * Sum array values.
+   * @param items
+   * @returns
+   */
+  static getArraySum(items: Array<number>): number {
+    return items.reduce((accumulator, item) => {
+      return accumulator + item;
+    }, 0);
+  }
+
+  /**
+   * Get array min value.
+   * @param items
+   * @returns
+   */
+  static getArrayMin(items: Array<number>): number {
+    return Math.min.apply(null, items);
+  }
+
+  /**
+   * Get array max value.
+   * @param items
+   * @returns
+   */
+  static getArrayMax(items: Array<number>): number {
+    return Math.max.apply(null, items);
+  }
+
+  /**
+   * Get random integer between 0 (inclusive) and limit (exclusive).
+   * @param limit
+   * @returns 
+   */
+  static getRandomInt(limit: number) {
+    return Math.floor(Math.random() * limit);
+  }
+
+  /**
+   * Get first day of month in UTC time zone.
+   * @param date
+   */
+  static getMonthUTC(date: Date): Date {
+    return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth()));
   }
 }
