@@ -1,11 +1,11 @@
 {
   "preset": "ts-jest",
-  "roots": ["<rootDir>/test"],
+  "roots": ["<rootDir>/src", "<rootDir>/test"],
   "testEnvironment": "node",
   "transform": {
     "^.+\\.ts?$": "ts-jest"
   },
   "transformIgnorePatterns": ["<rootDir>/node_modules/"],
-  "testRegex": "test/(.+)\\.test\\.(jsx?|tsx?)$",
+  // "testRegex": "test/(.+)\\.test\\.(jsx?|tsx?)$",
   "moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json", "node"]
 }

@@ -1,13 +1,14 @@
 import { GraphQLError } from 'graphql';
-import { environment } from '../../../src/environment/environment';
-import { AuthenticationService } from '../../../src/services/authentication-service';
-import { delay } from '../../helper/test-utils';
+import { environment } from '../environment/environment';
+import { AuthenticationService } from './authentication-service';
+import { delay } from '../../test/helper/test-utils';
 import { StatusCodes } from 'http-status-codes';
 
-describe('AuthenticationService', () => {
+describe('Class AuthenticationService', () => {
   const { baseUrl, clientInfo } = environment.dataServer;
-  test('environment variables', () => {
-    expect(baseUrl).toEqual('https://api.supermetrics.com/assignment');
+
+  beforeAll(() => {
+    expect(baseUrl).toBeTruthy();
     expect(clientInfo).toBeTruthy();
     expect(clientInfo.client_id).toBeTruthy();
   });
@@ -59,4 +60,3 @@ describe('AuthenticationService', () => {
     }
   });
 });
-

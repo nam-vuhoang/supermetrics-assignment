@@ -3,5 +3,5 @@ import { AuthenticationService } from "../services/authentication-service";
 
 export interface GraphQLContext {
   authenticationService: AuthenticationService;
-  cache: KeyValueCache;
+  cache?: KeyValueCache;
 }

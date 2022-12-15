@@ -1,10 +1,10 @@
-import { Blog } from '../../../src/models/blog';
-import { Post } from '../../../src/models/post';
-import { User } from '../../../src/models/user';
-import { UserStats } from '../../../src/models/user-stats';
-import { Utils } from '../../../src/utils/utils';
+import { Blog } from './blog';
+import { Post } from './post';
+import { User } from './user';
+import { UserStats } from './user-stats';
+import { Utils } from '../utils/utils';
 
-describe('test blog', () => {
+describe('Class Blog', () => {
   const size = 10;
   const totalSize = 1000;
   const posts: Post[] = Utils.createNumberRange(size)

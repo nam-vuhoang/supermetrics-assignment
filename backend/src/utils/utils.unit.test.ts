@@ -1,7 +1,7 @@
 // import {sum} from './sum';
 
-import { Utils } from '../../../src/utils/utils';
-import { wrapper, getterValue } from '../../helper/test-utils';
+import { Utils } from './utils';
+import { wrapper, getterValue } from '../../test/helper/test-utils';
 
 describe('test sorting utils', () => {
   test('sort number array  in ASC/DESC orders', () => {
@@ -132,4 +132,3 @@ describe('compare utils', () => {
     }
   });
 });
-
