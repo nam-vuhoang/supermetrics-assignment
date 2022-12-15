@@ -24,7 +24,7 @@ export class Blog {
   /**
    * Authors of posts in the blog
    */
-  get authors(): User[] {
+  authors(): User[] {
     const userMap = new Map<string, User>();
 
     for (let post of this.posts) {
