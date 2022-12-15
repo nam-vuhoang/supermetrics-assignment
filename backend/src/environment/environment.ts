@@ -1,8 +1,8 @@
 import dotenv from 'dotenv';
-import { ENVIRONMENT_FILE_PATH, requireIntEnvParam, requireStringEnvParam } from '../utils/environment-utils';
+import { requireIntEnvParam, requireStringEnvParam } from '../utils/environment-utils';
 
 function loadConfig() {
-  dotenv.config({ path: ENVIRONMENT_FILE_PATH });
+  dotenv.config();
   return {
     graphqlServer: {
       port: requireIntEnvParam('PORT'),
