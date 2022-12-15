@@ -1,41 +1,66 @@
+import { stringify } from 'querystring';
+import { arrayBuffer } from 'stream/consumers';
+
 export class Utils {
-  static compare<T>(
-    a: T,
-    b: T,
-    getField: (item: T) => string | number,
-    reverse: boolean = false
-  ): number {
-    return reverse
-      ? getField(a) < getField(b)
-        ? 1
-        : getField(a) > getField(b)
-          ? -1
-          : 0
-      : getField(a) < getField(b)
-        ? -1
-        : getField(a) > getField(b)
-          ? 1
-          : 0;
+  /**
+   * Get field values of the two objects and compare them.
+   * @param a
+   * @param b
+   * @param valueGetter
+   * @param reverse
+   * @returns
+   */
+  static compare<T>(a: T, b: T, valueGetter: (item: T) => string | number, reverse: boolean = false): number {
+    const valueA = valueGetter(a);
+    const valueB = valueGetter(b);
+    if (reverse) {
+      return valueA < valueB ? 1 : valueA > valueB ? -1 : 0;
+    }
+    return valueA < valueB ? -1 : valueA > valueB ? 1 : 0;
   }
-  
-  static compareFn<T>(
-    getField: (item: T) => string | number,
-    reverse: boolean = false
-  ): (a: T, b: T) => number {
-    return (a, b) => Utils.compare(a, b, getField, reverse);
+
+  /**
+   * Get field values of the two objects and compare them.
+   * @param valueGetter
+   * @param reverse
+   * @returns
+   */
+  static compareFn<T>(valueGetter: (item: T) => string | number, reverse: boolean = false): (a: T, b: T) => number {
+    return (a, b) => Utils.compare(a, b, valueGetter, reverse);
   }
-  
-  
+
+  /**
+   * Sort array by specified item value field.
+   * @param items
+   * @param valueGetter
+   * @param reverse
+   * @returns
+   */
   static sortArray<T>(
     items: Array<T> | null,
-    getField: (item: T) => string | number,
+    valueGetter: (item: T) => string | number,
     reverse: boolean = false
   ): Array<T> {
-    return items?.sort(Utils.compareFn(getField, reverse)) || [];
+    return items?.sort(Utils.compareFn(valueGetter, reverse)) || [];
   }
-  
+
   /**
-   * Return number range from 0 to N-1
+   * Sum array values
+   * @param items 
+   * @param valueGetter 
+   * @returns 
+   */
+  static sumArrayValues<T>(
+    items: Array<T> | null,
+    valueGetter: (item: T) => number
+  ): number {
+    return items.reduce((accumulator, item) => {
+      return accumulator + valueGetter(item);
+    }, 0);
+  }
+
+  /**
+   * Create number range from 0 to N-1.
    * @param n
    */
   static createNumberRange(n: number): number[] {
