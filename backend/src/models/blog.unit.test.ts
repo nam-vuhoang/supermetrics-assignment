@@ -3,8 +3,9 @@ import { Post } from './post';
 import { User } from './user';
 import { UserStats } from './user-stats';
 import { Utils } from '../utils/utils';
+import exp from 'constants';
 
-describe('Class Blog', () => {
+describe('Class Blog: constructor', () => {
   const size = 10;
   const totalSize = 1000;
   const posts: Post[] = Utils.createNumberRange(size)
@@ -128,5 +129,42 @@ describe('Class Blog', () => {
         });
       });
     });
+  });
+});
+
+describe('Class Blog: static method createBlog', () => {
+  const startDate = Utils.getMonthUTC(new Date()).valueOf();
+
+  const size = 10;
+  const posts = Utils.createNumberRange(size).map((n) => ({
+    id: n.toString(),
+    userId: `user_${n}`,
+    userName: `USER_${n}`,
+    message: '',
+    type: '',
+    createdTime: new Date(startDate + n * 1000), // hours = 5 to avoid time zone mismatch.
+  }));
+
+  console.log(posts);
+
+  test('When no page filter and no order', () => {
+    const blog = Blog.createBlog([...posts]);
+    expect(blog.size).toBe(posts.length);
+    expect(blog.totalPostCount).toBe(posts.length);
+    expect(blog.posts).toStrictEqual(posts);
+  });
+
+  test('When no page filter and ASC order', () => {
+    const blog = Blog.createBlog([...posts], undefined, true);
+    expect(blog.size).toBe(posts.length);
+    expect(blog.totalPostCount).toBe(posts.length);
+    expect(blog.posts).toStrictEqual(posts);
+  });
+
+  test('When no page filter and DESC order', () => {
+    const blog = Blog.createBlog([...posts], undefined, true);
+    expect(blog.size).toBe(posts.length);
+    expect(blog.totalPostCount).toBe(posts.length);
+    expect(blog.posts).toStrictEqual([...posts].reverse());
   });
 });

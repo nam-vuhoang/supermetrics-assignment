@@ -20,6 +20,7 @@ export class Blog {
  static createBlog(originalPosts: Post[], pageFilter?: PageFilter, sortByCreatedTimeAsc?: boolean): Blog {
    const totalPostCount = originalPosts.length;
 
+   // should sort when either page filter or sort order is defined
    if (pageFilter || sortByCreatedTimeAsc !== undefined) {
      // reverse order if sortByCreatedTimeAsc is undefined or false
      originalPosts = Utils.sortArray(originalPosts, (p) => p.createdTime.getTime(), !sortByCreatedTimeAsc);
