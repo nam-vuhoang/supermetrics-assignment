@@ -44,7 +44,7 @@ describe('Class AuthenticationService', () => {
     } catch (e) {
       expect(e).toBeInstanceOf(GraphQLError);
       const { response } = (<GraphQLError>e).extensions;
-      expect((<any>response).status).toBe(StatusCodes.NOT_FOUND); // Not Found
+      expect((<any>response).status).toBe(StatusCodes.NOT_FOUND); // 404 - Not Found
     }
   });
 
@@ -56,7 +56,7 @@ describe('Class AuthenticationService', () => {
     } catch (e) {
       expect(e).toBeInstanceOf(GraphQLError);
       const { response } = (<GraphQLError>e).extensions;
-      expect((<any>response).status).toBe(StatusCodes.BAD_REQUEST); // Bad Request
+      expect((<any>response).status).toBe(StatusCodes.BAD_REQUEST); // 400 - Bad Request
     }
   });
 });
