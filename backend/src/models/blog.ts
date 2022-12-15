@@ -1,4 +1,6 @@
+import { logger } from '../utils/logger';
 import { Utils } from '../utils/utils';
+import { PageFilter } from './page-filter';
 import { Post } from './post';
 import { User } from './user';
 import { UserStats } from './user-stats';
@@ -7,6 +9,33 @@ import { UserStats } from './user-stats';
  * A collection of Post
  */
 export class Blog {
+
+  /**
+  * Create a PostCollection, sort and paginate if needed.
+  * @param originalPosts
+  * @param pageFilter
+  * @param sortByCreatedTimeAsc
+  * @returns
+  */
+ static createBlog(originalPosts: Post[], pageFilter?: PageFilter, sortByCreatedTimeAsc?: boolean): Blog {
+   const totalPostCount = originalPosts.length;
+
+   if (pageFilter || sortByCreatedTimeAsc !== undefined) {
+     // reverse order if sortByCreatedTimeAsc is undefined or false
+     originalPosts = Utils.sortArray(originalPosts, (p) => p.createdTime.getTime(), !sortByCreatedTimeAsc);
+   }
+
+   if (pageFilter) {
+     const start = pageFilter.size * pageFilter.index;
+     const end = pageFilter.size * (pageFilter.index + 1);
+     originalPosts = originalPosts.slice(start, end);
+   }
+
+   return new Blog(originalPosts, totalPostCount);
+ }
+
+
+
   /**
    * 
    * @param posts Blog posts

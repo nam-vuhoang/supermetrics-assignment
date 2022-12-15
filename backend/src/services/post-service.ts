@@ -38,6 +38,7 @@ interface RawPostData {
 
 export class PostService extends RESTDataSource {
   static readonly REQUEST_PATH = 'posts';
+  static readonly MAX_RETRY_COUNT_IF_UNAUTHORIZED = 5;
 
   private context: GraphQLContext;
   private pageCount: number;
@@ -51,66 +52,6 @@ export class PostService extends RESTDataSource {
   }
 
   /**
-   * Fetchs all raw user posts from a single page, filtered by userId if specified.
-   * In case of the Unauthorized error due to the short-lived token expiration,
-   * this method retries again with the refreshed token.
-   * @param pageIndex
-   * @returns
-   */
-  private async fetchRawPostsByPageAndUser(
-    pageIndex: number,
-    userId: string | undefined,
-    retryCount: number = 0
-  ): Promise<RawPost[]> {
-    if (pageIndex < 0 || pageIndex >= this.pageCount) {
-      throw new GraphQLError('Invalid argument value', {
-        extensions: {
-          code: 'BAD_USER_INPUT',
-          argumentName: 'pageIndex',
-        },
-      });
-    }
-
-    const pageNumber = pageIndex + 1;
-    logger.debug('Fetching posts from page %d', pageNumber);
-
-    let rawPosts$: Promise<RawPost[]> = this.get<HttpResponse<RawPostData>>(PostService.REQUEST_PATH, {
-      params: {
-        sl_token: await this.context.authenticationService.getToken(),
-        page: pageNumber.toString(),
-      },
-    })
-      .then((response) => response.data)
-      .then((data) => {
-        logger.debug('Loaded page: %d (size: %d)', data.page, data.posts.length);
-        // Validate page number
-        if (data.page !== pageNumber) {
-          throw new GraphQLError(`Invalid data: expected page ${pageNumber}, but got page ${data.page}.`, {
-            extensions: {
-              code: 'DATA_SERVER_ERROR',
-              argumentName: 'pageIndex',
-            },
-          });
-        }
-        return data.posts;
-      })
-      .catch((error: GraphQLError) => {
-        if ((<any>error.extensions?.response)?.status === StatusCodes.UNAUTHORIZED && retryCount < 5) {
-          logger.warn('Re-fetching posts from page %d due to expired SL token', pageNumber);
-
-          // notify authentication service about token expiration
-          this.context.authenticationService.notifyTokenExpired();
-
-          // retry again (without any filter)
-          return this.fetchRawPostsByPageAndUser(pageIndex, undefined, ++retryCount);
-        }
-        throw error;
-      });
-
-    return userId ? rawPosts$.then((posts) => posts.filter((p) => p.from_id === userId)) : rawPosts$;
-  }
-
-  /**
    * Fetchs all user posts filtered by userId with sorting and pagination if required.
    * @param filter
    * @returns
@@ -118,10 +59,10 @@ export class PostService extends RESTDataSource {
   async fetchPosts(filter?: PostFilter): Promise<Blog> | null {
     logger.info('Fetching posts with filter %s', JSON.stringify(filter));
 
-    const { userId, page, sortByCreatedTimeAsc } = filter || {};
+    const { userId, page: pageFilter, sortByCreatedTimeAsc } = filter || {};
 
     // Get all raw posts from all pages
-    logger.info('Fetching all posts from %d pages', this.pageCount);
+    // logger.info('Fetching all posts from %d pages', this.pageCount);
     const pageIndexes: number[] = Array.from(Array(this.pageCount).keys()); // from 0 to N-1;
     let pages$: Promise<RawPost[]>[] = pageIndexes.map((pageIndex) =>
       this.fetchRawPostsByPageAndUser(pageIndex, userId)
@@ -131,7 +72,12 @@ export class PostService extends RESTDataSource {
     const posts$: Promise<Post[]> = Promise.all(pages$).then((rawPosts) => rawPosts.flat().map(mapRawPostToPost));
 
     // Sort and paginate if needed
-    return posts$.then((posts) => PostService.sortAndPaginate(posts, page, sortByCreatedTimeAsc));
+    return posts$
+      .then((posts) => Blog.createBlog(posts, pageFilter, sortByCreatedTimeAsc))
+      .then((blog) => {
+        logger.debug('Returning %d posts', blog.size);
+        return blog;
+      });
   }
 
   /**
@@ -166,27 +112,70 @@ export class PostService extends RESTDataSource {
   }
 
   /**
-   * Create a PostCollection, sort and paginate if needed.
-   * @param posts
-   * @param pageFilter
-   * @param sortByCreatedTimeAsc
+   * Fetchs all raw user posts from a single page, filtered by userId if specified.
+   * In case of the Unauthorized error due to the short-lived token expiration,
+   * this method retries again with the refreshed token.
+   * @param pageIndex
    * @returns
    */
-  private static sortAndPaginate(posts: Post[], pageFilter?: PageFilter, sortByCreatedTimeAsc?: boolean): Blog {
-    const totalPostCount = posts.length;
-
-    if (pageFilter || sortByCreatedTimeAsc !== undefined) {
-      // reverse order if sortByCreatedTimeAsc is undefined or false
-      posts = Utils.sortArray(posts, (p) => p.createdTime.getTime(), !sortByCreatedTimeAsc);
+  private async fetchRawPostsByPageAndUser(pageIndex: number, userId: string | undefined): Promise<RawPost[]> {
+    if (pageIndex < 0 || pageIndex >= this.pageCount) {
+      throw new GraphQLError('Invalid argument value', {
+        extensions: {
+          code: 'BAD_USER_INPUT',
+          argumentName: 'pageIndex',
+        },
+      });
     }
 
-    if (pageFilter) {
-      const start = pageFilter.size * pageFilter.index;
-      const end = pageFilter.size * (pageFilter.index + 1);
-      posts = posts.slice(start, end);
+    const pageNumber = pageIndex + 1;
+    // logger.debug('Fetching posts from page %d', pageNumber);
+
+    let rawPosts$: Promise<RawPost[]> = this.fetchRawData(pageNumber.toString()).then((data) => {
+      // logger.debug('Loaded page: %d (size: %d)', data.page, data.posts.length);
+      // Validate page number
+      if (data.page !== pageNumber) {
+        throw new GraphQLError(`Invalid data: expected page ${pageNumber}, but got page ${data.page}.`, {
+          extensions: {
+            code: 'DATA_SERVER_ERROR',
+            argumentName: 'pageIndex',
+          },
+        });
+      }
+      return data.posts;
+    });
+
+    if (!userId) {
+      return rawPosts$;
     }
 
-    logger.debug('Returning %d posts', posts.length);
-    return new Blog(posts, totalPostCount);
+    const userFilter = (p: RawPost) => p.from_id === userId;
+    return rawPosts$.then((posts) => posts.filter(userFilter));
+  }
+
+  private async fetchRawData(pageNumber: string, retryCount: number = 0): Promise<RawPostData> {
+    return this.get<HttpResponse<RawPostData>>(PostService.REQUEST_PATH, {
+      params: {
+        sl_token: await this.context.authenticationService.getToken(),
+        page: pageNumber.toString(),
+      },
+    })
+      .then((response) => response.data)
+      .catch((error: GraphQLError) => {
+        if (
+          (<any>error.extensions?.response)?.status === StatusCodes.UNAUTHORIZED &&
+          retryCount < PostService.MAX_RETRY_COUNT_IF_UNAUTHORIZED
+        ) {
+          logger.warn('Re-fetching posts from page %d due to expired SL token', pageNumber);
+
+          // notify authentication service about token expiration
+          this.context.authenticationService.notifyTokenExpired();
+
+          // retry again (without any filter)
+          return this.fetchRawData(pageNumber, ++retryCount);
+        }
+
+        throw error;
+      });
   }
 }
