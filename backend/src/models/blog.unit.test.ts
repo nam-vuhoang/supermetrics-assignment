@@ -135,36 +135,66 @@ describe('Class Blog: constructor', () => {
 describe('Class Blog: static method createBlog', () => {
   const startDate = Utils.getMonthUTC(new Date()).valueOf();
 
-  const size = 10;
-  const posts = Utils.createNumberRange(size).map((n) => ({
+  const originalSize = 100;
+  const originalPosts = Utils.createNumberRange(originalSize).map((n) => ({
     id: n.toString(),
     userId: `user_${n}`,
     userName: `USER_${n}`,
     message: '',
     type: '',
-    createdTime: new Date(startDate + n * 1000), // hours = 5 to avoid time zone mismatch.
+    createdTime: new Date(startDate + n * 1000000), // create post every 1000 secs
   }));
 
-  console.log(posts);
+  const orderedPostsAsc = Utils.sortArray([...originalPosts], p => p.createdTime.valueOf());
+  const orderedPostsDesc = Utils.sortArray([...originalPosts], p => p.createdTime.valueOf(), true);
+
+  // console.log(originalPosts);
 
   test('When no page filter and no order', () => {
-    const blog = Blog.createBlog([...posts]);
-    expect(blog.size).toBe(posts.length);
-    expect(blog.totalPostCount).toBe(posts.length);
-    expect(blog.posts).toStrictEqual(posts);
+    const blog = Blog.createBlog([...originalPosts]);
+    expect(blog.size).toBe(originalPosts.length);
+    expect(blog.totalPostCount).toBe(originalPosts.length);
+    expect(blog.posts).toStrictEqual(originalPosts);
   });
 
   test('When no page filter and ASC order', () => {
-    const blog = Blog.createBlog([...posts], undefined, true);
-    expect(blog.size).toBe(posts.length);
-    expect(blog.totalPostCount).toBe(posts.length);
-    expect(blog.posts).toStrictEqual(posts);
+    const blog = Blog.createBlog([...originalPosts], undefined, true);
+    expect(blog.size).toBe(originalPosts.length);
+    expect(blog.totalPostCount).toBe(originalPosts.length);
+    expect(blog.posts).toStrictEqual(orderedPostsAsc);
   });
 
   test('When no page filter and DESC order', () => {
-    const blog = Blog.createBlog([...posts], undefined, true);
-    expect(blog.size).toBe(posts.length);
-    expect(blog.totalPostCount).toBe(posts.length);
-    expect(blog.posts).toStrictEqual([...posts].reverse());
+    const blog = Blog.createBlog([...originalPosts], undefined, false);
+    expect(blog.size).toBe(originalPosts.length);
+    expect(blog.totalPostCount).toBe(originalPosts.length);
+    expect(blog.posts).toStrictEqual(orderedPostsDesc);
+  });
+
+  test('When page filter defined', () => {
+    for (let i = 0; i < 100; ++i) {
+      const pageIndex = Utils.getRandomInt(20);
+      const pageSize = Utils.getRandomInt(150);
+      const sorterAsc: boolean | undefined = i % 3 === 0 ? true : i % 3 === 1 ? false : undefined;
+      const blog = Blog.createBlog([...originalPosts], { index: pageIndex, size: pageSize }, sorterAsc);
+
+      expect(blog.totalPostCount).toBe(originalSize);
+
+      const expectedSize = Math.min(pageSize, Math.max(originalSize - pageSize * pageIndex, 0));
+      expect(blog.size).toBe(expectedSize);
+
+      const { posts } = blog;
+      const newestFirst = !sorterAsc;
+
+      posts.forEach((post, index) => {
+        const postId = Number(post.id);
+        expect(postId).not.toBeNaN();
+        if (newestFirst) {
+          expect(postId).toBe(originalSize - pageSize * pageIndex - index - 1);
+        } else {
+          expect(postId).toBe(pageSize * pageIndex + index);
+        }
+      });
+    }
   });
 });
