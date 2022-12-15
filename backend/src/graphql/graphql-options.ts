@@ -91,13 +91,11 @@ export const graphQLOptions = {
 
     Query: {
       blog(_: any, args: { filter: PostFilter }, context: GraphQLContext) {
-        return new PostService(context, environment.dataServer.baseUrl, environment.dataServer.pageCount).fetchPosts(
-          args.filter
-        );
+        return context.postServiceProvider(context).fetchPosts(args.filter);
       },
 
       users(_: any, args: { filter: PostFilter }, context: GraphQLContext) {
-        return new PostService(context, environment.dataServer.baseUrl, environment.dataServer.pageCount).fetchUsers();
+        return context.postServiceProvider(context).fetchUsers();
       },
     },
   },
