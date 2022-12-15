@@ -1,6 +1,10 @@
+import { GetRequest } from '@apollo/datasource-rest/dist/RESTDataSource';
 import exp from 'constants';
+import { GraphQLError, GraphQLFormattedError } from 'graphql';
+import { StatusCodes } from 'http-status-codes';
 import { environment } from '../environment/environment';
 import { GraphQLContext } from '../graphql/graphql-context';
+import { ClientInfo } from '../models/client-info';
 import { Utils } from '../utils/utils';
 import { AuthenticationService } from './authentication-service';
 import { PostService } from './post-service';
@@ -86,22 +90,78 @@ describe('Class PostService', () => {
       expect(user.stats).toBeFalsy();
     }
   });
+});
 
-  test('When token is expired', () => {
-    class MockAuthenticationSerice extends AuthenticationService {
-      public isExpired = false;
-      public callCountAfterExpired = 0;
+describe('Class PostSerivce (with mock services)', () => {
+  class MockAuthenticationSerice extends AuthenticationService {
+    public isExpired = false;
+    public totalCallCount = 0;
+    public retryCountAfterExpired = 0;
 
-      getToken(): Promise<string> {
-        this.isExpired ||= Utils.getRandomInt(10) % 3 == 0;
-        if (this.isExpired) {          
+    constructor(
+      baseURL: string,
+      clientInfo: ClientInfo,
+      private makeExpired: () => boolean,
+      private canResetToken: (retryCountAfterExpired: number) => boolean
+    ) {
+      super(baseURL, clientInfo);
+    }
+
+    getToken(): Promise<string> {
+      ++this.totalCallCount;
+      if (this.isExpired) {
+        if (this.canResetToken(++this.retryCountAfterExpired)) {
+          this.isExpired = false;
         }
-        return super.getToken();
+      } else {
+        this.isExpired = this.makeExpired();
       }
-    }
 
-    class MockPostService extends PostService {
-      
+      return this.isExpired ? Promise.resolve('this is an expired token') : super.getToken();
     }
+  }
+
+  const { baseUrl, clientInfo, pageCount } = environment.dataServer;
+
+  beforeAll(() => {
+    expect(baseUrl).toBeTruthy();
+    expect(clientInfo).toBeTruthy();
+    expect(pageCount).toBeTruthy();
+    expect(pageCount).not.toBeNaN();
+  });
+
+  test('When token is expired forever', async () => {
+    const authenticationService = new MockAuthenticationSerice(
+      baseUrl,
+      clientInfo,
+      () => true, // expire now
+      () => false // never reset
+    );
+    const postService = new PostService({ authenticationService }, baseUrl, pageCount);
+
+    try {
+      await postService.fetchPosts({ userId: 'blabla' });
+      expect(false).toBe(true); // should not reach this place
+    } catch (e) {
+      expect(e).toBeInstanceOf(GraphQLError);
+      const { response } = (<GraphQLError>e).extensions;
+      expect((<any>response).status).toBe(StatusCodes.UNAUTHORIZED); // 401
+      expect(authenticationService.retryCountAfterExpired).toBeGreaterThanOrEqual(
+        pageCount
+      );
+    }
+  });
+
+  test('When token is expired and reset after 2 retrials', async () => {
+    const authenticationService = new MockAuthenticationSerice(
+      baseUrl,
+      clientInfo,
+      () => true, // expire now
+      (retryCountAfterExpired) => retryCountAfterExpired % 2 === 0 // reset next time
+    );
+    const postService = new PostService({ authenticationService }, baseUrl, pageCount);
+
+    await postService.fetchPosts({ userId: 'blabla' });
+    expect(authenticationService.retryCountAfterExpired).toBe(pageCount * 2);
   });
 });
