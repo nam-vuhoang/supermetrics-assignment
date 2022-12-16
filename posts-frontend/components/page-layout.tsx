@@ -3,21 +3,21 @@ import AppBar from '@mui/material/AppBar';
 import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
+import {Typography, Link as MaterialLink } from '@mui/material';
 import Container from '@mui/material/Container';
-import Link from '@mui/material/Link';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { Diversity1 } from '@mui/icons-material';
 import Head from 'next/head';
-import { IconButton, Button, Menu } from '@mui/material';
+import { Button, IconButton } from '@mui/material';
+import Link from 'next/link';
 
 function Copyright() {
   return (
     <Typography variant="body2" color="text.secondary" align="center">
       {'Copyright © '}
-      <Link color="inherit" href="https://supermetrics.com/">
+      {/* <Link color="inherit" href="https://supermetrics.com/">
         SuperMetrics
-      </Link>{' '}
+      </Link>{' '} */}
       {new Date().getFullYear()}
       {'.'}
     </Typography>
@@ -42,31 +42,32 @@ export default function PageLayout(props: { children: any }) {
         <Box sx={{ flexGrow: 1 }}>
           <AppBar position="static">
             <Toolbar>
-              <Link
-                href="/"
-                variant="h6"
-                color="inherit"
-                noWrap
-                underline="none"
-              >
-                <Diversity1 sx={{ mr: 2 }} />
+              <Link href="/" shallow passHref legacyBehavior>
+                <IconButton color="inherit">
+                  <Diversity1 />
+                </IconButton>
               </Link>
-              <Link
-                href="/"
-                variant="h6"
-                color="inherit"
-                noWrap
-                underline="none"
-                sx={{ flexGrow: 1 }}
-              >
-                Heart Book
+              <Link href="/" passHref shallow legacyBehavior>
+                <MaterialLink
+                  variant="h6"
+                  color="inherit"
+                  noWrap
+                  sx={{ flexGrow: 1 }}
+                  underline="none"
+                >
+                  Heart Book
+                </MaterialLink>
               </Link>
-              <Button href="/" color="inherit">
-                Home
-              </Button>
-              <Button href="/dashboard" color="inherit">
-                Dashboard
-              </Button>
+              <Link href="/" shallow passHref legacyBehavior>
+                <Button href="/" color="inherit">
+                  Home
+                </Button>
+              </Link>
+              <Link href="/dashboard" shallow passHref legacyBehavior>
+                <Button href="/dashboard" color="inherit">
+                  Dashboard
+                </Button>
+              </Link>
             </Toolbar>
           </AppBar>
         </Box>
