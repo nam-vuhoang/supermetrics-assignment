@@ -1,21 +1,7 @@
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  Grid,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-} from '@mui/material';
+import { Grid } from '@mui/material';
 import { Component, ReactNode } from 'react';
 import { User } from '../models/user';
-import { MaterialUtils } from '../utils/material/material-utils';
-import { MomentUtils } from '../utils/moment-utils';
 import { BlogComponent } from './blog-component';
-import { PostComponent } from './post-component';
 import { PostCountStatsComponent } from './post-count-stats-component';
 import { PostLengthStatsComponent } from './post-length-stats-component';
 

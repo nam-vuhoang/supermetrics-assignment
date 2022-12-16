@@ -10,7 +10,7 @@ import { Component, ReactNode } from 'react';
 import { Frequency } from '../models/frequency';
 import { User } from '../models/user';
 import { MomentUtils } from '../utils/moment-utils';
-import { getArrayMax, getArrayMin } from '../utils/utils';
+import { Utils } from '../utils/utils';
 
 export class UserStatsTableComponent extends Component<{ users: User[] }> {
   private findMonthlyRecords(frequencies: Frequency[]): Map<number, number> {
@@ -71,7 +71,7 @@ export class UserStatsTableComponent extends Component<{ users: User[] }> {
           valueGetter: (params) => (params.row as User).stats.totalCount,
           width: 100,
         },
-        getArrayMax(users.map((u) => u.stats.totalCount)),
+        Utils.getArrayMax(users.map((u) => u.stats.totalCount)),
         true
       ),
     ];
@@ -116,7 +116,7 @@ export class UserStatsTableComponent extends Component<{ users: User[] }> {
           width: 90,
           valueGetter: (params) => params.row.stats.minLength,
         },
-        getArrayMin(users.map((u) => u.stats.minLength)),
+        Utils.getArrayMin(users.map((u) => u.stats.minLength)),
         false
       ),
       this.addHighlightRecordCellRender(
@@ -126,7 +126,7 @@ export class UserStatsTableComponent extends Component<{ users: User[] }> {
           valueGetter: (params) => (params.row as User).stats.averageLength,
           width: 90,
         },
-        getArrayMax(users.map((u) => u.stats.averageLength)),
+        Utils.getArrayMax(users.map((u) => u.stats.averageLength)),
         true
       ),
       this.addHighlightRecordCellRender(
@@ -136,7 +136,7 @@ export class UserStatsTableComponent extends Component<{ users: User[] }> {
           valueGetter: (params) => (params.row as User).stats.maxLength,
           width: 90,
         },
-        getArrayMax(users.map((u) => u.stats.maxLength)),
+        Utils.getArrayMax(users.map((u) => u.stats.maxLength)),
         true
       )
     );

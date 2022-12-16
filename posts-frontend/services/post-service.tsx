@@ -3,7 +3,7 @@ import { Blog } from '../models/blog';
 import { Post } from '../models/post';
 import { User } from '../models/user';
 import { logger } from '../utils/logger';
-import { sortArray } from '../utils/utils';
+import { Utils } from '../utils/utils';
 
 export class PostService {
   constructor(private backendUrl: string) {}
@@ -33,7 +33,7 @@ export class PostService {
       `[GraphQL] Fetching posts with filter ${JSON.stringify(filter)}...`
     );
     const query = gql`
-      query GetLastPostsFromAllUsers(
+      query FetchPosts(
         $pageIndex: Int!
         $pageSize: Int!
         $userId: ID
@@ -63,7 +63,7 @@ export class PostService {
   async fetchUserIds(): Promise<string[]> {
     logger.debug('[GraphQL] Fetching user IDs...');
     const query = gql`
-      query GetUsers {
+      query FetchUsers {
         users {
           userId
           userName
@@ -72,7 +72,7 @@ export class PostService {
     `;
 
     return this.fetchRawData<{ users: User[] }>(query).then((data) =>
-      sortArray(data.users, (u) => u.userName).map((s) => s.userId)
+      Utils.sortArray(data.users, (u) => u.userName).map((s) => s.userId)
     );
   }
 
