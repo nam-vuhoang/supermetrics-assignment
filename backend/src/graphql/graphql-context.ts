@@ -4,6 +4,9 @@ import { PostService } from "../services/post-service";
 
 export interface GraphQLContext {
   authenticationService: AuthenticationService;
-  postServiceProvider: (context: GraphQLContext) => PostService;
   cache?: KeyValueCache;
+}
+
+export interface GraphQLContextEx extends GraphQLContext {
+  postServiceProvider: (context: GraphQLContextEx) => PostService;
 }

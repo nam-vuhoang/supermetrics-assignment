@@ -7,7 +7,6 @@ import { GraphQLError } from 'graphql';
 import { StatusCodes } from 'http-status-codes';
 import { PostFilter } from '../models/post-filter';
 import { Blog } from '../models/blog';
-import { PageFilter } from '../models/page-filter';
 import { Utils } from '../utils/utils';
 import { User } from '../models/user';
 

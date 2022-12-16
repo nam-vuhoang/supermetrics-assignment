@@ -3,7 +3,7 @@ import { GraphQLScalarType, Kind } from 'graphql';
 import { environment } from '../environment/environment';
 import { PostFilter } from '../models/post-filter';
 import { PostService } from '../services/post-service';
-import { GraphQLContext } from './graphql-context';
+import { GraphQLContextEx } from './graphql-context';
 
 export const graphQLOptions = {
   typeDefs: gql`
@@ -90,11 +90,11 @@ export const graphQLOptions = {
     }),
 
     Query: {
-      blog(_: any, args: { filter: PostFilter }, context: GraphQLContext) {
+      blog(_: any, args: { filter: PostFilter }, context: GraphQLContextEx) {
         return context.postServiceProvider(context).fetchPosts(args.filter);
       },
 
-      users(_: any, args: { filter: PostFilter }, context: GraphQLContext) {
+      users(_: any, args: { filter: PostFilter }, context: GraphQLContextEx) {
         return context.postServiceProvider(context).fetchUsers();
       },
     },

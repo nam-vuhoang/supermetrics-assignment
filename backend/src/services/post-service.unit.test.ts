@@ -3,7 +3,7 @@ import exp from 'constants';
 import { GraphQLError, GraphQLFormattedError } from 'graphql';
 import { StatusCodes } from 'http-status-codes';
 import { environment } from '../environment/environment';
-import { GraphQLContext } from '../graphql/graphql-context';
+import { GraphQLContextEx } from '../graphql/graphql-context';
 import { ClientInfo } from '../models/client-info';
 import { Utils } from '../utils/utils';
 import { AuthenticationService } from './authentication-service';
@@ -32,17 +32,20 @@ describe('Class PostService', () => {
       // filter with user ID every second test
       const userId = i % 2 == 0 ? `user_${Utils.getRandomInt(30)}` : undefined;
 
-      const size = (Utils.getRandomInt(5) + 1) * 300;
-      const index = Utils.getRandomInt(pageCount);
+      const size = (Utils.getRandomInt(10) + 1) * 100;
+      const index = Utils.getRandomInt(20);
       const blog = await postService.fetchPosts({ userId, page: { index, size } });
 
       expect(blog.posts.length).toBe(blog.size);
 
       if (userId) {
         expect(blog.size).toBeGreaterThanOrEqual(0);
+        expect(blog.totalPostCount).toBeGreaterThanOrEqual(0);
+        expect(blog.totalPostCount).toBeLessThan(MAX_POST_COUNT);
       } else {
         const expectedSize = Math.min(size, Math.max(MAX_POST_COUNT - size * index, 0));
         expect(blog.size).toBe(expectedSize);
+        expect(blog.totalPostCount).toBe(MAX_POST_COUNT);
       }
 
       const hasPosts = blog.size > 0;
