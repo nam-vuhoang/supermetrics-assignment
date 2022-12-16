@@ -1,7 +1,5 @@
 import {
   Alert,
-  Card,
-  CardHeader,
   Grid,
   Table,
   TableCell,
@@ -18,7 +16,7 @@ import { environment } from '../../environment/environment';
 import { User } from '../../models/user';
 import { PostService } from '../../services/post-service';
 import { logger } from '../../utils/logger';
-import { sortArray } from '../../utils/utils';
+import { Utils } from '../../utils/utils';
 
 interface PageProps {
   users: User[];
@@ -46,7 +44,7 @@ export const getStaticProps: GetStaticProps = async (context) => {
     .fetchFullStats()
     .then((users) => ({
       props: {
-        users: sortArray(users, (u) => u.userName.toString()),
+        users: Utils.sortArray(users, (u) => u.userName.toString()),
       },
     }))
     .catch((error) => {
