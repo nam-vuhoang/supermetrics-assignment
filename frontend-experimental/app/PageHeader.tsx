@@ -33,12 +33,12 @@ export function PageHeader() {
             </MuiLink>
           </Link>
           <Link href="/" passHref legacyBehavior>
-            <Button href="/" color="inherit">
+            <Button color="inherit">
               Home
             </Button>
           </Link>
           <Link href="/dashboard" passHref legacyBehavior>
-            <Button href="/dashboard" color="inherit">
+            <Button color="inherit">
               Dashboard
             </Button>
           </Link>

@@ -1,4 +1,6 @@
-import Alert from '../../../components/use-client/Alert';
+import Link from 'next/link';
+import Alert from '../../../components/use-client/MuiAlert';
+import MuiButton from '../../../components/use-client/MuiButton';
 import { Value } from '../../../components/use-client/Value';
 
 export default function Page({
@@ -13,10 +15,13 @@ export default function Page({
 
   if (!Number.isInteger(page)) {
     return (
-      <Alert severity="error">
+      <Alert severity="warning">
         <p>
           Query param <Value>page</Value> must be an <Value>integer</Value> or{' '}
-          <Value>undefined</Value>, but was: <Value>{page}</Value>.
+          <Value>undefined</Value>, but was: <Value>{page}</Value>.<br />
+          <Link href={`/dashboard/${userId || ''}`} passHref legacyBehavior>
+            <MuiButton>Show first page</MuiButton>
+          </Link>
         </p>
       </Alert>
     );
