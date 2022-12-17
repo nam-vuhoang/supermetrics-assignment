@@ -1,14 +1,21 @@
-import "./globals.css";
+import { ReactNode } from 'react';
+import { Providers } from './providers';
+import { HeadMenu } from './head-menu';
+import { Footer } from './footer';
+import { MainSection } from './main-section';
+import { defaultFont } from './theme/defaultFont';
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
-      {/*
-        <head /> will contain the components returned by the nearest parent
-        head.tsx. Find out more at https://beta.nextjs.org/docs/api-reference/file-conventions/head
-      */}
+    <html lang="en" className={defaultFont.className}>
       <head />
-      <body>{children}</body>
+      <body>
+        <Providers>
+          <HeadMenu />
+          <MainSection>{children}</MainSection>
+          <Footer />
+        </Providers>
+      </body>
     </html>
   );
 }
