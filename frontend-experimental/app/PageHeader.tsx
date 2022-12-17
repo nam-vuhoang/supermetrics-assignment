@@ -11,7 +11,7 @@ import {
 } from '@mui/material';
 import Link from 'next/link';
 
-export function HeadMenu() {
+export function PageHeader() {
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static">

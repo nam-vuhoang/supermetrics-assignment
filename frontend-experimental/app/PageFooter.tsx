@@ -2,7 +2,7 @@
 
 import { Box, Link, Typography } from '@mui/material';
 
-export function Footer() {
+export function PageFooter() {
   return (
     <Box sx={{ bgcolor: 'background.paper', p: 6 }} component="footer">
       <Typography
