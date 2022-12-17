@@ -1,44 +1,50 @@
-import Link from 'next/link';
-import Alert from '../../../components/use-client/MuiAlert';
-import MuiButton from '../../../components/use-client/MuiButton';
-import { Value } from '../../../components/use-client/Value';
+import { PostService } from '../../../services/post-service';
+import { UserStatsTableComponent } from './UsersStatsTableComponent';
+import { environment } from '../../../environment/environment';
+import MuiAlert from '../../../components/use-client/MuiAlert';
+import { UserListMenu } from './UserListMenu';
+import MuiGrid from '../../../components/use-client/MuiGrid';
+import { UserStatsComponent } from './UserStatsComponent';
 
-export default function Page({
-  params,
-  searchParams,
-}: {
-  params: { userId: string };
-  searchParams?: { page: string };
-}) {
-  const userId = params.userId && params.userId[0];
-  const page = Number(searchParams?.page || '1');
-
-  if (!Number.isInteger(page)) {
-    return (
-      <Alert severity="warning">
-        <p>
-          Query param <Value>page</Value> must be an <Value>integer</Value> or{' '}
-          <Value>undefined</Value>, but was: <Value>{page}</Value>.<br />
-          <Link href={`/dashboard/${userId || ''}`} passHref legacyBehavior>
-            <MuiButton>Show first page</MuiButton>
-          </Link>
-        </p>
-      </Alert>
-    );
-  }
-
-  return InternalPage(decodeURIComponent(userId), page - 1);
+export async function generateStaticParams() {
+  return new PostService(environment.backendUrl)
+    .fetchUserIds()
+    .then((userIds) => userIds.map((userId) => ({ userId: [userId] })))
+    .then((params) => {
+      params.push({ userId: [] });
+      return params;
+    });
 }
 
-function InternalPage(userId?: string, pageIndex?: number) {
+export default async function Page({
+  params,
+}: {
+  params: { userId: [string] };
+}) {
+  const actualUserId = params.userId[0] ? decodeURIComponent(params.userId[0]) : undefined;
+
+  const users = await new PostService(environment.backendUrl).fetchFullStats();
+
+  if (!actualUserId) {
+    // display dashboard for all users
+    return <UserStatsTableComponent users={users} />;
+  }
+
+  const user = users.find((u) => u.userId === actualUserId);
+  if (!user) {
+    return <MuiAlert severity="error">User not found: {actualUserId}</MuiAlert>;
+  }
+
   return (
-    <>
-      <h1>
-        User: <Value>{userId}</Value>
-      </h1>
-      <h1>
-        Page: <Value>{pageIndex}</Value>
-      </h1>
-    </>
+    <MuiGrid container columnSpacing={4}>
+      <MuiGrid item xs={2}>
+        <UserListMenu users={users} />
+      </MuiGrid>
+
+      {/* User stats */}
+      <MuiGrid item xs={10}>
+        <UserStatsComponent user={user} />
+      </MuiGrid>
+    </MuiGrid>
   );
 }
