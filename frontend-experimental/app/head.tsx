@@ -4,8 +4,8 @@ import { APP_TITLE } from './theme/theme-definitions';
 export default function Head() {
   return (
     <>
-      <title>{APP_TITLE}</title>
       <DefaultTags />
+      <title>{APP_TITLE}</title>
     </>
   );
 }
