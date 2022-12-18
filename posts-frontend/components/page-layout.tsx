@@ -10,7 +10,6 @@ import { Diversity1 } from '@mui/icons-material';
 import Head from 'next/head';
 import { Button, IconButton } from '@mui/material';
 import Link from 'next/link';
-import Loading from './loading';
 
 function Copyright() {
   return (
@@ -41,12 +40,12 @@ export default function PageLayout(props: { children: any }) {
         <Box sx={{ flexGrow: 1 }}>
           <AppBar position="static">
             <Toolbar>
-              <Link href="/" shallow passHref legacyBehavior>
+              <Link href="/" passHref legacyBehavior>
                 <IconButton color="inherit">
                   <Diversity1 />
                 </IconButton>
               </Link>
-              <Link href="/" passHref shallow legacyBehavior>
+              <Link href="/" passHref legacyBehavior>
                 <MaterialLink
                   variant="h6"
                   color="inherit"
@@ -57,12 +56,12 @@ export default function PageLayout(props: { children: any }) {
                   Heart Book
                 </MaterialLink>
               </Link>
-              <Link href="/" shallow passHref legacyBehavior>
+              <Link href="/" passHref legacyBehavior>
                 <Button href="/" color="inherit">
                   Home
                 </Button>
               </Link>
-              <Link href="/dashboard" shallow passHref legacyBehavior>
+              <Link href="/dashboard" passHref legacyBehavior>
                 <Button href="/dashboard" color="inherit">
                   Dashboard
                 </Button>
