@@ -69,7 +69,7 @@ export default function Home(): ReactNode {
 
   const { posts, pageCount, userId, pageNumber } = data;
 
-  const href = userId ? encodeURIComponent(userId) : '';
+  const href = userId ? encodeURIComponent(userId) : '/';
 
   return (
     <>
