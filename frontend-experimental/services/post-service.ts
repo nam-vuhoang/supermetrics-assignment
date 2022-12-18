@@ -6,9 +6,9 @@ import { logger } from '../utils/logger';
 import { Utils } from '../utils/utils';
 
 export class PostService {
-  constructor(private backendUrl: string) {}
+  constructor(protected backendUrl: string) {}
 
-  private async fetchRawData<T>(
+  protected async fetchQuery<T>(
     query: string,
     variables?: Variables
   ): Promise<T> {
@@ -18,7 +18,7 @@ export class PostService {
   }
 
   private async fetchBlog(query: string, variables?: Variables): Promise<Blog> {
-    return this.fetchRawData<{ blog: Blog }>(query, variables).then(
+    return this.fetchQuery<{ blog: Blog }>(query, variables).then(
       (data) => data.blog
     );
   }
@@ -33,7 +33,7 @@ export class PostService {
       `[GraphQL] Fetching posts with filter ${JSON.stringify(filter)}...`
     );
     const query = gql`
-      query FetchPosts(
+      query fetchPosts(
         $pageIndex: Int!
         $pageSize: Int!
         $userId: ID
@@ -71,7 +71,7 @@ export class PostService {
       }
     `;
 
-    return this.fetchRawData<{ users: User[] }>(query).then((data) =>
+    return this.fetchQuery<{ users: User[] }>(query).then((data) =>
       Utils.sortArray(data.users, (u) => u.userName).map((s) => s.userId)
     );
   }
