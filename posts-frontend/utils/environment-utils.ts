@@ -6,14 +6,9 @@ export function requireStringEnvParam(name: string, value?: string): string {
 }
 
 export function requireIntEnvParam(name: string, value?: string): number {
-  const floatValue = Number(requireStringEnvParam(name, value));
-  if (isNaN(floatValue)) {
-    throw new EvalError(`Environment variable '${name}' must be integer.`);
-  }
-
-  const intValue = Math.floor(floatValue);
-  if (floatValue == intValue) {
-    return intValue;
+  const numberValue = Number(requireStringEnvParam(name, value));
+  if (Number.isInteger(numberValue)) {
+    return numberValue;
   }
   throw new EvalError(`Environment variable '${name}' must be integer.`);
 }
