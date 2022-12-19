@@ -18,7 +18,7 @@ export class PostServiceWithFetchApi extends PostService {
         variables,
       }),
     })
-      .then((res) => res.json())
+      .then((res) => res.json()) // Promise<any>
       .then((res: any) => {
         if (res.errors) {
           throw new Error(res.message);
