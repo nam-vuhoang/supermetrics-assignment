@@ -1,14 +1,24 @@
-export function requireStringEnvParam(name: string, value?: string): string {
-  if (value) {
-    return value;
+import { env } from "process";
+
+export class EnvironmentUtils {
+  static requireStringEnvParam(name: string): string {
+    if (env[name]) {
+      return env[name];
+    }
+    throw new EvalError(`Environment param '${name}' is undefined.`);
   }
-  throw new EvalError(`Environment variable '${name}' is undefined (${process.env[name]}).`);
+  
+  static requireIntegerEnvParam(name: string): number  {
+    const floatValue = Number(EnvironmentUtils.requireStringEnvParam(name));
+    if (isNaN(floatValue)) {
+      throw new EvalError(`Environment param '${name}' must be integer.`);
+    }  
+    
+    const intValue = Math.floor(floatValue);
+    if (floatValue == intValue) {
+      return intValue;
+    }
+    throw new EvalError(`Environment param '${name}' must be integer.`);
+  }
 }
 
-export function requireIntEnvParam(name: string, value?: string): number {
-  const numberValue = Number(requireStringEnvParam(name, value));
-  if (Number.isInteger(numberValue)) {
-    return numberValue;
-  }
-  throw new EvalError(`Environment variable '${name}' must be integer.`);
-}
