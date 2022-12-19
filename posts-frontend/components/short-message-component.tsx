@@ -13,7 +13,7 @@ export default function ShortMessageComponent({
 }: {
   message: string;
   expand: boolean;
-}) {
+}): JSX.Element {
   const [displayFull, setDisplayFull] = useState(expand);
 
   if (!displayFull && message.length > MAX_SHORT_MESSAGE_LENGTH) {
@@ -39,5 +39,5 @@ export default function ShortMessageComponent({
     }
   }
 
-  return message;
+  return <>{message}</>;
 }

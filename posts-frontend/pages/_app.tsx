@@ -7,6 +7,11 @@ import '../styles/globals.scss'
 import type { AppProps } from 'next/app';
 import PageLayout from '../components/page-layout';
 
+/**
+ * This specific file is used to define the application page layout.
+ * @param param0 
+ * @returns 
+ */
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <PageLayout>

@@ -38,7 +38,7 @@ export default function PostLengthStatsComponent({
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell colSpan={2} padding="none">
+                <TableCell colSpan={2} padding="none" sx={{ pl: 2 }}>
                   <MaterialUtils.ButtonLike>
                     Lengths of posts
                   </MaterialUtils.ButtonLike>

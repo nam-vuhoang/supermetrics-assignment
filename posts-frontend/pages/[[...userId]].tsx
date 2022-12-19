@@ -1,12 +1,13 @@
-import { Alert, Box, Link, Pagination, PaginationItem } from '@mui/material';
+import { Box, Link, Pagination, PaginationItem } from '@mui/material';
 import { useRouter } from 'next/router';
 import { ParsedUrlQuery } from 'querystring';
-import React, { ReactNode } from 'react';
 import { Post } from '../models/post';
 import { PostService } from '../services/post-service';
 import useSWR from 'swr';
 import { environment } from '../environment/environment';
 import BlogComponent from '../components/blog-component';
+import ErrorPanel from '../components/error-panel';
+import LoadingInfoPanel from '../components/loading-info-panel';
 
 const PAGE_SIZE = 15;
 
@@ -17,6 +18,12 @@ interface PageProps {
   pageCount: number;
 }
 
+/**
+ * Fetch blog posts on the client (browser) side.
+ * @param backendUrl
+ * @param query
+ * @returns
+ */
 export async function fetchDataOnClientSide(
   backendUrl: string,
   query?: ParsedUrlQuery
@@ -25,9 +32,6 @@ export async function fetchDataOnClientSide(
     return Promise.resolve(null);
   }
 
-  console.info(`fetchDataOnClientSide()`);
-  console.warn(backendUrl);
-  console.warn(query.page);
   const pageParam = Number(query.page || '1');
   if (isNaN(pageParam)) {
     throw new Error('Invalid page number');
@@ -47,7 +51,11 @@ export async function fetchDataOnClientSide(
     }));
 }
 
-export default function Home(): ReactNode {
+/**
+ * Render the home page which uses client-side data fetching with SWR.
+ * See more: https://nextjs.org/docs/basic-features/data-fetching/client-side.
+ */
+export default function Home(): JSX.Element {
   const router = useRouter();
 
   const { data, error } = useSWR(
@@ -57,14 +65,12 @@ export default function Home(): ReactNode {
 
   if (error) {
     return (
-      <Alert severity="error">
-        Error: {JSON.stringify(error, undefined, 2)}
-      </Alert>
+      <ErrorPanel error={`Error: {JSON.stringify(error, undefined, 2)}`} />
     );
   }
 
   if (!data) {
-    return <Alert severity="info">Loading...</Alert>;
+    return <LoadingInfoPanel />;
   }
 
   const { posts, pageCount, userId, pageNumber } = data;
@@ -74,6 +80,7 @@ export default function Home(): ReactNode {
   return (
     <>
       <BlogComponent posts={posts} />
+
       <Box
         sx={{ pt: 6 }}
         display="flex"

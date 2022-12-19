@@ -17,7 +17,11 @@ import { UserBlogLinkComponent } from './user-blog-link-component';
 /**
  * Render a Card with user's post counting statistics.
  */
-export default function PostCountStatsComponent({ user }: { user: User }): JSX.Element {
+export default function PostCountStatsComponent({
+  user,
+}: {
+  user: User;
+}): JSX.Element {
   const months = MomentUtils.createMonthlyArrayFromNumberArray(
     user.stats.frequencies.map((f) => f.month)
   );
@@ -27,7 +31,10 @@ export default function PostCountStatsComponent({ user }: { user: User }): JSX.E
       <CardHeader
         avatar={MaterialUtils.formatAvatar(user.userName)}
         title={
-          <UserBlogLinkComponent userId={user.userId} userName={user.userName} />
+          <UserBlogLinkComponent
+            userId={user.userId}
+            userName={user.userName}
+          />
         }
         subheader="User statistics"
       ></CardHeader>
@@ -36,7 +43,7 @@ export default function PostCountStatsComponent({ user }: { user: User }): JSX.E
           <Table sx={{ width: '100%' }}>
             <TableHead>
               <TableRow>
-                <TableCell colSpan={2} padding="none">
+                <TableCell colSpan={2} padding="none" sx={{ pl: 2 }}>
                   <MaterialUtils.ButtonLike>
                     Number of posts
                   </MaterialUtils.ButtonLike>
@@ -45,7 +52,7 @@ export default function PostCountStatsComponent({ user }: { user: User }): JSX.E
             </TableHead>
             <TableBody>
               <TableRow>
-                <TableCell className="bold">All time</TableCell>
+                <TableCell className="bold left">All time</TableCell>
                 <TableCell className="bold right">
                   {user.stats.totalCount} posts
                 </TableCell>
@@ -57,6 +64,7 @@ export default function PostCountStatsComponent({ user }: { user: User }): JSX.E
                       borderBottomWidth:
                         index === months.length - 1 ? 0 : undefined,
                     }}
+                    className="left"
                   >
                     {m.format('MMM YYYY')}
                   </TableCell>

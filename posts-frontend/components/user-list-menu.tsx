@@ -1,0 +1,55 @@
+import { Table, TableRow, TableCell, Typography, Tooltip } from '@mui/material';
+import Link from 'next/link';
+import { User } from '../models/user';
+import { MaterialUtils } from '../utils/material/material-utils';
+
+/**
+ * Render a vertical user list with links to each item.
+ * @returns
+ */
+export default function UserListMenu({
+  href,
+  users,
+  itemTooltip,
+  noUserItemName,
+  noUserItemTooltip,
+}: {
+  href: string;
+  users: User[];
+  itemTooltip: (userName: string) => string;
+  noUserItemName?: string;
+  noUserItemTooltip: string;
+}) {
+  return (
+    <Table>
+      {MaterialUtils.conditionalNode(
+        noUserItemName,
+        <TableRow>
+          <TableCell>
+            <Tooltip title={noUserItemTooltip}>
+              <Link href={href} shallow>
+                <Typography fontWeight="bold" color="primary">
+                  {noUserItemName}
+                </Typography>
+              </Link>
+            </Tooltip>
+          </TableCell>
+        </TableRow>
+      )}
+
+      <TableRow>
+        <TableCell sx={{ borderBottomWidth: noUserItemName && 0 }}>
+          {users.map((u) => (
+            <div key={u.userId}>
+              <Tooltip title={itemTooltip(u.userName)}>
+                <Link href={`${href}${encodeURIComponent(u.userId)}`} shallow>
+                  <Typography color="primary">{u.userName}</Typography>
+                </Link>
+              </Tooltip>
+            </div>
+          ))}
+        </TableCell>
+      </TableRow>
+    </Table>
+  );
+}

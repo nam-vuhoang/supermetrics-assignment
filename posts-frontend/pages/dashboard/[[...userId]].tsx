@@ -1,16 +1,9 @@
-import {
-  Alert,
-  Grid,
-  Table,
-  TableCell,
-  TableRow,
-  Typography,
-} from '@mui/material';
+import { Grid } from '@mui/material';
 import { GetStaticPaths, GetStaticProps } from 'next';
-import Link from 'next/link';
 import { useRouter } from 'next/router';
-import React from 'react';
-import { ReactNode } from 'react';
+import ErrorPanel from '../../components/error-panel';
+import LoadingInfoPanel from '../../components/loading-info-panel';
+import UserListMenu from '../../components/user-list-menu';
 import UserStatsComponent from '../../components/user-stats-component';
 import UserStatsTableComponent from '../../components/user-stats-table-component';
 import { environment } from '../../environment/environment';
@@ -24,6 +17,10 @@ interface PageProps {
   error?: string;
 }
 
+/**
+ * Generate all possible paths for the dynamic route of this page.
+ * @returns
+ */
 export const getStaticPaths: GetStaticPaths = async () => {
   return new PostService(environment.backendUrl)
     .fetchUserIds()
@@ -40,6 +37,12 @@ export const getStaticPaths: GetStaticPaths = async () => {
     });
 };
 
+/**
+ *Generates static props for each static path
+ * (actually the result is independent from the static path context).
+ * @param context
+ * @returns
+ */
 export const getStaticProps: GetStaticProps = async (context) => {
   return new PostService(environment.backendUrl)
     .fetchFullStats()
@@ -58,44 +61,24 @@ export const getStaticProps: GetStaticProps = async (context) => {
     });
 };
 
-function UserListMenu({ users }: { users: User[] }) {
-  return (
-    <Table>
-      <TableRow>
-        <TableCell>
-          <Link href={`/dashboard/`} shallow>
-            <Typography fontWeight="bold" color="primary">
-              Pivot table
-            </Typography>
-          </Link>
-        </TableCell>
-      </TableRow>
-
-      <TableRow>
-        <TableCell sx={{ borderBottomWidth: 0 }}>
-          {users.map((u) => (
-            <div key={u.userId}>
-              <Link href={`/dashboard/${encodeURIComponent(u.userId)}`} shallow>
-                <Typography color="primary">{u.userName}</Typography>
-              </Link>
-            </div>
-          ))}
-        </TableCell>
-      </TableRow>
-    </Table>
-  );
-}
-
-export default function UserDashboard(props: PageProps): ReactNode {
+/**
+ * Generate the common user dashboard with links to each user dashboard page.
+ * This page uses SSG (Static-site generation approach:
+ * https://nextjs.org/docs/basic-features/data-fetching/get-static-paths)
+ * 
+ */
+export default function UserDashboard({
+  users,
+  error,
+}: PageProps): JSX.Element {
   const router = useRouter();
-  const { users, error } = props;
 
   if (error) {
-    return <Alert severity="error">{error}</Alert>;
+    return <ErrorPanel error={error} />;
   }
 
   if (!users) {
-    return <Alert severity="info">Loading data...</Alert>;
+    return <LoadingInfoPanel />;
   }
 
   const userIdParam = router.query.userId;
@@ -108,22 +91,28 @@ export default function UserDashboard(props: PageProps): ReactNode {
 
   const user = users.find((u) => u.userId === userId);
   if (!user) {
-    return <Alert severity="error">User not found: {userId}</Alert>;
+    return <ErrorPanel error={`User not found: ${userId}.`} />;
   }
 
   return (
-    <div>
-      <Grid container columnSpacing={4}>
-        {/* Menu */}
-        <Grid item xs={2}>
-          <UserListMenu users={users} />
-        </Grid>
-
-        {/* User stats */}
-        <Grid item xs={10}>
-          <UserStatsComponent user={user} />
-        </Grid>
+    <Grid container columnSpacing={4}>
+      {/* Menu */}
+      <Grid item xs={2}>
+        <UserListMenu
+          href="/dashboard/"
+          users={users}
+          itemTooltip={(userName) =>
+            `Click to see ${userName}'s dashboard page`
+          }
+          noUserItemName="Pivot table"
+          noUserItemTooltip="Click to see the dashboard for all users"
+        />
       </Grid>
-    </div>
+
+      {/* User stats */}
+      <Grid item xs={10}>
+        <UserStatsComponent user={user} />
+      </Grid>
+    </Grid>
   );
 }
