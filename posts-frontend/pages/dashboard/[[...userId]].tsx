@@ -11,8 +11,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React from 'react';
 import { ReactNode } from 'react';
-import { UserStatsComponent } from '../../components/user-stats-component';
-import { UserStatsTableComponent } from '../../components/user-stats-table-component';
+import UserStatsComponent from '../../components/user-stats-component';
+import UserStatsTableComponent from '../../components/user-stats-table-component';
 import { environment } from '../../environment/environment';
 import { User } from '../../models/user';
 import { PostService } from '../../services/post-service';
@@ -58,6 +58,34 @@ export const getStaticProps: GetStaticProps = async (context) => {
     });
 };
 
+function UserListMenu({ users }: { users: User[] }) {
+  return (
+    <Table>
+      <TableRow>
+        <TableCell>
+          <Link href={`/dashboard/`} shallow>
+            <Typography fontWeight="bold" color="primary">
+              Pivot table
+            </Typography>
+          </Link>
+        </TableCell>
+      </TableRow>
+
+      <TableRow>
+        <TableCell sx={{ borderBottomWidth: 0 }}>
+          {users.map((u) => (
+            <div key={u.userId}>
+              <Link href={`/dashboard/${encodeURIComponent(u.userId)}`} shallow>
+                <Typography color="primary">{u.userName}</Typography>
+              </Link>
+            </div>
+          ))}
+        </TableCell>
+      </TableRow>
+    </Table>
+  );
+}
+
 export default function UserDashboard(props: PageProps): ReactNode {
   const router = useRouter();
   const { users, error } = props;
@@ -85,35 +113,10 @@ export default function UserDashboard(props: PageProps): ReactNode {
 
   return (
     <div>
-      {/* Menu */}
       <Grid container columnSpacing={4}>
+        {/* Menu */}
         <Grid item xs={2}>
-          <Table>
-            <TableRow>
-              <TableCell>
-                <Link href={`/dashboard/`} shallow>
-                  <Typography fontWeight="bold" color="primary">
-                    Pivot table
-                  </Typography>
-                </Link>
-              </TableCell>
-            </TableRow>
-
-            <TableRow>
-              <TableCell sx={{ borderBottomWidth: 0 }}>
-                {users.map((u) => (
-                  <div key={u.userId}>
-                    <Link
-                      href={`/dashboard/${encodeURIComponent(u.userId)}`}
-                      shallow
-                    >
-                      <Typography color="primary">{u.userName}</Typography>
-                    </Link>
-                  </div>
-                ))}
-              </TableCell>
-            </TableRow>
-          </Table>
+          <UserListMenu users={users} />
         </Grid>
 
         {/* User stats */}

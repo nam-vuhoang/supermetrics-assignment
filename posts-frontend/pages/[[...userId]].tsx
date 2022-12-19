@@ -2,11 +2,11 @@ import { Alert, Box, Link, Pagination, PaginationItem } from '@mui/material';
 import { useRouter } from 'next/router';
 import { ParsedUrlQuery } from 'querystring';
 import React, { ReactNode } from 'react';
-import { BlogComponent } from '../components/blog-component';
 import { Post } from '../models/post';
 import { PostService } from '../services/post-service';
 import useSWR from 'swr';
 import { environment } from '../environment/environment';
+import BlogComponent from '../components/blog-component';
 
 const PAGE_SIZE = 15;
 

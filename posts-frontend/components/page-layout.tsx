@@ -1,4 +1,3 @@
-import * as React from 'react';
 import AppBar from '@mui/material/AppBar';
 import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/material/Box';
@@ -10,23 +9,20 @@ import { Diversity1 } from '@mui/icons-material';
 import Head from 'next/head';
 import { Button, IconButton } from '@mui/material';
 import Link from 'next/link';
-
-function Copyright() {
-  return (
-    <Typography variant="body2" color="text.secondary" align="center">
-      {'Copyright © '}
-      <MaterialLink color="inherit" href="https://supermetrics.com/">
-        SuperMetrics
-      </MaterialLink>{' '}
-      {new Date().getFullYear()}
-      {'.'}
-    </Typography>
-  );
-}
+import { jsx } from '@emotion/react';
 
 const theme = createTheme();
 
-export default function PageLayout(props: { children: any }) {
+/**
+ * Render the default page layout
+ * @param props
+ * @returns
+ */
+export default function PageLayout({
+  children,
+}: {
+  children: any;
+}): JSX.Element {
   return (
     <>
       <Head>
@@ -80,7 +76,7 @@ export default function PageLayout(props: { children: any }) {
               pb: 6,
             }}
           >
-            <Container fixed>{props.children}</Container>
+            <Container fixed>{children}</Container>
           </Box>
         </main>
         {/* Footer */}
@@ -94,7 +90,14 @@ export default function PageLayout(props: { children: any }) {
           >
             Powered by Nam Vu Hoang
           </Typography>
-          <Copyright />
+          <Typography variant="body2" color="text.secondary" align="center">
+            {'Copyright © '}
+            <MaterialLink color="inherit" href="https://supermetrics.com/">
+              SuperMetrics
+            </MaterialLink>{' '}
+            {new Date().getFullYear()}
+            {'.'}
+          </Typography>
         </Box>
         {/* </footer> */}
         {/* End footer */}
