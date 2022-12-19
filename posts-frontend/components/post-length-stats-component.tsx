@@ -12,6 +12,7 @@ import {
 import { User } from '../models/user';
 import { MaterialUtils } from '../utils/material/material-utils';
 import { UserBlogLinkComponent } from './user-blog-link-component';
+import UserNameAvatar from './user-name-avatar';
 
 /**
  * Render a Card with user's post length statistics.
@@ -24,7 +25,7 @@ export default function PostLengthStatsComponent({
   return (
     <Card>
       <CardHeader
-        avatar={MaterialUtils.formatAvatar(user.userName)}
+        avatar={<UserNameAvatar name={user.userName} />}
         title={
           <UserBlogLinkComponent
             userId={user.userId}

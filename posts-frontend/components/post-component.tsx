@@ -22,6 +22,7 @@ import { UserBlogLinkComponent } from './user-blog-link-component';
 import ShortMessageComponent from './short-message-component';
 import TimeDiffComponent from './time-diff-component';
 import moment from 'moment';
+import UserNameAvatar from './user-name-avatar';
 
 /**
  * Render a single post view in a Card style.
@@ -40,7 +41,7 @@ export default function PostComponent({
   return (
     <Card>
       <CardHeader
-        avatar={MaterialUtils.formatAvatar(post.userName)}
+        avatar={<UserNameAvatar name={post.userName} />}
         title={
           <UserBlogLinkComponent
             userId={post.userId}
@@ -50,12 +51,14 @@ export default function PostComponent({
         subheader={<TimeDiffComponent time={moment.utc(post.createdTime)} />}
         action={MaterialUtils.conditionalNode(
           !hideDashboardLink,
-          <IconButton
-            href={`/dashboard/${encodeURIComponent(post.userId)}`}
-            aria-label="dashboard"
-          >
-            <BarChart fontSize="small" />
-          </IconButton>
+          <Tooltip title={`Click to see ${post.userName}'s dashboard page`}>
+            <IconButton
+              href={`/dashboard/${encodeURIComponent(post.userId)}`}
+              aria-label="dashboard"
+            >
+              <BarChart fontSize="small" />
+            </IconButton>
+          </Tooltip>
         )}
       />
 
@@ -77,18 +80,20 @@ export default function PostComponent({
 
       <CardActions>
         <Box sx={{ flexGrow: 1 }}>
-          <Tooltip title={post.id}>
+          <Tooltip title={`Post ID: ${post.id}`}>
             <IconButton aria-label="add to favorites">
               <FavoriteIcon />
             </IconButton>
           </Tooltip>
-          <Tooltip title={post.id}>
+          <Tooltip title={`Post ID: ${post.id}`}>
             <IconButton aria-label="share">
               <ShareIcon />
             </IconButton>
           </Tooltip>
         </Box>
-        <Rating aria-label="rate" />
+        <Tooltip title="Please, rate me!">
+          <Rating aria-label="rate" />
+        </Tooltip>
       </CardActions>
     </Card>
   );

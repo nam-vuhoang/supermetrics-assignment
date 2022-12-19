@@ -33,6 +33,7 @@ export default function UserStatsTableComponent({
           href={`/dashboard/${encodeURIComponent(params.row.userId)}`}
           shallow
         >
+          
           <Typography color="primary">{params.row.userName}</Typography>
         </Link>
       ),

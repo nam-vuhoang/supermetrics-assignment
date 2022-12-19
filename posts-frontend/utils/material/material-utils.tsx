@@ -3,8 +3,13 @@ import { styled } from '@mui/material/styles';
 import { ReactNode } from 'react';
 
 export class MaterialUtils {
-  // https://mui.com/material-ui/react-avatar/
-  static stringToColor(string: string) {
+  /**
+   * Generate a color based on a string
+   * Source: https://mui.com/material-ui/react-avatar/
+   * @param string
+   * @returns
+   */
+  static stringToColor(string: string): string {
     let hash = 0;
     let i;
 
@@ -24,19 +29,9 @@ export class MaterialUtils {
     return color;
   }
 
-  private static stringAvatar(name: string) {
-    return {
-      sx: {
-        bgcolor: MaterialUtils.stringToColor(name),
-      },
-      children: `${name.split(' ')[0][0]}${name.split(' ')[1][0]}`,
-    };
-  }
-
-  static formatAvatar(name: string): JSX.Element {
-    return <Avatar {...MaterialUtils.stringAvatar(name)} />;
-  }
-
+  /**
+   * Return a <div> with MUI Button-like style.
+   */
   static ButtonLike = styled('div')(({ theme }) => ({
     ...theme.typography.button,
     backgroundColor: theme.palette.background.paper,
@@ -44,6 +39,12 @@ export class MaterialUtils {
     paddingLeft: 0,
   }));
 
+  /**
+   * Return node if condition is true. Otherwise, return empty JSX.element.
+   * @param condition
+   * @param node
+   * @returns
+   */
   static conditionalNode(condition: any, node: ReactNode) {
     return condition ? node : <></>;
   }

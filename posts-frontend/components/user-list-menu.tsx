@@ -1,4 +1,10 @@
-import { Table, TableRow, TableCell, Typography, Tooltip } from '@mui/material';
+import {
+  Table,
+  TableRow,
+  TableCell,
+  Typography,
+  Tooltip,
+} from '@mui/material';
 import Link from 'next/link';
 import { User } from '../models/user';
 import { MaterialUtils } from '../utils/material/material-utils';

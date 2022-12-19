@@ -13,6 +13,7 @@ import { User } from '../models/user';
 import { MaterialUtils } from '../utils/material/material-utils';
 import { MomentUtils } from '../utils/moment-utils';
 import { UserBlogLinkComponent } from './user-blog-link-component';
+import UserNameAvatar from './user-name-avatar';
 
 /**
  * Render a Card with user's post counting statistics.
@@ -29,7 +30,7 @@ export default function PostCountStatsComponent({
   return (
     <Card>
       <CardHeader
-        avatar={MaterialUtils.formatAvatar(user.userName)}
+        avatar={<UserNameAvatar name={user.userName} />}
         title={
           <UserBlogLinkComponent
             userId={user.userId}
