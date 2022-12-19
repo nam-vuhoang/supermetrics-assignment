@@ -1,12 +1,11 @@
 import { Post } from '../models/post';
-import { PostComponent } from './post-component';
+import PostComponent from './post-component';
 import { Box, Grid } from '@mui/material';
 
 const DEFAULT_COLUMN_NUMBER = 3;
 
 /**
  * Render a list of PostComponent in the grid format.
- * @returns 
  */
 export default function BlogComponent({
   posts,

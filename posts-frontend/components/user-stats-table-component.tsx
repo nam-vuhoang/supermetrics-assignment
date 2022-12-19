@@ -7,47 +7,19 @@ import {
 } from '@mui/x-data-grid';
 import Link from 'next/link';
 import React from 'react';
-import { Component, ReactNode } from 'react';
 import { Frequency } from '../models/frequency';
 import { User } from '../models/user';
 import { MomentUtils } from '../utils/moment-utils';
 import { Utils } from '../utils/utils';
 
-function findMonthlyRecords(frequencies: Frequency[]): Map<number, number> {
-  const recordMap = new Map<number, number>();
-
-  for (let f of frequencies) {
-    const currentMonthRecord = recordMap.get(f.month) || 0;
-    if (currentMonthRecord < f.count) {
-      recordMap.set(f.month, f.count);
-    }
-  }
-
-  return recordMap;
-}
-
-function addHighlightRecordCellRender(
-  gridColDef: GridColDef,
-  record: number,
-  highlightMax: boolean
-): GridColDef {
-  gridColDef.renderCell = (params: GridRenderCellParams<number>) => {
-    const { value } = params;
-    if (value === undefined) {
-      return '-';
-    } else if ((highlightMax && value < record) || value > record) {
-      return value;
-    } else {
-      return <Typography color="primary">{record}</Typography>;
-    }
-  };
-  return gridColDef;
-}
+/**
+ * Render statistics table for all users.
+ */
 export default function UserStatsTableComponent({
   users,
 }: {
   users: User[];
-}): ReactNode {
+}): JSX.Element {
   //
   // Add basic columns
   //
@@ -65,15 +37,15 @@ export default function UserStatsTableComponent({
         </Link>
       ),
     },
-    addHighlightRecordCellRender(
+    addNumberCellRender(
       {
         field: 'totalCount',
         headerName: 'Total count',
         valueGetter: (params) => (params.row as User).stats.totalCount,
         width: 100,
       },
-      Utils.getArrayMax(users.map((u) => u.stats.totalCount)),
-      true
+      'max',
+      Utils.getArrayMax(users.map((u) => u.stats.totalCount))
     ),
   ];
 
@@ -84,12 +56,12 @@ export default function UserStatsTableComponent({
   const months = MomentUtils.createMonthlyArrayFromNumberArray(
     frequencies.map((f) => f.month)
   );
-  const monthlyRecords = findMonthlyRecords(frequencies);
+  const monthlyHighestValueMap = findMonthlyHighestValues(frequencies);
 
   for (let month of months) {
     const monthValue = month.valueOf();
     columns.push(
-      addHighlightRecordCellRender(
+      addNumberCellRender(
         {
           field: `frequencies_${monthValue}`,
           headerName: month.format('MM/YY'),
@@ -100,8 +72,8 @@ export default function UserStatsTableComponent({
             )?.count;
           },
         },
-        monthlyRecords.get(monthValue) || 0,
-        true
+        'max',
+        monthlyHighestValueMap.get(monthValue) || 0
       )
     );
   }
@@ -110,35 +82,35 @@ export default function UserStatsTableComponent({
   // Add length columns
   //
   columns.push(
-    addHighlightRecordCellRender(
+    addNumberCellRender(
       {
         field: 'minLength',
         headerName: 'Min length',
         width: 90,
         valueGetter: (params) => params.row.stats.minLength,
       },
-      Utils.getArrayMin(users.map((u) => u.stats.minLength)),
-      false
+      'min',
+      Utils.getArrayMin(users.map((u) => u.stats.minLength))
     ),
-    addHighlightRecordCellRender(
+    addNumberCellRender(
       {
         field: 'averageLength',
         headerName: 'Av. length',
         valueGetter: (params) => (params.row as User).stats.averageLength,
         width: 90,
       },
-      Utils.getArrayMax(users.map((u) => u.stats.averageLength)),
-      true
+      'max',
+      Utils.getArrayMax(users.map((u) => u.stats.averageLength))
     ),
-    addHighlightRecordCellRender(
+    addNumberCellRender(
       {
         field: 'stats.maxLength',
         headerName: 'Max length',
         valueGetter: (params) => (params.row as User).stats.maxLength,
         width: 90,
       },
-      Utils.getArrayMax(users.map((u) => u.stats.maxLength)),
-      true
+      'max',
+      Utils.getArrayMax(users.map((u) => u.stats.maxLength))
     )
   );
 
@@ -158,4 +130,54 @@ export default function UserStatsTableComponent({
       />
     </div>
   );
+}
+
+/**
+ * Create the list of highest values for each month.
+ * @param frequencies
+ * @returns Key-value map: month=>value
+ */
+function findMonthlyHighestValues(
+  frequencies: Frequency[]
+): Map<number, number> {
+  const highestValueMap = new Map<number, number>();
+
+  for (let f of frequencies) {
+    const currentMonthHighestValue = highestValueMap.get(f.month) || 0;
+    if (currentMonthHighestValue < f.count) {
+      highestValueMap.set(f.month, f.count);
+    }
+  }
+
+  return highestValueMap;
+}
+
+/**
+ * Add a render for number cells in the grid column
+ * with the possibilities to highlight extreme (max or min) values.
+ * @param gridColDef
+ * @param extremeValue
+ * @param highlightType
+ * @returns
+ */
+function addNumberCellRender(
+  gridColDef: GridColDef,
+  highlightType?: 'max' | 'min',
+  extremeValue?: number
+): GridColDef {
+  gridColDef.renderCell = (params: GridRenderCellParams<number>) => {
+    const { value } = params;
+    if (value === undefined) {
+      return '-';
+    } else if (
+      extremeValue === undefined ||
+      (highlightType === 'max' && value < extremeValue) ||
+      (highlightType === 'min' && value > extremeValue)
+    ) {
+      return value;
+    } else {
+      return <Typography color="primary">{extremeValue}</Typography>;
+    }
+  };
+  return gridColDef;
 }

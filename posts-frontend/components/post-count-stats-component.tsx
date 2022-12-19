@@ -9,17 +9,15 @@ import {
   TableCell,
   TableBody,
 } from '@mui/material';
-import { ReactNode } from 'react';
 import { User } from '../models/user';
 import { MaterialUtils } from '../utils/material/material-utils';
 import { MomentUtils } from '../utils/moment-utils';
-import { PostComponent } from './post-component';
+import { UserBlogLinkComponent } from './user-blog-link-component';
 
 /**
  * Render a Card with user's post counting statistics.
- * @returns 
  */
-export function PostCountStatsComponent({ user }: { user: User }): JSX.Element {
+export default function PostCountStatsComponent({ user }: { user: User }): JSX.Element {
   const months = MomentUtils.createMonthlyArrayFromNumberArray(
     user.stats.frequencies.map((f) => f.month)
   );
@@ -28,7 +26,9 @@ export function PostCountStatsComponent({ user }: { user: User }): JSX.Element {
     <Card>
       <CardHeader
         avatar={MaterialUtils.formatAvatar(user.userName)}
-        title={PostComponent.formatCaption(user.userId, user.userName)}
+        title={
+          <UserBlogLinkComponent userId={user.userId} userName={user.userName} />
+        }
         subheader="User statistics"
       ></CardHeader>
       <CardContent>

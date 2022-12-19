@@ -1,10 +1,5 @@
-import moment from 'moment';
-import { Component, ReactNode } from 'react';
 import { Post } from '../models/post';
 import {
-  AccountBox as AccountBoxIcon,
-  AccessTime as AccessTimeIcon,
-  Visibility as VisibilityIcon,
   Favorite as FavoriteIcon,
   Share as ShareIcon,
   BarChart,
@@ -23,129 +18,78 @@ import {
 } from '@mui/material';
 import { MaterialUtils } from '../utils/material/material-utils';
 import React from 'react';
+import { UserBlogLinkComponent } from './user-blog-link-component';
+import ShortMessageComponent from './short-message-component';
+import TimeDiffComponent from './time-diff-component';
+import moment from 'moment';
 
-export class PostComponent extends Component<
-  {
-    post: Post;
-    caption?: string;
-    expand: boolean;
-    hideDashboardLink?: boolean;
-  },
-  { displayFull: boolean }
-> {
-  static readonly MAX_SHORT_MESSAGE_LENGTH = 150;
-  state = { displayFull: this.props.expand };
-
-  static formatCaption(userId: string, userName: string): ReactNode {
-    return (
-      <Link
-        href={`/${encodeURIComponent(userId)}`}
-        variant="body1"
-        fontWeight="bold"
-        underline="hover"
-      >
-        {userName}
-      </Link>
-    );
-  }
-
-  private formatCreatedTime(): ReactNode {
-    const createdTime = moment.utc(this.props.post.createdTime);
-    const createdTimeString = createdTime.format('dddd, D MMMM YYYY [at] LT');
-    const diff = moment().diff(createdTime);
-    const diffString = moment.duration(diff).humanize();
-
-    return (
-      <Tooltip title={createdTimeString}>
-        <span>
-          <AccessTimeIcon sx={{ fontSize: 14 }} />
-          {` ${diffString} ago`}
-        </span>
-      </Tooltip>
-    );
-  }
-
-  private formatShortMessage(): ReactNode {
-    const { message } = this.props.post;
-    if (message.length <= PostComponent.MAX_SHORT_MESSAGE_LENGTH) {
-      return message;
-    }
-
-    const shortMessage = message.substring(
-      0,
-      message.lastIndexOf(' ', PostComponent.MAX_SHORT_MESSAGE_LENGTH)
-    );
-    if (message === shortMessage) {
-      return message;
-    }
-
-    return (
-      <>
-        {`${shortMessage} ... `}
-        <IconButton
-          size="small"
-          onClick={() => this.setState({ displayFull: true })}
-          aria-label="see more"
-        >
-          <VisibilityIcon />
-        </IconButton>
-      </>
-    );
-  }
-
-  render(): ReactNode {
-    const { post, caption, hideDashboardLink } = this.props;
-    const { displayFull } = this.state;
-
-    return (
-      <Card>
-        <CardHeader
-          avatar={MaterialUtils.formatAvatar(post.userName)}
-          title={PostComponent.formatCaption(post.userId, post.userName)}
-          subheader={this.formatCreatedTime()}
-          action={MaterialUtils.conditionalNode(
-            !hideDashboardLink,
-            <IconButton
-              href={`/dashboard/${encodeURIComponent(post.userId)}`}
-              aria-label="dashboard"
-            >
-              <BarChart fontSize="small" />
-            </IconButton>
-          )}
-        />
-
-        <CardContent>
-          {MaterialUtils.conditionalNode(
-            caption,
-            <MaterialUtils.ButtonLike>{caption}</MaterialUtils.ButtonLike>
-          )}
-          <Typography
-            variant="body2"
-            color="text.secondary"
-            align="justify"
-            fontStyle="italic"
-            gutterBottom
+/**
+ * Render a single post view in a Card style.
+ */
+export default function PostComponent({
+  post,
+  caption,
+  hideDashboardLink,
+  expand,
+}: {
+  post: Post;
+  caption?: string;
+  expand: boolean;
+  hideDashboardLink?: boolean;
+}): JSX.Element {
+  return (
+    <Card>
+      <CardHeader
+        avatar={MaterialUtils.formatAvatar(post.userName)}
+        title={
+          <UserBlogLinkComponent
+            userId={post.userId}
+            userName={post.userName}
+          />
+        }
+        subheader={<TimeDiffComponent time={moment.utc(post.createdTime)} />}
+        action={MaterialUtils.conditionalNode(
+          !hideDashboardLink,
+          <IconButton
+            href={`/dashboard/${encodeURIComponent(post.userId)}`}
+            aria-label="dashboard"
           >
-            {displayFull ? post.message : this.formatShortMessage()}
-          </Typography>
-        </CardContent>
+            <BarChart fontSize="small" />
+          </IconButton>
+        )}
+      />
 
-        <CardActions>
-          <Box sx={{ flexGrow: 1 }}>
-            <Tooltip title={post.id}>
-              <IconButton aria-label="add to favorites">
-                <FavoriteIcon />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title={post.id}>
-              <IconButton aria-label="share">
-                <ShareIcon />
-              </IconButton>
-            </Tooltip>
-          </Box>
-          <Rating aria-label="rate" />
-        </CardActions>
-      </Card>
-    );
-  }
+      <CardContent>
+        {MaterialUtils.conditionalNode(
+          caption,
+          <MaterialUtils.ButtonLike>{caption}</MaterialUtils.ButtonLike>
+        )}
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          align="justify"
+          fontStyle="italic"
+          gutterBottom
+        >
+          <ShortMessageComponent message={post.message} expand={expand} />
+        </Typography>
+      </CardContent>
+
+      <CardActions>
+        <Box sx={{ flexGrow: 1 }}>
+          <Tooltip title={post.id}>
+            <IconButton aria-label="add to favorites">
+              <FavoriteIcon />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title={post.id}>
+            <IconButton aria-label="share">
+              <ShareIcon />
+            </IconButton>
+          </Tooltip>
+        </Box>
+        <Rating aria-label="rate" />
+      </CardActions>
+    </Card>
+  );
 }

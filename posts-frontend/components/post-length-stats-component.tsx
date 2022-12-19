@@ -11,11 +11,10 @@ import {
 } from '@mui/material';
 import { User } from '../models/user';
 import { MaterialUtils } from '../utils/material/material-utils';
-import { PostComponent } from './post-component';
+import { UserBlogLinkComponent } from './user-blog-link-component';
 
 /**
  * Render a Card with user's post length statistics.
- * @returns 
  */
 export default function PostLengthStatsComponent({
   user,
@@ -26,7 +25,12 @@ export default function PostLengthStatsComponent({
     <Card>
       <CardHeader
         avatar={MaterialUtils.formatAvatar(user.userName)}
-        title={PostComponent.formatCaption(user.userId, user.userName)}
+        title={
+          <UserBlogLinkComponent
+            userId={user.userId}
+            userName={user.userName}
+          />
+        }
         subheader="User statistics"
       ></CardHeader>
       <CardContent sx={{ pl: 2, pr: 1 }}>
