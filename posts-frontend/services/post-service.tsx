@@ -33,7 +33,7 @@ export class PostService {
       `[GraphQL] Fetching posts with filter ${JSON.stringify(filter)}...`
     );
     const query = gql`
-      query FetchPosts(
+      query fetchPosts(
         $pageIndex: Int!
         $pageSize: Int!
         $userId: ID

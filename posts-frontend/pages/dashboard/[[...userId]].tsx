@@ -9,6 +9,7 @@ import {
 import { GetStaticPaths, GetStaticProps } from 'next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import React from 'react';
 import { ReactNode } from 'react';
 import { UserStatsComponent } from '../../components/user-stats-component';
 import { UserStatsTableComponent } from '../../components/user-stats-table-component';

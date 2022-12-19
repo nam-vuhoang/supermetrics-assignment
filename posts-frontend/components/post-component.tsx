@@ -22,6 +22,7 @@ import {
   Typography,
 } from '@mui/material';
 import { MaterialUtils } from '../utils/material/material-utils';
+import React from 'react';
 
 export class PostComponent extends Component<
   {
@@ -49,7 +50,7 @@ export class PostComponent extends Component<
   }
 
   private formatCreatedTime(): ReactNode {
-    const createdTime = moment(this.props.post.createdTime);
+    const createdTime = moment.utc(this.props.post.createdTime);
     const createdTimeString = createdTime.format('dddd, D MMMM YYYY [at] LT');
     const diff = moment().diff(createdTime);
     const diffString = moment.duration(diff).humanize();
@@ -131,12 +132,16 @@ export class PostComponent extends Component<
 
         <CardActions>
           <Box sx={{ flexGrow: 1 }}>
-            <IconButton aria-label="add to favorites">
-              <FavoriteIcon />
-            </IconButton>
-            <IconButton aria-label="share">
-              <ShareIcon />
-            </IconButton>
+            <Tooltip title={post.id}>
+              <IconButton aria-label="add to favorites">
+                <FavoriteIcon />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title={post.id}>
+              <IconButton aria-label="share">
+                <ShareIcon />
+              </IconButton>
+            </Tooltip>
           </Box>
           <Rating aria-label="rate" />
         </CardActions>

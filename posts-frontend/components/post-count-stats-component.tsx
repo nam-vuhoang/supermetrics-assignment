@@ -10,6 +10,7 @@ import {
   TableBody,
 } from '@mui/material';
 import { months } from 'moment';
+import React from 'react';
 import { Component, ReactNode } from 'react';
 import { User } from '../models/user';
 import { MaterialUtils } from '../utils/material/material-utils';
@@ -21,7 +22,7 @@ export class PostCountStatsComponent extends Component<{
 }> {
   render(): ReactNode {
     const { user } = this.props;
-    const months = MomentUtils.createMonthlyArray(
+    const months = MomentUtils.createMonthlyArrayFromNumberArray(
       user.stats.frequencies.map((f) => f.month)
     );
 

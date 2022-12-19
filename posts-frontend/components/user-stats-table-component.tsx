@@ -6,6 +6,7 @@ import {
   GridValueGetterParams,
 } from '@mui/x-data-grid';
 import Link from 'next/link';
+import React from 'react';
 import { Component, ReactNode } from 'react';
 import { Frequency } from '../models/frequency';
 import { User } from '../models/user';
@@ -80,7 +81,7 @@ export class UserStatsTableComponent extends Component<{ users: User[] }> {
     // Add frequency columns
     //
     const frequencies = users.map((u) => u.stats.frequencies).flat();
-    const months = MomentUtils.createMonthlyArray(
+    const months = MomentUtils.createMonthlyArrayFromNumberArray(
       frequencies.map((f) => f.month)
     );
     const monthlyRecords = this.findMonthlyRecords(frequencies);

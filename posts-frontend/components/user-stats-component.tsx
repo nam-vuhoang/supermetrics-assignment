@@ -1,4 +1,5 @@
 import { Grid } from '@mui/material';
+import React from 'react';
 import { Component, ReactNode } from 'react';
 import { User } from '../models/user';
 import { BlogComponent } from './blog-component';

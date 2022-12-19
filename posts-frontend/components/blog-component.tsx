@@ -2,6 +2,7 @@ import { Component, ReactNode } from 'react';
 import { Post } from '../models/post';
 import { PostComponent } from './post-component';
 import { Box, Grid } from '@mui/material';
+import React from 'react';
 
 export class BlogComponent extends Component<{
   posts: Post[];
