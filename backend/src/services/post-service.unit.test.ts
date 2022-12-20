@@ -1,3 +1,4 @@
+import exp from 'constants';
 import { GraphQLError } from 'graphql';
 import { StatusCodes } from 'http-status-codes';
 import { Post } from '../../test/client/models/post';
@@ -42,7 +43,8 @@ describe('Class PostService (with MockAuthenticationService and MockPostService)
       if (userId) {
         expect(blog.size).toBeGreaterThanOrEqual(0);
         expect(blog.totalPostCount).toBeGreaterThanOrEqual(0);
-        expect(blog.totalPostCount).toBeLessThan(maxPostCount); // assuming blog randomly consists of more than 1 user
+        // ideally, >= should be used, but there is a very little chance that blog consists of only one user
+        expect(blog.totalPostCount).toBeLessThan(maxPostCount);
       } else {
         const expectedSize = Math.min(size, Math.max(maxPostCount - size * index, 0));
         expect(blog.size).toBe(expectedSize);
@@ -168,5 +170,81 @@ describe('Class PostSerivce (with expiration)', () => {
 
     await postService.fetchPosts({ userId: FAKE_USER_ID });
     expect(authenticationService.retryCountAfterExpired).toBe(pageCount * 2);
+  });
+});
+
+describe('Class PostSerivce (with wrong page)', () => {
+  const { baseUrl, clientInfo, pageCount } = environment.dataServer;
+
+  beforeAll(() => {
+    expect(baseUrl).toBeTruthy();
+    expect(clientInfo).toBeTruthy();
+    expect(pageCount).toBeTruthy();
+    expect(pageCount).not.toBeNaN();
+  });
+
+  test('When wrong page is returned', async () => {
+    const authenticationService = new MockAuthenticationService(() => Promise.resolve(Utils.generateRandomId(20)));
+    const postService = new MockPostService(
+      { authenticationService },
+      baseUrl,
+      pageCount,
+      PostGenerator.generatePostPages(),
+      true // return wrong page index
+    );
+
+    try {
+      await postService.fetchPosts();
+    } catch (e) {
+      expect(e).toBeInstanceOf(GraphQLError);
+      expect(e.message).toMatch(/Invalid data: expected page \d+, but got page \d+./);
+      expect(e.extensions).toStrictEqual({
+        code: 'DATA_SERVER_ERROR',
+        argumentName: 'pageIndex',
+      });
+      return;
+    }
+
+    fail('it should not reach here');
+  });
+
+  test('When wrong page index was requested', async () => {
+    const authenticationService = new MockAuthenticationService(() => Promise.resolve(Utils.generateRandomId(20)));
+    const postService = new MockPostService(
+      { authenticationService },
+      baseUrl,
+      pageCount,
+      PostGenerator.generatePostPages()
+    );
+
+    try {
+      await postService.fetchPosts({ page: { index: -1, size: 10 } });
+    } catch (e) {
+      expect(e).toBeInstanceOf(EvalError);
+      expect(e.message).toMatch(/Invalid page index:/);
+      return;
+    }
+
+    fail('it should not reach here');
+  });
+
+  test('When wrong page size was requested', async () => {
+    const authenticationService = new MockAuthenticationService(() => Promise.resolve(Utils.generateRandomId(20)));
+    const postService = new MockPostService(
+      { authenticationService },
+      baseUrl,
+      pageCount,
+      PostGenerator.generatePostPages()
+    );
+
+    try {
+      await postService.fetchPosts({ page: { index: 1, size: 0 } });
+    } catch (e) {
+      expect(e).toBeInstanceOf(EvalError);
+      expect(e.message).toMatch(/Invalid page size:./);
+      return;
+    }
+
+    fail('it should not reach here');
   });
 });

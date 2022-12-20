@@ -132,3 +132,14 @@ describe('compare utils', () => {
     }
   });
 });
+
+describe('test string utils', () => {
+  test('get random string', () => {
+    for (let i = 0; i < 10; ++i) {
+      const length = Utils.getRandomInt(100);
+      const randomString = Utils.generateRandomId(length);
+      expect(randomString.length).toBe(length);
+      expect(randomString).toMatch(/^[a-zA-Z0-9]*$/); // [a-zA-Z_0-9]
+    }
+  });
+});

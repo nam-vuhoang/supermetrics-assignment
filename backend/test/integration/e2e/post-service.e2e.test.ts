@@ -9,7 +9,7 @@ import { MockAuthenticationService } from '../../helper/mock-authentication-serv
 const MAX_POST_COUNT = 1000;
 const FAKE_USER_ID = 'this user doesnt exist';
 
-describe('Class PostService', () => {
+describe('PostService (e2e test)', () => {
   const { baseUrl, clientInfo, pageCount } = environment.dataServer;
   let authenticationService: AuthenticationService;
   let postService: PostService;

@@ -10,7 +10,13 @@ export class MockPostService extends PostService {
   private pages: Post[][];
   public mockAuthenticationService?: MockAuthenticationService;
 
-  constructor(context: GraphQLContext, public baseURL: string, pageCount: number, pages?: Post[][]) {
+  constructor(
+    context: GraphQLContext,
+    public baseURL: string,
+    pageCount: number,
+    pages?: Post[][],
+    private returnWrongPage?: boolean
+  ) {
     super(context, baseURL, pageCount);
     if (context.authenticationService && context.authenticationService instanceof MockAuthenticationService) {
       this.mockAuthenticationService = context.authenticationService;
@@ -32,7 +38,7 @@ export class MockPostService extends PostService {
     const page = Number(pageNumber);
 
     return Promise.resolve({
-      page: page,
+      page: !this.returnWrongPage ? page : page - 1,
       posts: this.pages[page - 1].map((p) => ({
         id: p.id,
         from_id: p.userId,

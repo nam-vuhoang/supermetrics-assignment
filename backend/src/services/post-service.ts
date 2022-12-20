@@ -56,6 +56,14 @@ export class PostService extends RESTDataSource {
    * @returns
    */
   async fetchPosts(filter?: PostFilter): Promise<Blog> | null {
+    if (filter?.page?.index !== undefined && filter.page.index < 0) {
+      throw new EvalError(`Invalid page index: ${filter.page.index}`);
+    }
+
+    if (filter?.page?.size !== undefined && filter.page.size <= 0) {
+      throw new EvalError(`Invalid page size: ${filter.page.size}`);
+    }
+
     logger.info('Fetching posts with filter %s', JSON.stringify(filter));
 
     const { userId, page: pageFilter, sortByCreatedTimeAsc } = filter || {};

@@ -9,16 +9,13 @@ export class EnvironmentUtils {
   }
   
   static requireIntegerEnvParam(name: string): number  {
-    const floatValue = Number(EnvironmentUtils.requireStringEnvParam(name));
-    if (isNaN(floatValue)) {
-      throw new EvalError(`Environment param '${name}' must be integer.`);
-    }  
-    
-    const intValue = Math.floor(floatValue);
-    if (floatValue == intValue) {
-      return intValue;
+    const stringValue = EnvironmentUtils.requireStringEnvParam(name);
+    const numberValue = Number(stringValue);
+    if (Number.isInteger(numberValue)) {
+      return numberValue;
     }
-    throw new EvalError(`Environment param '${name}' must be integer.`);
+
+    throw new EvalError(`Environment param '${name}' must be an integer: '${stringValue}'.`);
   }
 }
 

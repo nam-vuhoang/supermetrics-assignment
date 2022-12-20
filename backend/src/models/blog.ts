@@ -17,7 +17,7 @@ export class Blog {
   * @param sortByCreatedTimeAsc
   * @returns
   */
- static createBlog(originalPosts: Post[], pageFilter?: PageFilter, sortByCreatedTimeAsc?: boolean): Blog {
+ static createBlog(originalPosts: Post[], pageFilter?: PageFilter, sortByCreatedTimeAsc?: boolean): Blog {  
    const totalPostCount = originalPosts.length;
 
    // should sort when either page filter or sort order is defined

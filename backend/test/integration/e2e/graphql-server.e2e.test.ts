@@ -1,24 +1,20 @@
 import { ApolloServer } from '@apollo/server';
 import { environment } from '../../../src/environment/environment';
+import { AuthenticationService } from '../../../src/services/authentication-service';
+import { PostService } from '../../../src/services/post-service';
 import { GraphQLContextEx } from '../../../src/graphql/graphql-context';
 import { graphQLOptions } from '../../../src/graphql/graphql-options';
 import { Utils } from '../../../src/utils/utils';
 import { User } from '../../client/models/user';
 import { Kind } from 'graphql';
 import { MockGraphQLClient } from '../../helper/mock-graphql-client';
-import { MockAuthenticationService } from '../../helper/mock-authentication-service';
-import { MockPostService } from '../../helper/mock-post-service';
-import { PostGenerator } from '../../helper/post-generator';
-import { Post } from '../../client/models/post';
 
-const FAKE_USER_ID = "this user doesn't exist";
+const MAX_POST_COUNT = 1000;
 
 /**
  * Test cases
  */
-describe('GraphQLServer (with MockPostService)', () => {
-  let pagePosts: Post[][];
-  let maxPostCount;
+describe('GraphQLServer (e2e test)', () => {
   let graphqlClient: MockGraphQLClient;
 
   beforeAll(() => {
@@ -28,15 +24,12 @@ describe('GraphQLServer (with MockPostService)', () => {
     expect(pageCount).toBeTruthy();
     expect(pageCount).not.toBeNaN();
 
-    pagePosts = PostGenerator.generateSortedPostPages();
-    maxPostCount = PostGenerator.getPostCount(pagePosts);
-    const authenticationService = new MockAuthenticationService(() => Promise.resolve(Utils.generateRandomId(20)));
-    const postService = new MockPostService({ authenticationService }, baseUrl, pageCount, pagePosts);
     const server = new ApolloServer<GraphQLContextEx>(graphQLOptions);
     const executionOptions = {
       contextValue: {
-        authenticationService,
-        postServiceProvider: (ctx: GraphQLContextEx) => postService,
+        authenticationService: new AuthenticationService(baseUrl, clientInfo),
+        postServiceProvider: (ctx: GraphQLContextEx) =>
+          new PostService(ctx, environment.dataServer.baseUrl, environment.dataServer.pageCount),
         cache: server.cache,
       },
     };
@@ -49,56 +42,50 @@ describe('GraphQLServer (with MockPostService)', () => {
     await graphqlClient.stopServer();
   });
 
+  beforeEach(() => {
+    jest.setTimeout(60000);
+  });
+
   describe('Fetch posts', () => {
-    beforeEach(() => {
-      jest.setTimeout(60000);
+    test('fetch random page', async () => {
+      for (let i = 0; i < 5; ++i) {
+        // filter with user ID every second test
+        const userId = undefined;
+
+        const pageSize = (Utils.getRandomInt(10) + 1) * 20;
+        const pageIndex = Utils.getRandomInt(20);
+
+        const blog = await graphqlClient.fetchPosts({ pageIndex, pageSize, userId });
+        expect(blog).toBeTruthy();
+        expect(blog.posts.length).toBeLessThanOrEqual(pageSize);
+
+        const expectedSize = Math.min(pageSize, Math.max(MAX_POST_COUNT - pageSize * pageIndex, 0));
+        expect(blog.totalPostCount).toBe(MAX_POST_COUNT);
+      }
     });
 
     test('fetch random page', async () => {
-      for (let i = 0; i < 4; ++i) {
-        // filter with user ID every second test
-        const userId = i % 2 == 0 ? `user_${Utils.getRandomInt(20)}` : undefined;
+      for (let i = 0; i < 5; ++i) {
+        const userId = `user_${Utils.getRandomInt(30)}`;
 
-        const size = (Utils.getRandomInt(10) + 1) * 20;
-        const index = Utils.getRandomInt(20);
+        const pageSize = (Utils.getRandomInt(10) + 1) * 20;
+        const pageIndex = Utils.getRandomInt(20);
 
-        const blog = await graphqlClient.fetchPosts({ pageIndex: index, pageSize: size, userId });
+        const blog = await graphqlClient.fetchPosts({ pageIndex, pageSize, userId });
         expect(blog).toBeTruthy();
+        expect(blog.posts.length).toBeLessThanOrEqual(pageSize);
+        expect(blog.totalPostCount).toBeGreaterThanOrEqual(0);
+        expect(blog.totalPostCount).toBeLessThan(MAX_POST_COUNT);
 
-        if (userId) {
-          expect(blog.posts.length).toBeGreaterThanOrEqual(0);
-          expect(blog.totalPostCount).toBeGreaterThanOrEqual(0);
-          // ideally, >= should be used, but there is a very little chance that blog consists of only one user
-          expect(blog.totalPostCount).toBeLessThan(maxPostCount);
-        } else {
-          const expectedSize = Math.min(size, Math.max(maxPostCount - size * index, 0));
-          expect(blog.posts.length).toBe(expectedSize);
-          expect(blog.totalPostCount).toBe(maxPostCount);
-        }
-
-        const startIndex = size * index;
-        const blogSize = blog.posts.length;
-
-        for (let k = 0; k < size; ++k) {
-          const post = PostGenerator.getPostByIndex(pagePosts, startIndex + k, userId);
-          if (k < blogSize) {
-            const blogPost = blog.posts[k];
-            expect(blogPost.id).toStrictEqual(post.id);
-            expect(blogPost.userId).toStrictEqual(post.userId);
-            expect(blogPost.userName).toStrictEqual(post.userName);
-            expect(blogPost.message).toStrictEqual(post.message);
-            expect(blogPost.type).toStrictEqual(post.type);
-            expect(blogPost.createdTime.valueOf()).toStrictEqual(post.createdTime);
-          } else {
-            expect(post).toBeNull();
-          }
+        for (let post of blog.posts) {
+          expect(post.userId).toBe(userId);
         }
       }
     });
 
     test('fetch posts from non-existing user', async () => {
       const pageSize = 100;
-      const blog = await graphqlClient.fetchPosts({ pageIndex: 0, pageSize, userId: FAKE_USER_ID });
+      const blog = await graphqlClient.fetchPosts({ pageIndex: 0, pageSize, userId: 'blabla' });
       expect(blog).toBeTruthy();
     });
   });

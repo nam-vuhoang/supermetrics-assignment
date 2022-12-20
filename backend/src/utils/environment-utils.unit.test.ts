@@ -25,10 +25,11 @@ describe('Environment-utils methods', () => {
 
   test('Required and invalid integer', () => {
     const paramName = 'FOO_BAR';
-    process.env[paramName] = 'foo';
+    const paramValue = 'foo';
+    process.env[paramName] = paramValue;
     const e = expect(() => EnvironmentUtils.requireIntegerEnvParam(paramName));
     e.toThrow(EvalError);
-    e.toThrow(`Environment param '${paramName}' must be integer.`);
+    e.toThrow(`Environment param '${paramName}' must be an integer: '${paramValue}'.`);
     process.env[paramName] = undefined;
   });
 });
