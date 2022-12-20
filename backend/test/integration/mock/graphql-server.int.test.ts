@@ -1,21 +1,21 @@
 import { ApolloServer } from '@apollo/server';
-import { ExecuteOperationOptions } from '@apollo/server/dist/esm/externalTypes/graphql';
-import { environment } from '../../src/environment/environment';
-import { AuthenticationService } from '../../src/services/authentication-service';
-import { PostService } from '../../src/services/post-service';
-import { GraphQLContextEx } from '../../src/graphql/graphql-context';
-import { graphQLOptions } from '../../src/graphql/graphql-options';
-import { fetchFullStats, fetchPosts, fetchUserIds, MAX_POST_COUNT } from './graphql-server.helper';
-import { Utils } from '../../src/utils/utils';
-import { User } from './models/user';
+import { environment } from '../../../src/environment/environment';
+import { AuthenticationService } from '../../../src/services/authentication-service';
+import { PostService } from '../../../src/services/post-service';
+import { GraphQLContextEx } from '../../../src/graphql/graphql-context';
+import { graphQLOptions } from '../../../src/graphql/graphql-options';
+import { Utils } from '../../../src/utils/utils';
+import { User } from '../../client/models/user';
 import { Kind } from 'graphql';
+import { MockGraphQLClient } from './mock-graphql-client';
+
+const MAX_POST_COUNT = 1000;
 
 /**
  * Test cases
  */
 describe('GraphQLServer', () => {
-  let server: ApolloServer<GraphQLContextEx>;
-  let executionOptions: ExecuteOperationOptions<GraphQLContextEx>;
+  let graphqlClient: MockGraphQLClient;
 
   beforeAll(() => {
     const { baseUrl, clientInfo, pageCount } = environment.dataServer;
@@ -24,22 +24,22 @@ describe('GraphQLServer', () => {
     expect(pageCount).toBeTruthy();
     expect(pageCount).not.toBeNaN();
 
-    server = new ApolloServer<GraphQLContextEx>(graphQLOptions);
-
-    const authenticationService = new AuthenticationService(baseUrl, clientInfo);
-    executionOptions = {
+    const server = new ApolloServer<GraphQLContextEx>(graphQLOptions);
+    const executionOptions = {
       contextValue: {
-        authenticationService,
+        authenticationService: new AuthenticationService(baseUrl, clientInfo),
         postServiceProvider: (ctx) =>
           new PostService(ctx, environment.dataServer.baseUrl, environment.dataServer.pageCount),
         cache: server.cache,
       },
     };
+
+    graphqlClient = new MockGraphQLClient(server, executionOptions);
   });
 
   // after the tests we'll stop the server
   afterAll(async () => {
-    await server?.stop();
+    await graphqlClient.stopServer();
   });
 
   describe('Fetch posts', () => {
@@ -51,14 +51,11 @@ describe('GraphQLServer', () => {
         const pageSize = (Utils.getRandomInt(10) + 1) * 20;
         const pageIndex = Utils.getRandomInt(20);
 
-        const blog = await fetchPosts(server, executionOptions, { pageIndex, pageSize, userId });
+        const blog = await graphqlClient.fetchPosts({ pageIndex, pageSize, userId });
         expect(blog).toBeTruthy();
         expect(blog.posts.length).toBeLessThanOrEqual(pageSize);
-        expect(blog.size).toBe(blog.posts.length);
-        expect(blog.authors).toBeUndefined();
 
         const expectedSize = Math.min(pageSize, Math.max(MAX_POST_COUNT - pageSize * pageIndex, 0));
-        expect(blog.size).toBe(expectedSize);
         expect(blog.totalPostCount).toBe(MAX_POST_COUNT);
       }
     });
@@ -70,13 +67,9 @@ describe('GraphQLServer', () => {
         const pageSize = (Utils.getRandomInt(10) + 1) * 20;
         const pageIndex = Utils.getRandomInt(20);
 
-        const blog = await fetchPosts(server, executionOptions, { pageIndex, pageSize, userId });
+        const blog = await graphqlClient.fetchPosts({ pageIndex, pageSize, userId });
         expect(blog).toBeTruthy();
         expect(blog.posts.length).toBeLessThanOrEqual(pageSize);
-        expect(blog.size).toBe(blog.posts.length);
-        expect(blog.authors).toBeUndefined();
-
-        expect(blog.size).toBeGreaterThanOrEqual(0);
         expect(blog.totalPostCount).toBeGreaterThanOrEqual(0);
         expect(blog.totalPostCount).toBeLessThan(MAX_POST_COUNT);
 
@@ -88,15 +81,14 @@ describe('GraphQLServer', () => {
 
     test('fetch posts from non-existing user', async () => {
       const pageSize = 100;
-      const blog = await fetchPosts(server, executionOptions, { pageIndex: 0, pageSize, userId: 'blabla' });
+      const blog = await graphqlClient.fetchPosts({ pageIndex: 0, pageSize, userId: 'blabla' });
       expect(blog).toBeTruthy();
-      expect(blog.size).toBe(0);
     });
   });
 
   describe('Fetch users', () => {
     test('fetch all user stats', async () => {
-      const users: User[] = await fetchFullStats(server, executionOptions);
+      const users: User[] = await graphqlClient.fetchFullStats();
       expect(users.length).toBeGreaterThan(0);
 
       for (let user of users) {
@@ -115,7 +107,7 @@ describe('GraphQLServer', () => {
 
     test('fetch single user stats', async () => {
       const userId = 'user_1';
-      const users: User[] = await fetchFullStats(server, executionOptions, userId);
+      const users: User[] = await graphqlClient.fetchFullStats({ userId });
       expect(users.length).toBeGreaterThan(0);
 
       for (let user of users) {
@@ -134,7 +126,7 @@ describe('GraphQLServer', () => {
     });
 
     test('fetch all user IDs', async () => {
-      const users: string[] = await fetchUserIds(server, executionOptions);
+      const users: string[] = await graphqlClient.fetchUserIds();
       expect(users.length).toBeGreaterThan(0);
     });
   });
