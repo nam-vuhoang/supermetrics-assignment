@@ -30,7 +30,7 @@ function mapRawPostToPost(rawPost: RawPost): Post {
   };
 }
 
-interface RawPostData {
+export interface RawPostData {
   page: number;
   posts: Array<RawPost>;
 }
@@ -143,7 +143,7 @@ export class PostService extends RESTDataSource {
     return rawPosts$.then((posts) => posts.filter(userFilter));
   }
 
-  private async fetchRawData(pageNumber: string, retryCount: number = 0): Promise<RawPostData> {
+  protected async fetchRawData(pageNumber: string, retryCount: number = 0): Promise<RawPostData> {
     return this.get<HttpResponse<RawPostData>>(PostService.REQUEST_PATH, {
       params: {
         sl_token: await this.context.authenticationService.getToken(),
@@ -156,7 +156,7 @@ export class PostService extends RESTDataSource {
           (<any>error.extensions?.response)?.status === StatusCodes.UNAUTHORIZED &&
           retryCount < PostService.MAX_RETRY_COUNT_IF_UNAUTHORIZED
         ) {
-          logger.warn('Re-fetching posts from page %d due to expired SL token', pageNumber);
+          logger.info('Re-fetching posts from page %d due to expired SL token', pageNumber);
 
           // notify authentication service about token expiration
           this.context.authenticationService.notifyTokenExpired();
