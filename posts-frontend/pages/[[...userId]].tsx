@@ -38,16 +38,16 @@ export async function fetchDataOnClientSide(
     throw new Error('Invalid page number');
   }
 
-  const { userId } = query;
-  const userFilter = userId
-    ? decodeURIComponent(Array.isArray(userId) ? userId[0] : userId)
+  const { userId: userQuery } = query;
+  const userId = userQuery
+    ? decodeURIComponent(Array.isArray(userQuery) ? userQuery[0] : userQuery)
     : null;
   return new GraphQLClient(backendUrl)
-    .fetchPosts(pageParam - 1, PAGE_SIZE, userFilter)
+    .fetchPosts({pageIndex: pageParam - 1, pageSize: PAGE_SIZE, userId})
     .then((data: { posts: Post[]; totalPostCount: number }) => ({
       posts: data.posts,
       pageCount: Math.ceil(data.totalPostCount / PAGE_SIZE),
-      userId: userFilter,
+      userId,
       pageNumber: pageParam,
     }));
 }
