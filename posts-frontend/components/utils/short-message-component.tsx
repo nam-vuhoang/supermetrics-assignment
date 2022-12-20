@@ -1,5 +1,5 @@
 import { Visibility } from '@mui/icons-material';
-import { IconButton } from '@mui/material';
+import { IconButton, Tooltip } from '@mui/material';
 import { useState } from 'react';
 
 export const MAX_SHORT_MESSAGE_LENGTH = 150;
@@ -27,13 +27,15 @@ export default function ShortMessageComponent({
         <>
           {shortMessage}
           {' ... '}
-          <IconButton
-            size="small"
-            onClick={() => setDisplayFull(true)}
-            aria-label="see more"
-          >
-            <Visibility />
-          </IconButton>
+          <Tooltip title="See more">
+            <IconButton
+              size="small"
+              onClick={() => setDisplayFull(true)}
+              aria-label="see more"
+            >
+              <Visibility />
+            </IconButton>
+          </Tooltip>
         </>
       );
     }
