@@ -4,6 +4,7 @@ import { Post } from '../models/post';
 import { User } from '../models/user';
 import { logger } from '../utils/logger';
 import { Utils } from '../utils/utils';
+import { BackendError } from '../utils/backend-error';
 
 /**
  * Provides services for fetching data from GraphQL Server.
@@ -17,7 +18,7 @@ export class PostService {
   constructor(protected backendUrl: string) {}
 
   /**
-   * Fetch the raw query data. This method can be overwritten by child classes.
+   * Fetch the raw query data. This method can be overridden by child classes.
    * @param query
    * @param variables
    * @returns
@@ -30,6 +31,41 @@ export class PostService {
       logger.debug('[GraphQL] Done.')
     );
   }
+
+  // /**
+  //  * Fetch the raw query data with the standard fetch API instead of
+  //  * 'graphql-request' for better control.
+  //  *
+  //  * This method can be overridden by child classes.
+  //  * @param query
+  //  * @param variables
+  //  * @returns
+  //  */
+  // protected fetchQuery<T>(query: string, variables?: Variables): Promise<T> {
+  //   return fetch(this.backendUrl, {
+  //     method: 'POST',
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //     },
+  //     body: JSON.stringify({
+  //       query,
+  //       variables,
+  //     }),
+  //   })
+  //     .then(async (res) => {
+  //       if (!res.ok) {
+  //         const error = new BackendError(
+  //           'An error occurred while fetching the data.',
+  //           res.status,
+  //           await res.json()
+  //         );
+  //         throw error;
+  //       }
+  //       return res.json();  // Promise<any>
+  //     })
+  //     .then((res: any) => res.data)
+  //     .finally(() => logger.debug('[GraphQL] Done.'));
+  // }
 
   /**
    * Fetch the blog data.

@@ -9,7 +9,6 @@ import UserStatsTableComponent from '../../components/user-stats-table-component
 import { environment } from '../../environment/environment';
 import { User } from '../../models/user';
 import { PostService } from '../../services/post-service';
-import { logger } from '../../utils/logger';
 import { Utils } from '../../utils/utils';
 
 interface PageProps {
@@ -50,15 +49,7 @@ export const getStaticProps: GetStaticProps = async (context) => {
       props: {
         users: Utils.sortArray(users, (u) => u.userName.toString()),
       },
-    }))
-    .catch((error) => {
-      logger.error(error);
-      return {
-        props: {
-          error: `Unexpected error: ${JSON.stringify(error, undefined, 2)}`,
-        },
-      };
-    });
+    }));
 };
 
 /**

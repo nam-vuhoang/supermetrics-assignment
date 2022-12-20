@@ -8,8 +8,6 @@ import { environment } from '../environment/environment';
 import BlogComponent from '../components/blog-component';
 import ErrorPanel from '../components/utils/error-panel';
 import LoadingInfoPanel from '../components/utils/loading-info-panel';
-import { BackendError } from '../utils/backend-error';
-import { serializeError } from 'serialize-error';
 
 const PAGE_SIZE = 15;
 const REFRESH_INTERVAL_IN_SECONDS = 60; // refresh every minute
