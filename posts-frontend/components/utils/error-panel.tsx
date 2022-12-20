@@ -1,4 +1,5 @@
 import { Alert, Typography } from '@mui/material';
+import { serializeError } from 'serialize-error';
 import { logger } from '../../utils/logger';
 
 /**
@@ -7,7 +8,7 @@ import { logger } from '../../utils/logger';
  * @returns
  */
 export default function ErrorPanel({ error }: { error: any }): JSX.Element {
-  logger.error(error);
+  logger.error(JSON.stringify(serializeError(error)));
   if (error instanceof Error) {
     return (
       <Alert severity="error">

@@ -1,12 +1,11 @@
-import { gql } from 'graphql-tag';
-import { DocumentNode } from 'graphql';
+import { gql } from 'graphql-request';
 import { Blog } from '../models/blog';
 import { Post } from '../models/post';
 import { User } from '../models/user';
 import { logger } from '../utils/logger';
 import { Utils } from '../utils/utils';
 
-export declare type Query = string | DocumentNode;
+export declare type Query = string;
 
 export interface Variables {
   [name: string]: any;
