@@ -1,7 +1,7 @@
 import { Table, TableRow, TableCell, Typography, Tooltip } from '@mui/material';
 import Link from 'next/link';
 import { User } from '../models/user';
-import { MaterialUtils } from '../utils/material/material-utils';
+import { MaterialUtils } from './utils/material-utils';
 import IfElseElement from './utils/if-else-element';
 
 /**

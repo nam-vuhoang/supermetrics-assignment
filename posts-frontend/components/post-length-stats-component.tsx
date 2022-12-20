@@ -10,7 +10,7 @@ import {
   TableBody,
 } from '@mui/material';
 import { User } from '../models/user';
-import { MaterialUtils } from '../utils/material/material-utils';
+import { MaterialUtils } from './utils/material-utils';
 import { UserBlogLinkComponent } from './user-blog-link-component';
 import UserNameAvatar from './utils/user-name-avatar';
 

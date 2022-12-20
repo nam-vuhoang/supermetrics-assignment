@@ -16,7 +16,7 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import { MaterialUtils } from '../utils/material/material-utils';
+import { MaterialUtils } from './utils/material-utils';
 import React from 'react';
 import { UserBlogLinkComponent } from './user-blog-link-component';
 import ShortMessageComponent from './utils/short-message-component';

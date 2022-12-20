@@ -1,5 +1,5 @@
 import { Avatar, Typography } from '@mui/material';
-import { MaterialUtils } from '../../utils/material/material-utils';
+import { MaterialUtils } from './material-utils';
 import IfElseElement from './if-else-element';
 
 /**
