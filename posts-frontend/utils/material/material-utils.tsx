@@ -42,10 +42,14 @@ export class MaterialUtils {
   /**
    * Return node if condition is true. Otherwise, return empty JSX.element.
    * @param condition
-   * @param node
+   * @param nodeIf
    * @returns
    */
-  static conditionalNode(condition: any, node: ReactNode) {
-    return condition ? node : <></>;
+  static conditionalNode(
+    condition: any,
+    nodeIf: ReactNode,
+    nodeElse: ReactNode = <></>
+  ) {
+    return condition ? nodeIf : nodeElse;
   }
 }

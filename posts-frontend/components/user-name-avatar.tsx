@@ -23,7 +23,11 @@ export default function UserNameAvatar({
       alt={name}
       sx={{ bgcolor: MaterialUtils.stringToColor(name), width, height: width }}
     >
-      <Typography fontSize={fontSize}>{nameInitials}</Typography>
+      {MaterialUtils.conditionalNode(
+        fontSize !== undefined,
+        <Typography fontSize={fontSize}>{nameInitials}</Typography>,
+        nameInitials
+      )}
     </Avatar>
   );
 }
