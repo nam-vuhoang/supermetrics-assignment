@@ -19,28 +19,28 @@ export default function UserListMenu({
   href,
   users,
   itemTooltip,
-  noUserItemName,
-  noUserItemTooltip,
+  allUsersItemName,
+  allUsersItemTooltip,
 }: {
   href: string;
   users: User[];
   itemTooltip: (userName: string) => string;
-  noUserItemName?: string;
-  noUserItemTooltip: string;
+  allUsersItemName?: string;
+  allUsersItemTooltip: string;
 }) {
   return (
     <TableContainer>
       <Table>
         <TableBody>
           <IfElseElement
-            if={noUserItemName}
+            if={allUsersItemName}
             then={
               <TableRow>
                 <TableCell>
-                  <Tooltip title={noUserItemTooltip}>
+                  <Tooltip title={allUsersItemTooltip}>
                     <Link href={href} shallow>
                       <Typography fontWeight="bold" color="primary">
-                        {noUserItemName}
+                        {allUsersItemName}
                       </Typography>
                     </Link>
                   </Tooltip>
@@ -50,7 +50,7 @@ export default function UserListMenu({
           />
 
           <TableRow>
-            <TableCell sx={{ borderBottomWidth: noUserItemName && 0 }}>
+            <TableCell sx={{ borderBottomWidth: allUsersItemName && 0 }}>
               {users.map((u) => (
                 <div key={u.userId}>
                   <Tooltip title={itemTooltip(u.userName)}>

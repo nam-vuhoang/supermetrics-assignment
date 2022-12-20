@@ -98,8 +98,8 @@ export default function UserDashboard({
           itemTooltip={(userName) =>
             `Click to see ${userName}'s dashboard page`
           }
-          noUserItemName="Pivot table"
-          noUserItemTooltip="Click to see the dashboard for all users"
+          allUsersItemName="Pivot table"
+          allUsersItemTooltip="Click to see the dashboard for all users"
         />
       </Grid>
 
