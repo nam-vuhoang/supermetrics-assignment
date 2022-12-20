@@ -19,10 +19,11 @@ import {
 import { MaterialUtils } from '../utils/material/material-utils';
 import React from 'react';
 import { UserBlogLinkComponent } from './user-blog-link-component';
-import ShortMessageComponent from './short-message-component';
-import TimeDiffComponent from './time-diff-component';
+import ShortMessageComponent from './utils/short-message-component';
+import TimeDiffComponent from './utils/time-diff-component';
 import moment from 'moment';
-import UserNameAvatar from './user-name-avatar';
+import UserNameAvatar from './utils/user-name-avatar';
+import IfElseElement from './utils/if-else-element';
 
 /**
  * Render a single post view in a Card style.
@@ -49,24 +50,32 @@ export default function PostComponent({
           />
         }
         subheader={<TimeDiffComponent time={moment.utc(post.createdTime)} />}
-        action={MaterialUtils.conditionalNode(
-          !hideDashboardLink,
-          <Tooltip title={`Click to see ${post.userName}'s dashboard page`}>
-            <IconButton
-              href={`/dashboard/${encodeURIComponent(post.userId)}`}
-              aria-label="dashboard"
-            >
-              <BarChart fontSize="small" />
-            </IconButton>
-          </Tooltip>
-        )}
+        action={
+          <IfElseElement
+            if={!hideDashboardLink}
+            then={
+              <Tooltip title={`Click to see ${post.userName}'s dashboard page`}>
+                <IconButton
+                  href={`/dashboard/${encodeURIComponent(post.userId)}`}
+                  aria-label="dashboard"
+                >
+                  <BarChart fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            }
+          />
+        }
       />
 
       <CardContent>
-        {MaterialUtils.conditionalNode(
-          caption,
-          <MaterialUtils.ButtonLike>{caption}</MaterialUtils.ButtonLike>
-        )}
+        {
+          <IfElseElement
+            if={caption}
+            then={
+              <MaterialUtils.ButtonLike>{caption}</MaterialUtils.ButtonLike>
+            }
+          />
+        }
         <Typography
           variant="body2"
           color="text.secondary"

@@ -1,8 +1,8 @@
 import { Grid } from '@mui/material';
 import { GetStaticPaths, GetStaticProps } from 'next';
 import { useRouter } from 'next/router';
-import ErrorPanel from '../../components/error-panel';
-import LoadingInfoPanel from '../../components/loading-info-panel';
+import ErrorPanel from '../../components/utils/error-panel';
+import LoadingInfoPanel from '../../components/utils/loading-info-panel';
 import UserListMenu from '../../components/user-list-menu';
 import UserStatsComponent from '../../components/user-stats-component';
 import UserStatsTableComponent from '../../components/user-stats-table-component';

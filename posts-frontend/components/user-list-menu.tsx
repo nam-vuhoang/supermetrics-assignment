@@ -1,13 +1,8 @@
-import {
-  Table,
-  TableRow,
-  TableCell,
-  Typography,
-  Tooltip,
-} from '@mui/material';
+import { Table, TableRow, TableCell, Typography, Tooltip } from '@mui/material';
 import Link from 'next/link';
 import { User } from '../models/user';
 import { MaterialUtils } from '../utils/material/material-utils';
+import IfElseElement from './utils/if-else-element';
 
 /**
  * Render a vertical user list with links to each item.
@@ -28,20 +23,22 @@ export default function UserListMenu({
 }) {
   return (
     <Table>
-      {MaterialUtils.conditionalNode(
-        noUserItemName,
-        <TableRow>
-          <TableCell>
-            <Tooltip title={noUserItemTooltip}>
-              <Link href={href} shallow>
-                <Typography fontWeight="bold" color="primary">
-                  {noUserItemName}
-                </Typography>
-              </Link>
-            </Tooltip>
-          </TableCell>
-        </TableRow>
-      )}
+      <IfElseElement
+        if={noUserItemName}
+        then={
+          <TableRow>
+            <TableCell>
+              <Tooltip title={noUserItemTooltip}>
+                <Link href={href} shallow>
+                  <Typography fontWeight="bold" color="primary">
+                    {noUserItemName}
+                  </Typography>
+                </Link>
+              </Tooltip>
+            </TableCell>
+          </TableRow>
+        }
+      />
 
       <TableRow>
         <TableCell sx={{ borderBottomWidth: noUserItemName && 0 }}>

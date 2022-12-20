@@ -12,7 +12,7 @@ import {
 import { User } from '../models/user';
 import { MaterialUtils } from '../utils/material/material-utils';
 import { UserBlogLinkComponent } from './user-blog-link-component';
-import UserNameAvatar from './user-name-avatar';
+import UserNameAvatar from './utils/user-name-avatar';
 
 /**
  * Render a Card with user's post length statistics.

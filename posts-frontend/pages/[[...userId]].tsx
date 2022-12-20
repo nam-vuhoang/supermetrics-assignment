@@ -6,8 +6,8 @@ import { PostService } from '../services/post-service';
 import useSWR from 'swr';
 import { environment } from '../environment/environment';
 import BlogComponent from '../components/blog-component';
-import ErrorPanel from '../components/error-panel';
-import LoadingInfoPanel from '../components/loading-info-panel';
+import ErrorPanel from '../components/utils/error-panel';
+import LoadingInfoPanel from '../components/utils/loading-info-panel';
 
 const PAGE_SIZE = 15;
 
