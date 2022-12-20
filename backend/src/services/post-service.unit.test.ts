@@ -7,8 +7,7 @@ import { PostGenerator } from '../../test/helper/post-generator';
 import { environment } from '../environment/environment';
 import { Utils } from '../utils/utils';
 
-const FAKE_USER_ID = 'this user doesn\'t exist';
-
+const FAKE_USER_ID = "this user doesn't exist";
 
 describe('Class PostService (with MockAuthenticationService and MockPostService)', () => {
   const { baseUrl, clientInfo, pageCount } = environment.dataServer;
@@ -23,13 +22,13 @@ describe('Class PostService (with MockAuthenticationService and MockPostService)
     expect(pageCount).toBeTruthy();
     expect(pageCount).not.toBeNaN();
 
-    pagePosts = PostGenerator.generatePostPages();
-    maxPostCount = Utils.getArraySum(pagePosts.map((page) => page.length));
+    pagePosts = PostGenerator.generateSortedPostPages();
+    maxPostCount = PostGenerator.getPostCount(pagePosts);
     authenticationService = new MockAuthenticationService(() => Promise.resolve(Utils.generateRandomId(20)));
     postService = new MockPostService({ authenticationService }, baseUrl, pageCount, pagePosts);
   });
 
-  test('Fetch blog with all data', async () => {
+  test('Fetch random blog with page and user filter ', async () => {
     for (let i = 0; i < 40; ++i) {
       // filter with user ID every second test
       const userId = i % 2 == 0 ? `user_${Utils.getRandomInt(30)}` : undefined;
@@ -43,11 +42,11 @@ describe('Class PostService (with MockAuthenticationService and MockPostService)
       if (userId) {
         expect(blog.size).toBeGreaterThanOrEqual(0);
         expect(blog.totalPostCount).toBeGreaterThanOrEqual(0);
-        expect(blog.totalPostCount).toBeLessThan(maxPostCount);
+        expect(blog.totalPostCount).toBeLessThan(maxPostCount); // assuming blog randomly consists of more than 1 user
       } else {
         const expectedSize = Math.min(size, Math.max(maxPostCount - size * index, 0));
         expect(blog.size).toBe(expectedSize);
-        expect(blog.totalPostCount).toBe(Utils.getArraySum(pagePosts.map((page) => page.length)));
+        expect(blog.totalPostCount).toBe(maxPostCount);
       }
 
       const hasPosts = blog.size > 0;
@@ -63,6 +62,7 @@ describe('Class PostService (with MockAuthenticationService and MockPostService)
         expect(authors.length).toBe(0);
       }
 
+      // compare authors
       for (let author of authors) {
         if (userId) {
           expect(author.userId).toBe(userId);
@@ -77,6 +77,26 @@ describe('Class PostService (with MockAuthenticationService and MockPostService)
         // check uniqueness
         expect(new Set(stats.frequencies.map((f) => f.month.valueOf())).size).toBe(stats.frequencies.length);
         expect(Utils.getArraySum(stats.frequencies.map((f) => f.count))).toBe(stats.totalCount);
+      }
+
+      // compare posts
+      if (hasPosts) {
+        const startIndex = size * index;
+
+        for (let k = 0; k < size; ++k) {
+          const post = PostGenerator.getPostByIndex(pagePosts, startIndex + k, userId);
+          if (k < blog.size) {
+            const blogPost = blog.posts[k];
+            expect(blogPost.id).toStrictEqual(post.id);
+            expect(blogPost.userId).toStrictEqual(post.userId);
+            expect(blogPost.userName).toStrictEqual(post.userName);
+            expect(blogPost.message).toStrictEqual(post.message);
+            expect(blogPost.type).toStrictEqual(post.type);
+            expect(blogPost.createdTime.valueOf()).toStrictEqual(post.createdTime);
+          } else {
+            expect(post).toBeNull();
+          }
+        }
       }
 
       const blog2 = await postService.fetchPosts({ userId, page: { index, size } }); // similar request
@@ -122,7 +142,7 @@ describe('Class PostSerivce (with expiration)', () => {
 
     expect(postService.mockAuthenticationService).toBeDefined();
     expect(postService.mockAuthenticationService.isExpired).toBe(false);
-    
+
     try {
       await postService.fetchPosts({ userId: FAKE_USER_ID });
     } catch (e) {
@@ -133,7 +153,7 @@ describe('Class PostSerivce (with expiration)', () => {
       expect(authenticationService.retryCountAfterExpired).toBeGreaterThanOrEqual(pageCount);
       return;
     }
-    
+
     fail('it should not reach here');
   });
 
