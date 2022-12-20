@@ -1,4 +1,4 @@
-import request, { gql, Variables } from 'graphql-request';
+import { gql, Variables } from 'graphql-request';
 import { Blog } from '../models/blog';
 import { Post } from '../models/post';
 import { User } from '../models/user';
@@ -9,7 +9,7 @@ import { BackendError } from '../utils/backend-error';
 /**
  * Provides services for fetching data from GraphQL Server.
  */
-export class PostService {
+export class GraphQLClient {
   /**
    * Create the service provider.
    * @param backendUrl The backend URL is specified every time because environement variable
@@ -17,55 +17,55 @@ export class PostService {
    */
   constructor(protected backendUrl: string) {}
 
-  /**
-   * Fetch the raw query data. This method can be overridden by child classes.
-   * @param query
-   * @param variables
-   * @returns
-   */
-  protected async fetchQuery<T>(
-    query: string,
-    variables?: Variables
-  ): Promise<T> {
-    return request<T>(this.backendUrl, query, variables).finally(() =>
-      logger.debug('[GraphQL] Done.')
-    );
-  }
-
   // /**
-  //  * Fetch the raw query data with the standard fetch API instead of
-  //  * 'graphql-request' for better control.
-  //  *
-  //  * This method can be overridden by child classes.
+  //  * Fetch the raw query data. This method can be overridden by child classes.
   //  * @param query
   //  * @param variables
   //  * @returns
   //  */
-  // protected fetchQuery<T>(query: string, variables?: Variables): Promise<T> {
-  //   return fetch(this.backendUrl, {
-  //     method: 'POST',
-  //     headers: {
-  //       'Content-Type': 'application/json',
-  //     },
-  //     body: JSON.stringify({
-  //       query,
-  //       variables,
-  //     }),
-  //   })
-  //     .then(async (res) => {
-  //       if (!res.ok) {
-  //         const error = new BackendError(
-  //           'An error occurred while fetching the data.',
-  //           res.status,
-  //           await res.json()
-  //         );
-  //         throw error;
-  //       }
-  //       return res.json();  // Promise<any>
-  //     })
-  //     .then((res: any) => res.data)
-  //     .finally(() => logger.debug('[GraphQL] Done.'));
+  // protected async fetchQuery<T>(
+  //   query: string,
+  //   variables?: Variables
+  // ): Promise<T> {
+  //   return request<T>(this.backendUrl, query, variables).finally(() =>
+  //     logger.debug('[GraphQL] Done.')
+  //   );
   // }
+
+  /**
+   * Fetch the raw query data with the standard fetch API instead of
+   * 'graphql-request' for better control.
+   *
+   * This method can be overridden by child classes.
+   * @param query
+   * @param variables
+   * @returns
+   */
+  protected fetchQuery<T>(query: string, variables?: Variables): Promise<T> {
+    return fetch(this.backendUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        query,
+        variables,
+      }),
+    })
+      .then(async (res) => {
+        if (!res.ok) {
+          const error = new BackendError(
+            'An error occurred while fetching the data.',
+            res.status,
+            await res.json()
+          );
+          throw error;
+        }
+        return res.json(); // Promise<any>
+      })
+      .then((res: any) => res.data)
+      .finally(() => logger.debug('[GraphQL] Done.'));
+  }
 
   /**
    * Fetch the blog data.

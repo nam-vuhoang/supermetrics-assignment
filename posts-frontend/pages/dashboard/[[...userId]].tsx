@@ -8,7 +8,7 @@ import UserStatsComponent from '../../components/user-stats-component';
 import UserStatsTableComponent from '../../components/user-stats-table-component';
 import { environment } from '../../environment/environment';
 import { User } from '../../models/user';
-import { PostService } from '../../services/post-service';
+import { GraphQLClient } from '../../services/graphql-client';
 import { Utils } from '../../utils/utils';
 
 interface PageProps {
@@ -21,7 +21,7 @@ interface PageProps {
  * @returns
  */
 export const getStaticPaths: GetStaticPaths = async () => {
-  return new PostService(environment.backendUrl)
+  return new GraphQLClient(environment.backendUrl)
     .fetchUserIds()
     .then((userIds) =>
       userIds.map((userId) => {
@@ -43,7 +43,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
  * @returns
  */
 export const getStaticProps: GetStaticProps = async (context) => {
-  return new PostService(environment.backendUrl)
+  return new GraphQLClient(environment.backendUrl)
     .fetchFullStats()
     .then((users) => ({
       props: {

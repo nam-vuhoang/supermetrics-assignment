@@ -2,7 +2,7 @@ import { Box, Link, Pagination, PaginationItem } from '@mui/material';
 import { useRouter } from 'next/router';
 import { ParsedUrlQuery } from 'querystring';
 import { Post } from '../models/post';
-import { PostService } from '../services/post-service';
+import { GraphQLClient } from '../services/graphql-client';
 import useSWR from 'swr';
 import { environment } from '../environment/environment';
 import BlogComponent from '../components/blog-component';
@@ -42,7 +42,7 @@ export async function fetchDataOnClientSide(
   const userFilter = userId
     ? decodeURIComponent(Array.isArray(userId) ? userId[0] : userId)
     : null;
-  return new PostService(backendUrl)
+  return new GraphQLClient(backendUrl)
     .fetchPosts(pageParam - 1, PAGE_SIZE, userFilter)
     .then((data: { posts: Post[]; totalPostCount: number }) => ({
       posts: data.posts,
