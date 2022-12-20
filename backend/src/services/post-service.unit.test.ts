@@ -1,20 +1,21 @@
-import { GetRequest } from '@apollo/datasource-rest/dist/RESTDataSource';
-import exp from 'constants';
-import { GraphQLError, GraphQLFormattedError } from 'graphql';
+import { GraphQLError } from 'graphql';
 import { StatusCodes } from 'http-status-codes';
+import { Post } from '../../test/client/models/post';
+import { MockAuthenticationService } from '../../test/helper/mock-authentication-service';
+import { MockPostService } from '../../test/helper/mock-post-service';
+import { PostGenerator } from '../../test/helper/post-generator';
 import { environment } from '../environment/environment';
-import { GraphQLContextEx } from '../graphql/graphql-context';
-import { ClientInfo } from '../models/client-info';
 import { Utils } from '../utils/utils';
-import { AuthenticationService } from './authentication-service';
-import { PostService } from './post-service';
 
-const MAX_POST_COUNT = 1000;
+const FAKE_USER_ID = 'this user doesn\'t exist';
 
-describe('Class PostService', () => {
+
+describe('Class PostService (with MockAuthenticationService and MockPostService)', () => {
   const { baseUrl, clientInfo, pageCount } = environment.dataServer;
-  let authenticationService: AuthenticationService;
-  let postService: PostService;
+  let authenticationService: MockAuthenticationService;
+  let postService: MockPostService;
+  let pagePosts: Post[][];
+  let maxPostCount;
 
   beforeAll(() => {
     expect(baseUrl).toBeTruthy();
@@ -22,9 +23,10 @@ describe('Class PostService', () => {
     expect(pageCount).toBeTruthy();
     expect(pageCount).not.toBeNaN();
 
-    authenticationService = new AuthenticationService(baseUrl, clientInfo);
-    postService = new PostService({ authenticationService }, baseUrl, pageCount);
-    expect(postService.baseURL).toBe(baseUrl);
+    pagePosts = PostGenerator.generatePostPages();
+    maxPostCount = Utils.getArraySum(pagePosts.map((page) => page.length));
+    authenticationService = new MockAuthenticationService(() => Promise.resolve(Utils.generateRandomId(20)));
+    postService = new MockPostService({ authenticationService }, baseUrl, pageCount, pagePosts);
   });
 
   test('Fetch blog with all data', async () => {
@@ -41,11 +43,11 @@ describe('Class PostService', () => {
       if (userId) {
         expect(blog.size).toBeGreaterThanOrEqual(0);
         expect(blog.totalPostCount).toBeGreaterThanOrEqual(0);
-        expect(blog.totalPostCount).toBeLessThan(MAX_POST_COUNT);
+        expect(blog.totalPostCount).toBeLessThan(maxPostCount);
       } else {
-        const expectedSize = Math.min(size, Math.max(MAX_POST_COUNT - size * index, 0));
+        const expectedSize = Math.min(size, Math.max(maxPostCount - size * index, 0));
         expect(blog.size).toBe(expectedSize);
-        expect(blog.totalPostCount).toBe(MAX_POST_COUNT);
+        expect(blog.totalPostCount).toBe(Utils.getArraySum(pagePosts.map((page) => page.length)));
       }
 
       const hasPosts = blog.size > 0;
@@ -95,35 +97,7 @@ describe('Class PostService', () => {
   });
 });
 
-describe('Class PostSerivce (with mock services)', () => {
-  class MockAuthenticationSerice extends AuthenticationService {
-    public isExpired = false;
-    public totalCallCount = 0;
-    public retryCountAfterExpired = 0;
-
-    constructor(
-      baseURL: string,
-      clientInfo: ClientInfo,
-      private makeExpired: () => boolean,
-      private canResetToken: (retryCountAfterExpired: number) => boolean
-    ) {
-      super(baseURL, clientInfo);
-    }
-
-    getToken(): Promise<string> {
-      ++this.totalCallCount;
-      if (this.isExpired) {
-        if (this.canResetToken(++this.retryCountAfterExpired)) {
-          this.isExpired = false;
-        }
-      } else {
-        this.isExpired = this.makeExpired();
-      }
-
-      return this.isExpired ? Promise.resolve('this is an expired token') : super.getToken();
-    }
-  }
-
+describe('Class PostSerivce (with expiration)', () => {
   const { baseUrl, clientInfo, pageCount } = environment.dataServer;
 
   beforeAll(() => {
@@ -134,37 +108,45 @@ describe('Class PostSerivce (with mock services)', () => {
   });
 
   test('When token is expired forever', async () => {
-    const authenticationService = new MockAuthenticationSerice(
-      baseUrl,
-      clientInfo,
+    const authenticationService = new MockAuthenticationService(
+      () => Promise.resolve(Utils.generateRandomId(20)),
       () => true, // expire now
-      () => false // never reset
+      () => false // never reset expiration
     );
-    const postService = new PostService({ authenticationService }, baseUrl, pageCount);
+    const postService = new MockPostService(
+      { authenticationService },
+      baseUrl,
+      pageCount,
+      PostGenerator.generatePostPages()
+    );
 
+    expect(postService.mockAuthenticationService).toBeDefined();
+    expect(postService.mockAuthenticationService.isExpired).toBe(false);
+    
     try {
-      await postService.fetchPosts({ userId: 'blabla' });
-      expect(false).toBe(true); // should not reach this place
+      await postService.fetchPosts({ userId: FAKE_USER_ID });
     } catch (e) {
+      expect(postService.mockAuthenticationService.isExpired).toBe(true);
       expect(e).toBeInstanceOf(GraphQLError);
       const { response } = (<GraphQLError>e).extensions;
       expect((<any>response).status).toBe(StatusCodes.UNAUTHORIZED); // 401
-      expect(authenticationService.retryCountAfterExpired).toBeGreaterThanOrEqual(
-        pageCount
-      );
+      expect(authenticationService.retryCountAfterExpired).toBeGreaterThanOrEqual(pageCount);
+      return;
     }
+    
+    fail('it should not reach here');
   });
 
   test('When token is expired and reset after 2 retrials', async () => {
-    const authenticationService = new MockAuthenticationSerice(
-      baseUrl,
-      clientInfo,
+    const authenticationService = new MockAuthenticationService(
+      () => Promise.resolve(Utils.generateRandomId(20)),
       () => true, // expire now
       (retryCountAfterExpired) => retryCountAfterExpired % 2 === 0 // reset next time
     );
-    const postService = new PostService({ authenticationService }, baseUrl, pageCount);
 
-    await postService.fetchPosts({ userId: 'blabla' });
+    const postService = new MockPostService({ authenticationService }, baseUrl, pageCount);
+
+    await postService.fetchPosts({ userId: FAKE_USER_ID });
     expect(authenticationService.retryCountAfterExpired).toBe(pageCount * 2);
   });
 });

@@ -2,8 +2,8 @@ import { ApolloServer } from "@apollo/server";
 import { ExecuteOperationOptions, VariableValues } from "@apollo/server/dist/esm/externalTypes/graphql";
 import assert from "assert";
 import { DocumentNode } from "graphql";
-import { GraphQLContextEx } from "../../../src/graphql/graphql-context";
-import { AbstractGraphQLClient } from "../../client/services/abstract-graphql-client";
+import { GraphQLContextEx } from "../../src/graphql/graphql-context";
+import { AbstractGraphQLClient } from "../client/services/abstract-graphql-client";
 
 export class MockGraphQLClient extends AbstractGraphQLClient {
 

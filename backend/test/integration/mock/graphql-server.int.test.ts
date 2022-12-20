@@ -7,7 +7,7 @@ import { graphQLOptions } from '../../../src/graphql/graphql-options';
 import { Utils } from '../../../src/utils/utils';
 import { User } from '../../client/models/user';
 import { Kind } from 'graphql';
-import { MockGraphQLClient } from './mock-graphql-client';
+import { MockGraphQLClient } from '../../helper/mock-graphql-client';
 
 const MAX_POST_COUNT = 1000;
 
@@ -28,7 +28,7 @@ describe('GraphQLServer', () => {
     const executionOptions = {
       contextValue: {
         authenticationService: new AuthenticationService(baseUrl, clientInfo),
-        postServiceProvider: (ctx) =>
+        postServiceProvider: (ctx: GraphQLContextEx) =>
           new PostService(ctx, environment.dataServer.baseUrl, environment.dataServer.pageCount),
         cache: server.cache,
       },

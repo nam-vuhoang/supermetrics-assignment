@@ -3,7 +3,7 @@ import { GraphQLContext } from '../graphql/graphql-context';
 import { Post } from '../models/post';
 import { HttpResponse } from '../models/http-response';
 import { logger } from '../utils/logger';
-import { GraphQLError } from 'graphql';
+import { GraphQLError, Token } from 'graphql';
 import { StatusCodes } from 'http-status-codes';
 import { PostFilter } from '../models/post-filter';
 import { Blog } from '../models/blog';
@@ -143,14 +143,16 @@ export class PostService extends RESTDataSource {
     return rawPosts$.then((posts) => posts.filter(userFilter));
   }
 
-  protected async fetchRawData(pageNumber: string, retryCount: number = 0): Promise<RawPostData> {
-    return this.get<HttpResponse<RawPostData>>(PostService.REQUEST_PATH, {
-      params: {
-        sl_token: await this.context.authenticationService.getToken(),
-        page: pageNumber.toString(),
-      },
-    })
-      .then((response) => response.data)
+  /**
+   * Fetching raw data with retrial in case of 401-Unauthorized error.
+   * @param pageNumber - 1-based page number
+   * @param retryCount
+   * @returns
+   */
+  private async fetchRawData(pageNumber: string, retryCount: number = 0): Promise<RawPostData> {
+    return this.context.authenticationService
+      .getToken()
+      .then((token) => this.internalFetchRawData(pageNumber, token))
       .catch((error: GraphQLError) => {
         if (
           (<any>error.extensions?.response)?.status === StatusCodes.UNAUTHORIZED &&
@@ -167,5 +169,19 @@ export class PostService extends RESTDataSource {
 
         throw error;
       });
+  }
+
+  /**
+   * Fetching raw data. This method is made protected so that child mock test classes can override it.
+   * @param pageNumber - 1-based page number
+   * @returns
+   */
+  protected async internalFetchRawData(pageNumber: string, token: string): Promise<RawPostData> {
+    return this.get<HttpResponse<RawPostData>>(PostService.REQUEST_PATH, {
+      params: {
+        sl_token: token,
+        page: pageNumber.toString(),
+      },
+    }).then((response) => response.data);
   }
 }
