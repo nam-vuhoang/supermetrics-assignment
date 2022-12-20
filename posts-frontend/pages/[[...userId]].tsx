@@ -8,8 +8,11 @@ import { environment } from '../environment/environment';
 import BlogComponent from '../components/blog-component';
 import ErrorPanel from '../components/utils/error-panel';
 import LoadingInfoPanel from '../components/utils/loading-info-panel';
+import { BackendError } from '../utils/backend-error';
+import { serializeError } from 'serialize-error';
 
 const PAGE_SIZE = 15;
+const REFRESH_INTERVAL_IN_SECONDS = 60; // refresh every minute
 
 interface PageProps {
   posts: Post[];
@@ -60,13 +63,15 @@ export default function Home(): JSX.Element {
 
   const { data, error } = useSWR(
     [environment.backendUrl, router.isReady ? router.query : undefined],
-    ([url, query]) => fetchDataOnClientSide(url, query)
+    ([url, query]) => fetchDataOnClientSide(url, query),
+    {
+      refreshInterval: REFRESH_INTERVAL_IN_SECONDS * 1000,
+      revalidateOnReconnect: true, // default
+    }
   );
 
   if (error) {
-    return (
-      <ErrorPanel error={`Error: {JSON.stringify(error, undefined, 2)}`} />
-    );
+    return <ErrorPanel error={error} />;
   }
 
   if (!data) {
