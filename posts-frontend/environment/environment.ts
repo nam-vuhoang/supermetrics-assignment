@@ -11,4 +11,14 @@ export const environment = {
     'NEXT_PUBLIC_BACKEND_URL',
     process.env.NEXT_PUBLIC_BACKEND_URL
   ),
+  fontend: {
+    blogPageRefreshIntervalInSeconds: EnvironmentUtils.requireIntegerEnvParam(
+      'NEXT_PUBLIC_BLOG_PAGE_REFRESH_INTERVAL_IN_SECONDS',
+      process.env.NEXT_PUBLIC_BLOG_PAGE_REFRESH_INTERVAL_IN_SECONDS
+    ),
+    dashboardPageRefreshIntervalInSeconds: EnvironmentUtils.requireIntegerEnvParam(
+      'NEXT_PUBLIC_DASHBOARD_PAGE_REFRESH_INTERVAL_IN_SECONDS',
+      process.env.NEXT_PUBLIC_DASHBOARD_PAGE_REFRESH_INTERVAL_IN_SECONDS
+    ),
+  }
 };

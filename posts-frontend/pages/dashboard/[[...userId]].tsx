@@ -49,6 +49,9 @@ export const getStaticProps: GetStaticProps = async (context) => {
       props: {
         users: Utils.sortArray(users, (u) => u.userName.toString()),
       },
+
+      // example: https://nextjs.org/docs/basic-features/data-fetching/incremental-static-regeneration
+      revalidate: environment.fontend.dashboardPageRefreshIntervalInSeconds
     }));
 };
 

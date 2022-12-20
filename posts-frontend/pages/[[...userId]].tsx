@@ -10,7 +10,6 @@ import ErrorPanel from '../components/utils/error-panel';
 import LoadingInfoPanel from '../components/utils/loading-info-panel';
 
 const PAGE_SIZE = 15;
-const REFRESH_INTERVAL_IN_SECONDS = 60; // refresh every minute
 
 interface PageProps {
   posts: Post[];
@@ -63,7 +62,7 @@ export default function Home(): JSX.Element {
     [environment.backendUrl, router.isReady ? router.query : undefined],
     ([url, query]) => fetchDataOnClientSide(url, query),
     {
-      refreshInterval: REFRESH_INTERVAL_IN_SECONDS * 1000,
+      refreshInterval: environment.fontend.blogPageRefreshIntervalInSeconds * 1000,
       revalidateOnReconnect: true, // default
     }
   );

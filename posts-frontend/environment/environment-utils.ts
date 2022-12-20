@@ -33,6 +33,6 @@ export class EnvironmentUtils {
     if (Number.isInteger(numberValue)) {
       return numberValue;
     }
-    throw new EvalError(`Environment param '${name}' must be integer.`);
+    throw new EvalError(`Environment param '${name}' must be an integer: ${value}.`);
   }
 }
