@@ -1,7 +1,7 @@
 import { AuthenticationService } from '../../src/services/authentication-service';
 
 export class MockAuthenticationService extends AuthenticationService {
-  static readonly EXPIRED_TOKEN='Some invalid token';
+  static readonly EXPIRED_TOKEN = 'Some invalid token';
 
   public isExpired = false;
   public totalCallCount = 0;
@@ -14,7 +14,8 @@ export class MockAuthenticationService extends AuthenticationService {
     private canResetToken?: (retryCountAfterExpired: number) => boolean
   ) {
     super(null, null);
-    this.tokenProvider = tokenProvider instanceof AuthenticationService ? tokenProvider.getToken : tokenProvider;
+    this.tokenProvider =
+      tokenProvider instanceof AuthenticationService ? () => tokenProvider.getToken() : tokenProvider;
   }
 
   getToken(): Promise<string> {
