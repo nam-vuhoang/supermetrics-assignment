@@ -10,6 +10,10 @@ import { Utils } from '../utils/utils';
 
 const FAKE_USER_ID = "this user doesn't exist";
 
+/**
+ * Test class PostService with MockAuthenticationService and MockPostService
+ * (which overrides one method of PostService for avoiding real HTTP requests)/
+ */
 describe('Class PostService (with MockAuthenticationService and MockPostService)', () => {
   const { baseUrl, clientInfo, pageCount } = environment.dataServer;
   let authenticationService: MockAuthenticationService;
@@ -36,7 +40,7 @@ describe('Class PostService (with MockAuthenticationService and MockPostService)
 
       const size = (Utils.getRandomInt(10) + 1) * 100;
       const index = Utils.getRandomInt(20);
-      const blog = await postService.fetchPosts({ userId, page: { index, size } });
+      const blog = await postService.fetchBlog({ userId, page: { index, size } });
 
       expect(blog.posts.length).toBe(blog.size);
 
@@ -101,7 +105,7 @@ describe('Class PostService (with MockAuthenticationService and MockPostService)
         }
       }
 
-      const blog2 = await postService.fetchPosts({ userId, page: { index, size } }); // similar request
+      const blog2 = await postService.fetchBlog({ userId, page: { index, size } }); // similar request
       expect(blog2).toStrictEqual(blog);
     }
   });
@@ -147,7 +151,7 @@ describe('Class PostSerivce (with expiration)', () => {
     expect(postService.mockAuthenticationService.isExpired).toBe(false);
 
     try {
-      await postService.fetchPosts({ userId: FAKE_USER_ID });
+      await postService.fetchBlog({ userId: FAKE_USER_ID });
     } catch (e) {
       expect(postService.mockAuthenticationService.isExpired).toBe(true);
       expect(e).toBeInstanceOf(GraphQLError);
@@ -169,7 +173,7 @@ describe('Class PostSerivce (with expiration)', () => {
 
     const postService = new MockPostService(baseUrl, authenticationService, undefined, pageCount);
 
-    await postService.fetchPosts({ userId: FAKE_USER_ID });
+    await postService.fetchBlog({ userId: FAKE_USER_ID });
     expect(authenticationService.retryCountAfterExpired).toBe(pageCount * 2);
   });
 });
@@ -196,7 +200,7 @@ describe('Class PostSerivce (with wrong page)', () => {
     );
 
     try {
-      await postService.fetchPosts();
+      await postService.fetchBlog();
     } catch (e) {
       expect(e).toBeInstanceOf(GraphQLError);
       expect(e.message).toMatch(/Invalid data: expected page \d+, but got page \d+./);
@@ -221,7 +225,7 @@ describe('Class PostSerivce (with wrong page)', () => {
     );
 
     try {
-      await postService.fetchPosts({ page: { index: -1, size: 10 } });
+      await postService.fetchBlog({ page: { index: -1, size: 10 } });
     } catch (e) {
       expect(e).toBeInstanceOf(EvalError);
       expect(e.message).toMatch(/Invalid page index:/);
@@ -242,7 +246,7 @@ describe('Class PostSerivce (with wrong page)', () => {
     );
 
     try {
-      await postService.fetchPosts({ page: { index: 1, size: 0 } });
+      await postService.fetchBlog({ page: { index: 1, size: 0 } });
     } catch (e) {
       expect(e).toBeInstanceOf(EvalError);
       expect(e.message).toMatch(/Invalid page size:./);

@@ -1,5 +1,8 @@
 import { UserStats } from './user-stats';
 
+/**
+ * user
+ */
 export interface User {
   /**
    * User ID
@@ -12,7 +15,7 @@ export interface User {
   userName: string;
 
   /**
-   * User statistics (lazy load)
+   * User statistics. Defined as function for lazy load. Can be undefined.
    */
   stats?: () => UserStats;
 }

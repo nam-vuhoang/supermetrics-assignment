@@ -1,8 +1,24 @@
 import { GraphQLScalarType, Kind } from "graphql";
-import { PostFilter } from "../models/post-filter";
+import { BlogFilter } from "../models/blog-filter";
 import { GraphQLContext } from "./graphql-context";
 
+/**
+ * GraphQL resolvers for Query, Mutation, and Scalar types.
+ */
 export const GRAPHQL_RESOLVERS = {
+  Query: {
+    blog(_: any, args: { filter: BlogFilter }, context: GraphQLContext) {
+      return context.postServiceBuilder(context.authenticationService, context.cache).fetchBlog(args.filter);
+    },
+
+    users(_: any, args: { filter: BlogFilter }, context: GraphQLContext) {
+      return context.postServiceBuilder(context.authenticationService, context.cache).fetchUsers();
+    },
+  },
+
+  /**
+   * The Date scalar type. Serialized using UNIT time stamp.
+   */
   Date: new GraphQLScalarType({
     name: 'Date',
     description: 'Date custom scalar type',
@@ -29,13 +45,4 @@ export const GRAPHQL_RESOLVERS = {
     },
   }),
 
-  Query: {
-    blog(_: any, args: { filter: PostFilter }, context: GraphQLContext) {
-      return context.postServiceBuilder(context.authenticationService, context.cache).fetchPosts(args.filter);
-    },
-
-    users(_: any, args: { filter: PostFilter }, context: GraphQLContext) {
-      return context.postServiceBuilder(context.authenticationService, context.cache).fetchUsers();
-    },
-  },
 };

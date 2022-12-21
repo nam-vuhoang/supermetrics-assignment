@@ -1,3 +1,6 @@
+/**
+ * Utility class.
+ */
 export class Utils {
   /**
    * Get field values of the two objects and compare them.

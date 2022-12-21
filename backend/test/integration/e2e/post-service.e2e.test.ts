@@ -9,6 +9,9 @@ import { MockAuthenticationService } from '../../helper/mock-authentication-serv
 const MAX_POST_COUNT = 1000;
 const FAKE_USER_ID = 'this user doesnt exist';
 
+/**
+ * Tests chain: (AuthenticationService+PostService) >> external data server.
+ */
 describe('PostService (e2e test)', () => {
   const { baseUrl, clientInfo, pageCount } = environment.dataServer;
   let authenticationService: AuthenticationService;
@@ -32,7 +35,7 @@ describe('PostService (e2e test)', () => {
 
       const size = (Utils.getRandomInt(10) + 1) * 100;
       const index = Utils.getRandomInt(20);
-      const blog = await postService.fetchPosts({ userId, page: { index, size } });
+      const blog = await postService.fetchBlog({ userId, page: { index, size } });
 
       expect(blog.posts.length).toBe(blog.size);
 
@@ -75,7 +78,7 @@ describe('PostService (e2e test)', () => {
         expect(Utils.getArraySum(stats.frequencies.map((f) => f.count))).toBe(stats.totalCount);
       }
 
-      const blog2 = await postService.fetchPosts({ userId, page: { index, size } }); // similar request
+      const blog2 = await postService.fetchBlog({ userId, page: { index, size } }); // similar request
       expect(blog2).toStrictEqual(blog);
     }
   });
@@ -113,7 +116,7 @@ describe('Class PostSerivce (with mock services)', () => {
     const postService = new PostService(baseUrl, authenticationService, undefined, pageCount);
 
     try {
-      await postService.fetchPosts({ userId: FAKE_USER_ID });
+      await postService.fetchBlog({ userId: FAKE_USER_ID });
       expect(false).toBe(true); // should not reach this place
     } catch (e) {
       expect(e).toBeInstanceOf(GraphQLError);
@@ -134,7 +137,7 @@ describe('Class PostSerivce (with mock services)', () => {
     const postService = new PostService(baseUrl, authenticationService, undefined, pageCount);
     expect(postService.baseURL).toStrictEqual(baseUrl);
 
-    await postService.fetchPosts({ userId: FAKE_USER_ID });
+    await postService.fetchBlog({ userId: FAKE_USER_ID });
     expect(authenticationService.retryCountAfterExpired).toBe(pageCount * 2);
   });
 });

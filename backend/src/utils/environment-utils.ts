@@ -1,14 +1,27 @@
-import { env } from "process";
+import { env } from 'process';
 
+/**
+ * Validator for environment params.
+ */
 export class EnvironmentUtils {
+  /**
+   * Check if a environment param is undefined. If no, then throw an EvalError.
+   * @param name
+   * @returns
+   */
   static requireStringEnvParam(name: string): string {
     if (env[name]) {
       return env[name];
     }
     throw new EvalError(`Environment param '${name}' is undefined.`);
   }
-  
-  static requireIntegerEnvParam(name: string): number  {
+
+  /**
+   * Check if a environment param is integer. If no, then throw EvalError.
+   * @param name
+   * @returns
+   */
+  static requireIntegerEnvParam(name: string): number {
     const stringValue = EnvironmentUtils.requireStringEnvParam(name);
     const numberValue = Number(stringValue);
     if (Number.isInteger(numberValue)) {
@@ -18,4 +31,3 @@ export class EnvironmentUtils {
     throw new EvalError(`Environment param '${name}' must be an integer: '${stringValue}'.`);
   }
 }
-

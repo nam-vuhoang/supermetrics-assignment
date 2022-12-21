@@ -4,7 +4,7 @@ import { HttpResponse } from '../models/http-response';
 import { logger } from '../utils/logger';
 import { GraphQLError, Token } from 'graphql';
 import { StatusCodes } from 'http-status-codes';
-import { PostFilter } from '../models/post-filter';
+import { BlogFilter } from '../models/blog-filter';
 import { Blog } from '../models/blog';
 import { Utils } from '../utils/utils';
 import { User } from '../models/user';
@@ -36,6 +36,10 @@ export interface RawPostData {
   posts: Array<RawPost>;
 }
 
+/**
+ * PostService. Responsible for fetching posts from the data server.
+ * Uses parent RESTDataSource methods for executing HTTP requests.
+ */
 export class PostService extends RESTDataSource {
   static readonly REQUEST_PATH = 'posts';
   static readonly MAX_RETRY_COUNT_IF_UNAUTHORIZED = 5;
@@ -59,7 +63,7 @@ export class PostService extends RESTDataSource {
    * @param filter
    * @returns
    */
-  async fetchPosts(filter?: PostFilter): Promise<Blog> | null {
+  async fetchBlog(filter?: BlogFilter): Promise<Blog> | null {
     if (filter?.page?.index !== undefined && filter.page.index < 0) {
       throw new EvalError(`Invalid page index: ${filter.page.index}`);
     }

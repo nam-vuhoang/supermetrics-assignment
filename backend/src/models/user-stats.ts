@@ -1,6 +1,9 @@
 import { Frequency } from './frequency';
 import { Post } from './post';
 
+/**
+ * User statistics
+ */
 export interface UserStats {
   /**
    * User post count

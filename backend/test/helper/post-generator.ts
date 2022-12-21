@@ -1,14 +1,18 @@
-import { start } from 'repl';
 import { environment } from '../../src/environment/environment';
 import { Utils } from '../../src/utils/utils';
 import { Post } from '../client/models/post';
 
+/**
+ * Responsible for generating post pages for testing.
+ */
 export class PostGenerator {
   private static pages?: Post[][] = undefined;
   private static sortedPages?: Post[][] = undefined;
-  private static MILLISECONDS_PER_HOUR = 3600000;
 
-  static generatePostPages(): Post[][] {
+/**
+ * Generating post pages for testing with variable amount of posts per page.
+ */
+static generatePostPages(): Post[][] {
     if (!PostGenerator.pages) {
       const pageCount = environment.dataServer.pageCount;
       const pages: Post[][] = [];      
@@ -46,7 +50,10 @@ export class PostGenerator {
     return PostGenerator.pages;
   }
 
-  static generateSortedPostPages(): Post[][] {
+/**
+ * Generating sorted pages (with decreasing time) for testing with variable amount of posts per page.
+ */
+static generateSortedPostPages(): Post[][] {
     if (!PostGenerator.sortedPages) {
       const pageCount = environment.dataServer.pageCount;
       const pages: Post[][] = [];

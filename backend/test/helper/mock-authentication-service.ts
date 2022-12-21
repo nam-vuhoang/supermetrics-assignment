@@ -1,5 +1,9 @@
 import { AuthenticationService } from '../../src/services/authentication-service';
 
+/**
+ * Mocks AuthenticationService by adding feature to set and reset the token expiration.
+ * Used for testing cases when short-lieved token is expired.
+ */
 export class MockAuthenticationService extends AuthenticationService {
   static readonly EXPIRED_TOKEN = 'Some invalid token';
 
@@ -8,6 +12,12 @@ export class MockAuthenticationService extends AuthenticationService {
   public retryCountAfterExpired = 0;
   private tokenProvider: () => Promise<string>;
 
+  /**
+   * Creates the MockAuthenticationService
+   * @param tokenProvider  A function or AuthenticationService that returns token.
+   * @param makeExpired A function that decides whether to force the current token be expired. 
+   * @param canResetToken A function that decides whether the expired token can be renewed.
+   */
   constructor(
     tokenProvider: AuthenticationService | (() => Promise<string>),
     private makeExpired?: () => boolean,
@@ -21,7 +31,7 @@ export class MockAuthenticationService extends AuthenticationService {
   getToken(): Promise<string> {
     ++this.totalCallCount;
     if (this.isExpired) {
-      if (this.canResetToken(++this.retryCountAfterExpired)) {
+      if (this.canResetToken && this.canResetToken(++this.retryCountAfterExpired)) {
         this.isExpired = false;
       }
     } else {

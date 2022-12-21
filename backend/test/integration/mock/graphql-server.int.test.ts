@@ -13,7 +13,8 @@ import { GRAPHQL_RESOLVERS } from '../../../src/graphql/graphql-resolvers';
 const FAKE_USER_ID = "this user doesn't exist";
 
 /**
- * Test cases
+ * Tests chain: MockGraphQLclient >> GraphQLServer >> (MockAuthenticationService + MockPostService).
+ * With comparing data on both ends.
  */
 describe('GraphQLServer (with MockPostService)', () => {
   let pagePosts: Post[][];

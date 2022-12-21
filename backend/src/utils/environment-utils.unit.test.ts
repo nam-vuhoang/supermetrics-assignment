@@ -1,5 +1,8 @@
 import { EnvironmentUtils } from './environment-utils';
 
+/**
+ * Tests class EnvironmentUtils.
+ */
 describe('Environment-utils methods', () => {
   test('Required and existing string', () => {
     expect(EnvironmentUtils.requireStringEnvParam('APP_NAME'));

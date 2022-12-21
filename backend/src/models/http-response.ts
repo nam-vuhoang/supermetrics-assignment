@@ -1,3 +1,6 @@
+/**
+ * Raw HTTP response data.
+ */
 export interface HttpResponse<T> {
   meta: {
     request_id: string;

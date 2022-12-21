@@ -1,4 +1,3 @@
-import { logger } from '../utils/logger';
 import { Utils } from '../utils/utils';
 import { PageFilter } from './page-filter';
 import { Post } from './post';
@@ -45,14 +44,15 @@ export class Blog {
   constructor(public posts: Post[], public totalPostCount: number) {}
 
   /**
-   * Number of posts in the blog
+   * Number of posts in the blog. Defined as a function for lazy loading.
    */
   get size(): number {
     return this.posts.length;
   }
 
+
   /**
-   * Authors of posts in the blog
+   * Authors of posts in the blog. Defined as a function for lazy loading.
    */
   authors(): User[] {
     const userMap = new Map<string, User>();
@@ -71,12 +71,14 @@ export class Blog {
     return Array.from(userMap.values());
   }
 
+
+
   /**
    * Get user statistics based on the posts in the blog
    * @param userId 
    * @returns 
    */
-  getUserStats(userId: string): UserStats {
+  private getUserStats(userId: string): UserStats {
     let totalCount = 0;
     let minLength: number | undefined = undefined;
     let maxLength: number = 0;

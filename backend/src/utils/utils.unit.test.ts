@@ -1,5 +1,8 @@
 // import {sum} from './sum';
 
+/**
+ * Tests class Utils.
+ */
 import { Utils } from './utils';
 import { wrapper, getterValue } from '../../test/helper/test-utils';
 

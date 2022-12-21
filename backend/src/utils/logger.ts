@@ -3,6 +3,6 @@ import { env } from 'process';
 
 export const logger = Pino({
   name: env.APP_NAME,
-  level: process.env.LOGGER_LEVEL || 'info',
+  level: process.env.LOGGER_LEVEL || 'info', // default logger level
 });
 

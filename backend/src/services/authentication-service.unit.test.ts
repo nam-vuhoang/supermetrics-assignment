@@ -4,6 +4,12 @@ import { AuthenticationService } from './authentication-service';
 import { delay } from '../../test/helper/test-utils';
 import { StatusCodes } from 'http-status-codes';
 
+const FAKE_BASE_URL = 'http://blabla.com';
+const FAKE_CLIENT_ID = 'Is it me you are looking for?';
+
+/**
+ * Test AuthenticationService
+ */
 describe('Class AuthenticationService', () => {
   const { baseUrl, clientInfo } = environment.dataServer;
 
@@ -13,14 +19,14 @@ describe('Class AuthenticationService', () => {
     expect(clientInfo.client_id).toBeTruthy();
   });
 
-  test('get token', async () => {
+  it('should get token from the real data server', async () => {
     const authenticationService = new AuthenticationService(baseUrl, clientInfo);
     const token = await authenticationService.getToken();
     expect(token).toBeTruthy();
     expect(token.length).toBeGreaterThan(0);
   });
 
-  test('get token expired', async () => {
+  it('should get a new token after expiration', async () => {
     const authenticationService = new AuthenticationService(baseUrl, clientInfo);
     const token = await authenticationService.getToken();
 
@@ -36,10 +42,10 @@ describe('Class AuthenticationService', () => {
     await expect(authenticationService.getToken()).resolves.not.toBe(token); // tokens are NOT same
   });
 
-  test('wrong baseUrl => 404', async () => {
+  it('should return 404 if wrong baseUrl', async () => {
     expect.assertions(2);
     try {
-      const authenticationService = new AuthenticationService('http://blabla.com', clientInfo);
+      const authenticationService = new AuthenticationService(FAKE_BASE_URL, clientInfo);
       await authenticationService.getToken();
     } catch (e) {
       expect(e).toBeInstanceOf(GraphQLError);
@@ -48,10 +54,10 @@ describe('Class AuthenticationService', () => {
     }
   });
 
-  test('wrong clientInfo => 400', async () => {
+  it('should return 400 if wrong clientInfo', async () => {
     expect.assertions(2);
     try {
-      const authenticationService = new AuthenticationService(baseUrl, { ...clientInfo, client_id: 'blabla' });
+      const authenticationService = new AuthenticationService(baseUrl, { ...clientInfo, client_id: FAKE_CLIENT_ID });
       await authenticationService.getToken();
     } catch (e) {
       expect(e).toBeInstanceOf(GraphQLError);

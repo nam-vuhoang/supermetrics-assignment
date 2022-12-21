@@ -7,7 +7,8 @@ import { GraphQLServer } from '../../../src/graphql/graphql-server';
 const MAX_POST_COUNT = 1000;
 
 /**
- * Test cases
+ * Tests end-to-end chain: MockGraphQLClient >> GraphQLServer >> (AuthenticationService+PostService)
+ * >> external data server.
  */
 describe('GraphQLServer (e2e test)', () => {
   let graphqlClient: MockGraphQLClient;
