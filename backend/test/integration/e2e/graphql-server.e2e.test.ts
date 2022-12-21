@@ -26,14 +26,14 @@ describe('GraphQLServer (e2e test)', () => {
     expect(pageCount).not.toBeNaN();
 
     const server = new ApolloServer<GraphQLContext>(GRAPHQL_OPTIONS);
-    const contextValue: GraphQLContext = {
+    const context: GraphQLContext = {
       authenticationService: new AuthenticationService(baseUrl, clientInfo),
       postServiceBuilder: (authenticationService: AuthenticationService, cache?: KeyValueCache) =>
         new PostService(environment.dataServer.baseUrl, authenticationService, cache, environment.dataServer.pageCount),
       cache: server.cache,
     };
 
-    graphqlClient = new MockGraphQLClient(server, { contextValue });
+    graphqlClient = new MockGraphQLClient(server, context);
   });
 
   // after the tests we'll stop the server

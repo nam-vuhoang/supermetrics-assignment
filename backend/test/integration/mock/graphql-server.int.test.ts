@@ -10,8 +10,6 @@ import { MockAuthenticationService } from '../../helper/mock-authentication-serv
 import { MockPostService } from '../../helper/mock-post-service';
 import { PostGenerator } from '../../helper/post-generator';
 import { Post } from '../../client/models/post';
-import { AuthenticationService } from '../../../src/services/authentication-service';
-import { KeyValueCache } from '@apollo/utils.keyvaluecache';
 
 const FAKE_USER_ID = "this user doesn't exist";
 
@@ -35,12 +33,12 @@ describe('GraphQLServer (with MockPostService)', () => {
     const authenticationService = new MockAuthenticationService(() => Promise.resolve(Utils.generateRandomId(20)));
     const postService = new MockPostService(baseUrl, authenticationService, undefined, pageCount, pagePosts);
     const server = new ApolloServer<GraphQLContext>(GRAPHQL_OPTIONS);
-    const contextValue: GraphQLContext = {
+    const context: GraphQLContext = {
       authenticationService,
-      postServiceBuilder: (authenticationService: AuthenticationService, cache?: KeyValueCache) => postService,
+      postServiceBuilder: () => postService,
       cache: server.cache,
     };
-    graphqlClient = new MockGraphQLClient(server, {contextValue});
+    graphqlClient = new MockGraphQLClient(server, context);
   });
 
   // after the tests we'll stop the server
