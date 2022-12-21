@@ -35,15 +35,12 @@ describe('GraphQLServer (with MockPostService)', () => {
     const authenticationService = new MockAuthenticationService(() => Promise.resolve(Utils.generateRandomId(20)));
     const postService = new MockPostService(baseUrl, authenticationService, undefined, pageCount, pagePosts);
     const server = new ApolloServer<GraphQLContext>(GRAPHQL_OPTIONS);
-    const executionOptions = {
-      contextValue: {
-        authenticationService,
-        postServiceProvider: (authenticationService: AuthenticationService, cache?: KeyValueCache) => postService,
-        cache: server.cache,
-      },
+    const contextValue: GraphQLContext = {
+      authenticationService,
+      postServiceBuilder: (authenticationService: AuthenticationService, cache?: KeyValueCache) => postService,
+      cache: server.cache,
     };
-
-    graphqlClient = new MockGraphQLClient(server, executionOptions);
+    graphqlClient = new MockGraphQLClient(server, {contextValue});
   });
 
   // after the tests we'll stop the server
