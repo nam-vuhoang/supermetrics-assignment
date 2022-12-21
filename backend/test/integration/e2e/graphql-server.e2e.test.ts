@@ -1,14 +1,8 @@
-import { ApolloServer } from '@apollo/server';
 import { environment } from '../../../src/environment/environment';
-import { AuthenticationService } from '../../../src/services/authentication-service';
-import { PostService } from '../../../src/services/post-service';
-import { GraphQLContext } from '../../../src/graphql/graphql-context';
-import { GRAPHQL_OPTIONS } from '../../../src/graphql/graphql-options';
 import { Utils } from '../../../src/utils/utils';
 import { User } from '../../client/models/user';
-import { Kind } from 'graphql';
 import { MockGraphQLClient } from '../../helper/mock-graphql-client';
-import { KeyValueCache } from '@apollo/utils.keyvaluecache';
+import { GraphQLServer } from '../../../src/graphql/graphql-server';
 
 const MAX_POST_COUNT = 1000;
 
@@ -25,15 +19,7 @@ describe('GraphQLServer (e2e test)', () => {
     expect(pageCount).toBeTruthy();
     expect(pageCount).not.toBeNaN();
 
-    const server = new ApolloServer<GraphQLContext>(GRAPHQL_OPTIONS);
-    const context: GraphQLContext = {
-      authenticationService: new AuthenticationService(baseUrl, clientInfo),
-      postServiceBuilder: (authenticationService: AuthenticationService, cache?: KeyValueCache) =>
-        new PostService(environment.dataServer.baseUrl, authenticationService, cache, environment.dataServer.pageCount),
-      cache: server.cache,
-    };
-
-    graphqlClient = new MockGraphQLClient(server, context);
+    graphqlClient = new MockGraphQLClient(new GraphQLServer());
   });
 
   // after the tests we'll stop the server
@@ -133,21 +119,4 @@ describe('GraphQLServer (e2e test)', () => {
       expect(users.length).toBeGreaterThan(0);
     });
   });
-});
-
-test('Test custom scalar resolvers', () => {
-  const dateScalarDefinition = GRAPHQL_OPTIONS.resolvers.Date;
-  const date = new Date();
-  const dateValue = date.valueOf();
-
-  expect(date.getTime()).toBe(dateValue);
-  expect(dateScalarDefinition.serialize(date)).toBe(dateValue);
-  expect(dateScalarDefinition.parseValue(dateValue)).toStrictEqual(date);
-  expect(
-    dateScalarDefinition.parseLiteral({
-      kind: Kind.INT,
-      value: dateValue.toString(),
-    })
-  ).toStrictEqual(date);
-  expect(dateScalarDefinition.parseLiteral({ kind: Kind.BOOLEAN, value: true })).toBeNull();
 });

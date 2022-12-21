@@ -1,23 +1,22 @@
-import { ApolloServer } from '@apollo/server';
 import { VariableValues } from '@apollo/server/dist/esm/externalTypes/graphql';
 import assert from 'assert';
 import { DocumentNode } from 'graphql';
-import { GraphQLContext } from '../../src/graphql/graphql-context';
+import { GraphQLServer } from '../../src/graphql/graphql-server';
 import { AbstractGraphQLClient } from '../client/services/abstract-graphql-client';
 
 export class MockGraphQLClient extends AbstractGraphQLClient {
-  constructor(private server: ApolloServer<GraphQLContext>, private context: GraphQLContext) {
+  constructor(private server: GraphQLServer) {
     super();
   }
 
   protected fetchQuery<T>(query: string | DocumentNode, variables?: VariableValues): Promise<T> {
-    return this.server
+    return this.server.apolloServer
       .executeOperation<T>(
         {
           query,
           variables,
         },
-        { contextValue: this.context }
+        { contextValue: this.server.context }
       )
       .then((response) => {
         const { body } = response;
@@ -33,6 +32,6 @@ export class MockGraphQLClient extends AbstractGraphQLClient {
   }
 
   stopServer(): Promise<void> {
-    return this.server.stop();
+    return this.server.stopServer();
   }
 }

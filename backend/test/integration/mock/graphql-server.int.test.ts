@@ -1,7 +1,4 @@
-import { ApolloServer } from '@apollo/server';
 import { environment } from '../../../src/environment/environment';
-import { GraphQLContext } from '../../../src/graphql/graphql-context';
-import { GRAPHQL_OPTIONS } from '../../../src/graphql/graphql-options';
 import { Utils } from '../../../src/utils/utils';
 import { User } from '../../client/models/user';
 import { Kind } from 'graphql';
@@ -10,6 +7,8 @@ import { MockAuthenticationService } from '../../helper/mock-authentication-serv
 import { MockPostService } from '../../helper/mock-post-service';
 import { PostGenerator } from '../../helper/post-generator';
 import { Post } from '../../client/models/post';
+import { GraphQLServer } from '../../../src/graphql/graphql-server';
+import { GRAPHQL_RESOLVERS } from '../../../src/graphql/graphql-resolvers';
 
 const FAKE_USER_ID = "this user doesn't exist";
 
@@ -32,13 +31,7 @@ describe('GraphQLServer (with MockPostService)', () => {
     maxPostCount = PostGenerator.getPostCount(pagePosts);
     const authenticationService = new MockAuthenticationService(() => Promise.resolve(Utils.generateRandomId(20)));
     const postService = new MockPostService(baseUrl, authenticationService, undefined, pageCount, pagePosts);
-    const server = new ApolloServer<GraphQLContext>(GRAPHQL_OPTIONS);
-    const context: GraphQLContext = {
-      authenticationService,
-      postServiceBuilder: () => postService,
-      cache: server.cache,
-    };
-    graphqlClient = new MockGraphQLClient(server, context);
+    graphqlClient = new MockGraphQLClient(new GraphQLServer(authenticationService, () => postService));
   });
 
   // after the tests we'll stop the server
@@ -147,7 +140,7 @@ describe('GraphQLServer (with MockPostService)', () => {
 });
 
 test('Test custom scalar resolvers', () => {
-  const dateScalarDefinition = GRAPHQL_OPTIONS.resolvers.Date;
+  const dateScalarDefinition = GRAPHQL_RESOLVERS.Date;
   const date = new Date();
   const dateValue = date.valueOf();
 
