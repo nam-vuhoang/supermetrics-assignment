@@ -10,6 +10,7 @@ import { environment } from '../../environment/environment';
 import { User } from '../../models/user';
 import { GraphQLClient } from '../../services/graphql-client';
 import { Utils } from '../../utils/utils';
+import WarningPanel from '../../components/utils/warning-panel';
 
 interface PageProps {
   users: User[];
@@ -51,7 +52,7 @@ export const getStaticProps: GetStaticProps = async (context) => {
       },
 
       // example: https://nextjs.org/docs/basic-features/data-fetching/incremental-static-regeneration
-      revalidate: environment.fontend.dashboardPageRefreshIntervalInSeconds
+      revalidate: environment.fontend.dashboardPageRefreshIntervalInSeconds,
     }));
 };
 
@@ -59,7 +60,7 @@ export const getStaticProps: GetStaticProps = async (context) => {
  * Generate the common user dashboard with links to each user dashboard page.
  * This page uses SSG (Static-site generation approach:
  * https://nextjs.org/docs/basic-features/data-fetching/get-static-paths)
- * 
+ *
  */
 export default function UserDashboard({
   users,
@@ -75,6 +76,10 @@ export default function UserDashboard({
     return <LoadingInfoPanel />;
   }
 
+  if (users.length === 0) {
+    return <WarningPanel message="No user data found." />;
+  }
+
   const userIdParam = router.query.userId;
   const userId = Array.isArray(userIdParam) ? userIdParam[0] : userIdParam;
 
@@ -85,7 +90,11 @@ export default function UserDashboard({
 
   const user = users.find((u) => u.userId === userId);
   if (!user) {
-    return <ErrorPanel error={`User not found: ${userId}.`} />;
+    return (
+      <WarningPanel
+        message={`User not found: ${userId}. Please check input data.`}
+      />
+    );
   }
 
   return (

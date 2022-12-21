@@ -8,6 +8,7 @@ import { environment } from '../environment/environment';
 import BlogComponent from '../components/blog-component';
 import ErrorPanel from '../components/utils/error-panel';
 import LoadingInfoPanel from '../components/utils/loading-info-panel';
+import WarningPanel from '../components/utils/warning-panel';
 
 const PAGE_SIZE = 15;
 
@@ -42,7 +43,7 @@ export async function fetchDataOnClientSide(
     ? decodeURIComponent(Array.isArray(userQuery) ? userQuery[0] : userQuery)
     : null;
   return new GraphQLClient(backendUrl)
-    .fetchPosts({pageIndex: pageParam - 1, pageSize: PAGE_SIZE, userId})
+    .fetchPosts({ pageIndex: pageParam - 1, pageSize: PAGE_SIZE, userId })
     .then((data: { posts: Post[]; totalPostCount: number }) => ({
       posts: data.posts,
       pageCount: Math.ceil(data.totalPostCount / PAGE_SIZE),
@@ -62,7 +63,8 @@ export default function Home(): JSX.Element {
     [environment.backendUrl, router.isReady ? router.query : undefined],
     ([url, query]) => fetchDataOnClientSide(url, query),
     {
-      refreshInterval: environment.fontend.blogPageRefreshIntervalInSeconds * 1000,
+      refreshInterval:
+        environment.fontend.blogPageRefreshIntervalInSeconds * 1000,
       revalidateOnReconnect: true, // default
     }
   );
@@ -76,6 +78,14 @@ export default function Home(): JSX.Element {
   }
 
   const { posts, pageCount, userId, pageNumber } = data;
+
+  if (posts.length === 0) {
+    return (
+      <WarningPanel
+        message={`No post found for user ID '${userId}' and page number ${pageNumber}. Please check input data.`}
+      />
+    );
+  }
 
   const href = userId ? encodeURIComponent(userId) : '/';
 
