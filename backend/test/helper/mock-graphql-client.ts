@@ -2,13 +2,13 @@ import { ApolloServer } from "@apollo/server";
 import { ExecuteOperationOptions, VariableValues } from "@apollo/server/dist/esm/externalTypes/graphql";
 import assert from "assert";
 import { DocumentNode } from "graphql";
-import { GraphQLContextEx } from "../../src/graphql/graphql-context";
+import { GraphQLContext } from "../../src/graphql/graphql-context";
 import { AbstractGraphQLClient } from "../client/services/abstract-graphql-client";
 
 export class MockGraphQLClient extends AbstractGraphQLClient {
 
-  constructor(private server: ApolloServer<GraphQLContextEx>,
-    private executionOptions: ExecuteOperationOptions<GraphQLContextEx>,
+  constructor(private server: ApolloServer<GraphQLContext>,
+    private executionOptions: ExecuteOperationOptions<GraphQLContext>,
   ) {
     super();
   }

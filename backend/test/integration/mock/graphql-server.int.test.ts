@@ -1,7 +1,7 @@
 import { ApolloServer } from '@apollo/server';
 import { environment } from '../../../src/environment/environment';
-import { GraphQLContextEx } from '../../../src/graphql/graphql-context';
-import { graphQLOptions } from '../../../src/graphql/graphql-options';
+import { GraphQLContext } from '../../../src/graphql/graphql-context';
+import { GRAPHQL_OPTIONS } from '../../../src/graphql/graphql-options';
 import { Utils } from '../../../src/utils/utils';
 import { User } from '../../client/models/user';
 import { Kind } from 'graphql';
@@ -10,6 +10,8 @@ import { MockAuthenticationService } from '../../helper/mock-authentication-serv
 import { MockPostService } from '../../helper/mock-post-service';
 import { PostGenerator } from '../../helper/post-generator';
 import { Post } from '../../client/models/post';
+import { AuthenticationService } from '../../../src/services/authentication-service';
+import { KeyValueCache } from '@apollo/utils.keyvaluecache';
 
 const FAKE_USER_ID = "this user doesn't exist";
 
@@ -31,12 +33,12 @@ describe('GraphQLServer (with MockPostService)', () => {
     pagePosts = PostGenerator.generateSortedPostPages();
     maxPostCount = PostGenerator.getPostCount(pagePosts);
     const authenticationService = new MockAuthenticationService(() => Promise.resolve(Utils.generateRandomId(20)));
-    const postService = new MockPostService({ authenticationService }, baseUrl, pageCount, pagePosts);
-    const server = new ApolloServer<GraphQLContextEx>(graphQLOptions);
+    const postService = new MockPostService(baseUrl, authenticationService, undefined, pageCount, pagePosts);
+    const server = new ApolloServer<GraphQLContext>(GRAPHQL_OPTIONS);
     const executionOptions = {
       contextValue: {
         authenticationService,
-        postServiceProvider: (ctx: GraphQLContextEx) => postService,
+        postServiceProvider: (authenticationService: AuthenticationService, cache?: KeyValueCache) => postService,
         cache: server.cache,
       },
     };
@@ -150,7 +152,7 @@ describe('GraphQLServer (with MockPostService)', () => {
 });
 
 test('Test custom scalar resolvers', () => {
-  const dateScalarDefinition = graphQLOptions.resolvers.Date;
+  const dateScalarDefinition = GRAPHQL_OPTIONS.resolvers.Date;
   const date = new Date();
   const dateValue = date.valueOf();
 

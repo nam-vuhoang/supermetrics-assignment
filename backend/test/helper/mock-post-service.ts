@@ -1,6 +1,7 @@
+import { KeyValueCache } from '@apollo/utils.keyvaluecache';
 import { GraphQLError } from 'graphql';
 import { StatusCodes } from 'http-status-codes';
-import { GraphQLContext } from '../../src/graphql/graphql-context';
+import { AuthenticationService } from '../../src/services/authentication-service';
 import { PostService, RawPostData } from '../../src/services/post-service';
 import { Post } from '../client/models/post';
 import { MockAuthenticationService } from './mock-authentication-service';
@@ -11,15 +12,16 @@ export class MockPostService extends PostService {
   public mockAuthenticationService?: MockAuthenticationService;
 
   constructor(
-    context: GraphQLContext,
-    public baseURL: string,
+    baseURL: string,
+    authenticationService: AuthenticationService,
+    cache: KeyValueCache | undefined,
     pageCount: number,
     pages?: Post[][],
     private returnWrongPage?: boolean
   ) {
-    super(context, baseURL, pageCount);
-    if (context.authenticationService && context.authenticationService instanceof MockAuthenticationService) {
-      this.mockAuthenticationService = context.authenticationService;
+    super(baseURL, authenticationService, cache, pageCount);
+    if (authenticationService && authenticationService instanceof MockAuthenticationService) {
+      this.mockAuthenticationService = authenticationService;
     }
     this.pages = pages || PostGenerator.generatePostPages();
   }

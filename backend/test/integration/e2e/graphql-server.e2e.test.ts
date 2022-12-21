@@ -2,12 +2,13 @@ import { ApolloServer } from '@apollo/server';
 import { environment } from '../../../src/environment/environment';
 import { AuthenticationService } from '../../../src/services/authentication-service';
 import { PostService } from '../../../src/services/post-service';
-import { GraphQLContextEx } from '../../../src/graphql/graphql-context';
-import { graphQLOptions } from '../../../src/graphql/graphql-options';
+import { GraphQLContext } from '../../../src/graphql/graphql-context';
+import { GRAPHQL_OPTIONS } from '../../../src/graphql/graphql-options';
 import { Utils } from '../../../src/utils/utils';
 import { User } from '../../client/models/user';
 import { Kind } from 'graphql';
 import { MockGraphQLClient } from '../../helper/mock-graphql-client';
+import { KeyValueCache } from '@apollo/utils.keyvaluecache';
 
 const MAX_POST_COUNT = 1000;
 
@@ -24,12 +25,17 @@ describe('GraphQLServer (e2e test)', () => {
     expect(pageCount).toBeTruthy();
     expect(pageCount).not.toBeNaN();
 
-    const server = new ApolloServer<GraphQLContextEx>(graphQLOptions);
+    const server = new ApolloServer<GraphQLContext>(GRAPHQL_OPTIONS);
     const executionOptions = {
       contextValue: {
         authenticationService: new AuthenticationService(baseUrl, clientInfo),
-        postServiceProvider: (ctx: GraphQLContextEx) =>
-          new PostService(ctx, environment.dataServer.baseUrl, environment.dataServer.pageCount),
+        postServiceProvider: (authenticationService: AuthenticationService, cache?: KeyValueCache) =>
+          new PostService(
+            environment.dataServer.baseUrl,
+            authenticationService,
+            cache,
+            environment.dataServer.pageCount
+          ),
         cache: server.cache,
       },
     };
@@ -137,7 +143,7 @@ describe('GraphQLServer (e2e test)', () => {
 });
 
 test('Test custom scalar resolvers', () => {
-  const dateScalarDefinition = graphQLOptions.resolvers.Date;
+  const dateScalarDefinition = GRAPHQL_OPTIONS.resolvers.Date;
   const date = new Date();
   const dateValue = date.valueOf();
 

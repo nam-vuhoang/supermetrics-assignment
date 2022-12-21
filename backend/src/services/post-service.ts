@@ -1,5 +1,4 @@
 import { RESTDataSource } from '@apollo/datasource-rest';
-import { GraphQLContext } from '../graphql/graphql-context';
 import { Post } from '../models/post';
 import { HttpResponse } from '../models/http-response';
 import { logger } from '../utils/logger';
@@ -9,6 +8,8 @@ import { PostFilter } from '../models/post-filter';
 import { Blog } from '../models/blog';
 import { Utils } from '../utils/utils';
 import { User } from '../models/user';
+import { KeyValueCache } from '@apollo/utils.keyvaluecache';
+import { AuthenticationService } from './authentication-service';
 
 interface RawPost {
   id: string;
@@ -39,14 +40,17 @@ export class PostService extends RESTDataSource {
   static readonly REQUEST_PATH = 'posts';
   static readonly MAX_RETRY_COUNT_IF_UNAUTHORIZED = 5;
 
-  private context: GraphQLContext;
   private pageCount: number;
 
-  constructor(context: GraphQLContext, public baseURL: string, pageCount: number) {
-    super(context); // this sends our server's `cache` through
+  constructor(
+    public baseURL: string,
+    private authenticationService: AuthenticationService,
+    cache: KeyValueCache | undefined,
+    pageCount: number
+  ) {
+    super({ cache }); // this sends our server's `cache` through
     // cache get-request results
     this.memoizeGetRequests = true;
-    this.context = context;
     this.pageCount = pageCount;
   }
 
@@ -158,7 +162,7 @@ export class PostService extends RESTDataSource {
    * @returns
    */
   private async fetchRawData(pageNumber: string, retryCount: number = 0): Promise<RawPostData> {
-    return this.context.authenticationService
+    return this.authenticationService
       .getToken()
       .then((token) => this.internalFetchRawData(pageNumber, token))
       .catch((error: GraphQLError) => {
@@ -169,7 +173,7 @@ export class PostService extends RESTDataSource {
           logger.info('Re-fetching posts from page %d due to expired SL token', pageNumber);
 
           // notify authentication service about token expiration
-          this.context.authenticationService.notifyTokenExpired();
+          this.authenticationService.notifyTokenExpired();
 
           // retry again (without any filter)
           return this.fetchRawData(pageNumber, ++retryCount);

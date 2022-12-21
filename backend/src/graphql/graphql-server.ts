@@ -2,9 +2,10 @@ import { ApolloServer } from '@apollo/server';
 import { startStandaloneServer } from '@apollo/server/standalone';
 import { AuthenticationService } from '../services/authentication-service';
 import { environment } from '../environment/environment';
-import { GraphQLContextEx } from './graphql-context';
-import { graphQLOptions } from './graphql-options';
+import { GraphQLContext } from './graphql-context';
+import { GRAPHQL_OPTIONS } from './graphql-options';
 import { PostService } from '../services/post-service';
+import { KeyValueCache } from '@apollo/utils.keyvaluecache';
 
 export class GraphQLServer {
   private authenticationService: AuthenticationService;
@@ -19,13 +20,19 @@ export class GraphQLServer {
   async start(): Promise<{ url: string }> {
     // The ApolloServer constructor requires two parameters: your schema
     // definition and your set of resolvers.
-    const server = new ApolloServer<GraphQLContextEx>(graphQLOptions);
+    const server = new ApolloServer<GraphQLContext>(GRAPHQL_OPTIONS);
 
     return startStandaloneServer(server, {
       listen: { port: environment.graphqlServer.port },
       context: async ({ req }) => ({
         authenticationService: this.authenticationService,
-        postServiceProvider: (ctx) => new PostService(ctx, environment.dataServer.baseUrl, environment.dataServer.pageCount),
+        postServiceBuilder: (authenticationService: AuthenticationService, cache?: KeyValueCache) =>
+          new PostService(
+            environment.dataServer.baseUrl,
+            authenticationService,
+            cache,
+            environment.dataServer.pageCount
+          ),
         cache: server.cache,
       }),
     });

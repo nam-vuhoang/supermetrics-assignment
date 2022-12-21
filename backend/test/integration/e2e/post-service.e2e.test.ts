@@ -21,7 +21,7 @@ describe('PostService (e2e test)', () => {
     expect(pageCount).not.toBeNaN();
 
     authenticationService = new AuthenticationService(baseUrl, clientInfo);
-    postService = new PostService({ authenticationService }, baseUrl, pageCount);
+    postService = new PostService(baseUrl, authenticationService, undefined, pageCount);
     expect(postService.baseURL).toBe(baseUrl);
   });
 
@@ -110,7 +110,7 @@ describe('Class PostSerivce (with mock services)', () => {
       () => true, // expire now
       () => false // never reset
     );
-    const postService = new PostService({ authenticationService }, baseUrl, pageCount);
+    const postService = new PostService(baseUrl, authenticationService, undefined, pageCount);
 
     try {
       await postService.fetchPosts({ userId: FAKE_USER_ID });
@@ -131,7 +131,7 @@ describe('Class PostSerivce (with mock services)', () => {
     );
     expect(await authenticationService.getToken()).toStrictEqual(MockAuthenticationService.EXPIRED_TOKEN);
 
-    const postService = new PostService({ authenticationService }, baseUrl, pageCount);
+    const postService = new PostService(baseUrl, authenticationService, undefined, pageCount);
     expect(postService.baseURL).toStrictEqual(baseUrl);
 
     await postService.fetchPosts({ userId: FAKE_USER_ID });

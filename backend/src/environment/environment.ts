@@ -1,6 +1,9 @@
 import dotenv from 'dotenv';
 import { EnvironmentUtils } from '../utils/environment-utils';
 
+/**
+ * Load .env files and build a environment configuration object.
+ */
 function loadConfig() {
   dotenv.config();
   return {
@@ -19,4 +22,7 @@ function loadConfig() {
   };
 }
 
+/**
+ * Environment configuration params.
+ */
 export const environment = loadConfig();

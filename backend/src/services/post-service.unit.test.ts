@@ -26,7 +26,7 @@ describe('Class PostService (with MockAuthenticationService and MockPostService)
     pagePosts = PostGenerator.generateSortedPostPages();
     maxPostCount = PostGenerator.getPostCount(pagePosts);
     authenticationService = new MockAuthenticationService(() => Promise.resolve(Utils.generateRandomId(20)));
-    postService = new MockPostService({ authenticationService }, baseUrl, pageCount, pagePosts);
+    postService = new MockPostService(baseUrl, authenticationService, undefined, pageCount, pagePosts);
   });
 
   test('Fetch random blog with page and user filter ', async () => {
@@ -136,8 +136,9 @@ describe('Class PostSerivce (with expiration)', () => {
       () => false // never reset expiration
     );
     const postService = new MockPostService(
-      { authenticationService },
       baseUrl,
+      authenticationService,
+      undefined,
       pageCount,
       PostGenerator.generatePostPages()
     );
@@ -166,7 +167,7 @@ describe('Class PostSerivce (with expiration)', () => {
       (retryCountAfterExpired) => retryCountAfterExpired % 2 === 0 // reset next time
     );
 
-    const postService = new MockPostService({ authenticationService }, baseUrl, pageCount);
+    const postService = new MockPostService(baseUrl, authenticationService, undefined, pageCount);
 
     await postService.fetchPosts({ userId: FAKE_USER_ID });
     expect(authenticationService.retryCountAfterExpired).toBe(pageCount * 2);
@@ -186,8 +187,9 @@ describe('Class PostSerivce (with wrong page)', () => {
   test('When wrong page is returned', async () => {
     const authenticationService = new MockAuthenticationService(() => Promise.resolve(Utils.generateRandomId(20)));
     const postService = new MockPostService(
-      { authenticationService },
       baseUrl,
+      authenticationService,
+      undefined,
       pageCount,
       PostGenerator.generatePostPages(),
       true // return wrong page index
@@ -211,8 +213,9 @@ describe('Class PostSerivce (with wrong page)', () => {
   test('When wrong page index was requested', async () => {
     const authenticationService = new MockAuthenticationService(() => Promise.resolve(Utils.generateRandomId(20)));
     const postService = new MockPostService(
-      { authenticationService },
       baseUrl,
+      authenticationService,
+      undefined,
       pageCount,
       PostGenerator.generatePostPages()
     );
@@ -231,8 +234,9 @@ describe('Class PostSerivce (with wrong page)', () => {
   test('When wrong page size was requested', async () => {
     const authenticationService = new MockAuthenticationService(() => Promise.resolve(Utils.generateRandomId(20)));
     const postService = new MockPostService(
-      { authenticationService },
       baseUrl,
+      authenticationService,
+      undefined,
       pageCount,
       PostGenerator.generatePostPages()
     );
