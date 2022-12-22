@@ -322,12 +322,12 @@ As mentioned, I have done the unit test mainly for the backend layer. Below is t
 
 
 <figure>
-<img src="./docs/unit-test-coverage-1.png" />
+<img src="./docs/unit-test-report-1.png" />
 <figcaption align="center"><b>Unit test coverage report #1.</b></figcaption>
 </figure>
 
 <figure>
-<img src="./docs/unit-test-coverage-2.png" />
+<img src="./docs/unit-test-report-2.png" />
 <figcaption align="center"><b>Unit test coverage report #2.</b></figcaption>
 </figure>
 
