@@ -337,6 +337,7 @@ Therefore, I used the *static-site generation* (SSG) approach for this page. It 
 <img src="./docs/frontend-ui-dashboard-1.png" />
 <figcaption align="center"><b>The dashboard page for all users.</b></figcaption>
 </figure>
+<br/>
 
 <figure>
 <img src="./docs/frontend-ui-dashboard-2.png" />
@@ -354,10 +355,20 @@ As mentioned, I have done the unit test mainly for the backend layer. Below is t
 <img src="./docs/unit-test-report-1.png" />
 <figcaption align="center"><b>Unit test coverage report #1.</b></figcaption>
 </figure>
+<br/>
 
 <figure>
 <img src="./docs/unit-test-report-2.png" />
 <figcaption align="center"><b>Unit test coverage report #2.</b></figcaption>
 </figure>
+
+## And last, but not least...
+
+
+<figure>
+<center><img src="./docs/merry-christmas.png" /></center>
+<figcaption align="center"><b>Merry Christmas and Happy New Year to you!!!</b></figcaption>
+</figure>
+
 
 
