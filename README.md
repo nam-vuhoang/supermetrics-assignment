@@ -57,9 +57,8 @@ In this section, I explain how I analyzed the problem requirements and made the 
 4.	Security:
     - Due to lack of time, authentication and authorization for the frontend and backend were not implemented. Hopefully, this is acceptable for this demo project.
     - I assume that the popular frameworks such as **Next.js** or **Apollo Server** are reliable enough and do not have serious vulnerabilities.
-5.	Testing:
-    - Unit test: On the one hand, the test coverage for the backend is almost 100%. On the other hand, I implemented only a few unit tests for the frontend because two reasons. First, its business logic classes were copied from similar backend test cases. Second, I don’t have experience with writing automatic tests for React yet.
-    - Test environment: I am aware that testing in the *production* environment is important for real projects, especially because **Next.js** behaves differently in the *development* and *production* environments. However, I tested the application only in the *development* environment. Hopefully, this fact can be accepted here.
+5.	Unit test:
+    - On the one hand, the test coverage for the backend is almost 100%. On the other hand, I implemented only a few unit tests for the frontend because two reasons. First, its business logic classes were copied from similar backend test cases. Second, I don’t have experience with writing automatic tests for React yet.
 
 
 
