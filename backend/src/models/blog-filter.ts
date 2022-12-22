@@ -16,7 +16,7 @@ export interface BlogFilter {
 
   /**
    * Flag indicatiing whether to sort blog posts by created time in a ASC order (if true), or DESC order (if false or undefined).
-   * Defaults to false when page filter in defined.
+sort   * Defaults to false when page filter in defined.
    */
   sortByCreatedTimeAsc?: boolean;
 }

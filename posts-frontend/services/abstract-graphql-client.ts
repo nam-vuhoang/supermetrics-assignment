@@ -82,7 +82,7 @@ export abstract class AbstractGraphQLClient {
   async fetchUserIds(): Promise<string[]> {
     logger.debug('[GraphQL] Fetching user IDs...');
     const query = gql`
-      query FetchUsers {
+      query fetchUserIds {
         users {
           userId
           userName
@@ -104,7 +104,7 @@ export abstract class AbstractGraphQLClient {
   async fetchFullStats(filter?: { userId?: string }): Promise<User[]> {
     logger.debug(`[GraphQL] Fetching full stats for filter ${filter}...`);
     const query = gql`
-      query fetchLongestPost($userId: ID) {
+      query fetchFullStats($userId: ID) {
         blog(filter: { userId: $userId }) {
           authors {
             userId

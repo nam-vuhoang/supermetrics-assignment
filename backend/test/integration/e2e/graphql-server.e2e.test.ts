@@ -5,6 +5,7 @@ import { MockGraphQLClient } from '../../helper/mock-graphql-client';
 import { GraphQLServer } from '../../../src/graphql/graphql-server';
 
 const MAX_POST_COUNT = 1000;
+const MAX_TIMEOUT = 60000; // 60 secs
 
 /**
  * Tests end-to-end chain: MockGraphQLClient >> GraphQLServer >> (AuthenticationService+PostService)
@@ -29,11 +30,15 @@ describe('GraphQLServer (e2e test)', () => {
   });
 
   beforeEach(() => {
-    jest.setTimeout(60000);
+    jest.setTimeout(MAX_TIMEOUT);
   });
 
   describe('Fetch posts', () => {
-    test('fetch random page', async () => {
+    beforeEach(() => {
+      jest.setTimeout(MAX_TIMEOUT);
+    });
+  
+      test('fetch random page', async () => {
       for (let i = 0; i < 5; ++i) {
         // filter with user ID every second test
         const userId = undefined;
@@ -77,7 +82,11 @@ describe('GraphQLServer (e2e test)', () => {
   });
 
   describe('Fetch users', () => {
-    test('fetch all user stats', async () => {
+    beforeEach(() => {
+      jest.setTimeout(MAX_TIMEOUT);
+    });
+  
+      test('fetch all user stats', async () => {
       const users: User[] = await graphqlClient.fetchFullStats();
       expect(users.length).toBeGreaterThan(0);
 
