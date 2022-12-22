@@ -4,7 +4,7 @@
 
 This is my first ever project with the development of a **React**-based frontend and **Node.js** backend. Because during the last few years I mainly developed frontend with **Angular+TypeScript** and backend with **Java**. It took one week for me to catch up with all the new things for me together: **React**, **Next.js** (including its new experimental version), **SWR**, **Node.js**, **Express**, **Jest**, **Apollo**, etc. I had to learn a new way of thinking, innovative features and unexpected pitfalls of these technologies. Although during the last weeks I faced many other issues like the long sickness of my family members and me, and urgent tasks at work, I very much enjoyed this study journey! 
 
-So, I would like to say big thanks to SuperMetrics for giving me the motivation to learn such interesting technologies! I would be very appreciative to get feedback from you, no matter whether it will be positive or negative. Because my main goal is not just to do this coding assignment, but to gather new knowledge that could benefit my future projects and career path. Therefore, if possible, please share openly your thoughts about my programming skills, and my knowledge of TypeScript, React, Next.js, Node.js, Jest, Apollo Server, etc.
+So, I would like to say big thanks to **SuperMetrics** for giving me the motivation to learn such interesting technologies! I would be very appreciative to get feedback from you, no matter whether it will be positive or negative. Because my main goal is not just to do this coding assignment, but to gather new knowledge that could benefit my future projects and career path. Therefore, if possible, please share openly your thoughts about my programming skills, and my knowledge of TypeScript, React, Next.js, Node.js, Jest, Apollo Server, etc.
 
 In this document, I would like to describe briefly how I handle different aspects of the software development process. Hopefully, this will give you some picture of how well I can fit the job position at your company and be a member of your development team!
 
@@ -19,12 +19,12 @@ cd supermetrics-assignment
 ```
 
 
-2. Install pino-pretty (if needed):
+2. Install ``pino-pretty`` (this tool is for pretty printing of logs):
 ```bash
 npm install -g pino-pretty
 ```
 
-3. Install and start the backend:
+3. Install and start the backend (located in folder ``backend``):
 ```bash
 cd backend
 npm install
@@ -32,7 +32,7 @@ npm run start
 
 ```
 
-4. Install and start the frontend:
+4. Install and start the frontend (located in folder ``posts-frontend``):
 ```bash
 cd posts-frontend
 npm install
@@ -85,7 +85,7 @@ The assignment requires building the backend with **Node.js+TypeScript** and the
 
 ## High-level design
 
-As can be seen in the picture below, the application consists of three layers: the *frontend* is a **Next.js** application, the *backend* is a **Node.js** application (*backend*), and the *data source layer* is the REST API provided by SuperMetrics.
+As can be seen in the picture below, the application consists of three layers: the *frontend* is a **Next.js** application, the *backend* is a **Node.js** application (*backend*), and the *data source layer* is the REST API provided by **SuperMetrics**.
 
 The backend's ***GraphQLServer*** provides a GraphQL endpoint that can be used by the frontend's ***GraphQLClient***. Whenever the  ***GraphQLServer*** receives a request from the ***GraphQLClient***, it triggers the ***PostService*** to fetch necessary data from the REST API. 
 
@@ -294,7 +294,7 @@ The backend's class diagram below looks a bit more complicated than the previous
 
 After receiving the original posts, the ***PostService*** sends the posts and the original ***PageFilter*** to the static method ***Blog.createBlog***(). This method only filters and sorts the necessary data. It also stores the size of all posts before pagination in the field ***Blog.totalPostCount*** which is later will be used by the frontend to display the page number.
 
-Because not always clients need information about the Blog author list and their statistics, some original domain model fields were replaced with functions to facilitate lazy loading, such as ***Blog.authors***(), ***User.stats***().
+Because not always clients need information about the Blog author list and their statistics, some original domain model fields were replaced with functions such as ***Blog.authors***(), ***User.stats***() to enable lazy loading. **Apollo Server**'s resolvers can automatically detect whether an object field is a value or a function. In the latter case, **Apollo Server**'s resolvers will call the function to get the value.
 
 
 ![Backend class diagram](./docs/Backend.jpg)
