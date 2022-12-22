@@ -36,7 +36,7 @@ npm run start
 ```bash
 cd posts-frontend
 npm install
-npm run dev
+npm run build
 npm run start
 
 ```
