@@ -10,6 +10,36 @@ In this document, I would like to describe briefly how I handle different aspect
 
 
 ## Installation guideline
+1. Clone the repository:
+
+```bash
+git clone https://github.com/nam-vuhoang/supermetrics-assignment.git
+cd supermetrics-assignment
+
+```
+
+
+2. Install pino-pretty:
+```bash
+npm install -g pino-pretty
+```
+
+3. Install and start the backend:
+```bash
+cd backend
+npm install
+npm run start
+
+```
+
+4. Install and start the frontend:
+```bash
+cd posts-frontend
+npm install
+npm run dev
+npm run start
+
+```
 
 
 ## Requirement analysis and assumptions
