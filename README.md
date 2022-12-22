@@ -19,7 +19,7 @@ cd supermetrics-assignment
 ```
 
 
-2. Install pino-pretty:
+2. Install pino-pretty (if needed):
 ```bash
 npm install -g pino-pretty
 ```
@@ -321,7 +321,7 @@ Because users want to navigate between pages quickly while the page template rem
 
 
 <figure>
-<img src="./docs/frontend-ui-blog-1.png" />
+<img src="./docs/frontend-ui-blog-2.png" />
 <figcaption align="center"><b>A blog page of a single user.</b></figcaption>
 </figure>
 
