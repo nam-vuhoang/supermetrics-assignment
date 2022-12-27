@@ -351,7 +351,7 @@ Therefore, I used the *static-site generation* (SSG) approach for this page. It 
 As mentioned, I have done the unit test mainly for the backend application because most of the business logic units in the frontend application duplicate similar files of the backend. 
 
 ### Integration test cases
-In addition to a unit test cases for utility classes located in ``src/utils/*.unit.test.ts``, there is a list of integration test cases described below:
+In addition to unit test cases for utility classes located in ``src/utils/*.unit.test.ts``, there is a list of integration test cases described below:
 
 | Test case description | Test file | Test chain |
 | --- | --- | --- |
@@ -361,7 +361,8 @@ In addition to a unit test cases for utility classes located in ``src/utils/*.un
 | Test ``PostService`` | ``test/integration/e2e/post-service.e2e.test.ts`` | [``AuthenticationService`` + ``PostService``] >> Data Server API.|
 | Test ``GraphQLServer`` | ``test/integration/e2e./graphql-server.e2e.test.ts`` | ``MockGraphQLClient`` >> ``GraphQLServer`` >> [``AuthenticationService`` + ``PostService``] >> Data Server API.
  
- [^1] With the input vs output data comparison.
+ [^1]: With the input vs output data comparison.
+ 
 
  ### Test coverage
 
