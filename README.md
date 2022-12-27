@@ -4,7 +4,7 @@
 
 This is my first ever project with the development of a **React**-based frontend and **Node.js** backend. Because during the last few years I mainly developed frontend with **Angular+TypeScript** and backend with **Java**. It took one week for me to catch up with all the new things for me together: **React**, **Next.js** (including its new experimental version), **SWR**, **Node.js**, **Express**, **Jest**, **Apollo**, etc. I had to learn a new way of thinking, innovative features and unexpected pitfalls of these technologies. Although during the last weeks I faced many other issues like the long sickness of my family members and me, and urgent tasks at work, I very much enjoyed this study journey! 
 
-So, I would like to say big thanks to **SuperMetrics** for giving me the motivation to learn such interesting technologies! I would be very appreciative to get feedback from you, no matter whether it will be positive or negative. Because my main goal is not just to do this coding assignment, but to gather new knowledge that could benefit my future projects and career path. Therefore, if possible, please share openly your thoughts about my programming skills, and my knowledge of TypeScript, React, Next.js, Node.js, Jest, Apollo Server, etc.
+So, I would like to say big thanks to **SuperMetrics** for giving me the motivation to learn such interesting technologies! I would be very appreciative to get feedback from you, no matter whether it will be positive or negative. Because my main goal is not just to do this coding assignment, but to gather new knowledge that could benefit my future projects and career path. Therefore, if possible, please share openly your thoughts about my programming skills, and my knowledge of **TypeScript**, **React**, **Next.js**, **Node.js**, **Jest**, **Apollo Server**, etc.
 
 In this document, I would like to describe briefly how I handle different aspects of the software development process. Hopefully, this will give you some picture of how well I can fit the job position at your company and be a member of your development team!
 
@@ -87,16 +87,16 @@ The assignment requires building the backend with **Node.js+TypeScript** and the
 
 As can be seen in the picture below, the application consists of three layers: the *frontend* is a **Next.js** application, the *backend* is a **Node.js** application (*backend*), and the *data source layer* is the REST API provided by **SuperMetrics**.
 
-The backend's ***GraphQLServer*** provides a GraphQL endpoint that can be used by the frontend's ***GraphQLClient***. Whenever the  ***GraphQLServer*** receives a request from the ***GraphQLClient***, it triggers the ***PostService*** to fetch necessary data from the REST API. 
+The backend's ``GraphQLServer`` provides a GraphQL endpoint that can be used by the frontend's ``GraphQLClient``. Whenever the  ``GraphQLServer`` receives a request from the ``GraphQLClient``, it triggers the ``PostService`` to fetch necessary data from the REST API. 
 
 
 ![High-level design diagram](./docs/Component%20Diagram1.jpg)
 
 
 
-## Domain model and frontend class diagram
+## Frontend class diagram
 
-Below is the frontend's class diagram. The orange classes represent the domain model. 
+Below is the frontend's class diagram. The orange classes represent the Domain Model. 
 
 ![Front class diagram](./docs/Frontend.jpg)
 
@@ -106,126 +106,126 @@ Below is the frontend's class diagram. The orange classes represent the domain m
 Based on the previous domain model and all use cases, I defined the following GraphQL schema: 
 
 ```GraphQL
-  type Query {
-    # Get blog with page and user filters
-    blog(filter: BlogFilter): Blog
+type Query {
+  # Get blog with page and user filters
+  blog(filter: BlogFilter): Blog
 
-    # Get the list of users WITHOUT stats data.
-    # This gives similar result to query { blog { authors {...} }}, but works faster
-    # thanks to avoiding unnecessary calculation.
-    users: [User!]!
-  }
+  # Get the list of users WITHOUT stats data.
+  # This gives similar result to query { blog { authors {...} }}, but works faster
+  # thanks to avoiding unnecessary calculation.
+  users: [User!]!
+}
 
-  # Collection of posts and post authors
-  type Blog {
-    # Equivalent to posts.length. This is needed when only size is request, but the post items are not needed.
-    size: Int!
+# Collection of posts and post authors
+type Blog {
+  # Equivalent to posts.length. This is needed when only size is request, but the post items are not needed.
+  size: Int!
 
-    # The blog posts
-    posts: [Post!]!
+  # The blog posts
+  posts: [Post!]!
 
-    # The list of post authors
-    authors: [User!]!
+  # The list of post authors
+  authors: [User!]!
 
-    # The original post count BEFORE pagination.
-    # This number is needed to calculate the page number.
-    totalPostCount: Int!
-  }
+  # The original post count BEFORE pagination.
+  # This number is needed to calculate the page number.
+  totalPostCount: Int!
+}
 
-  # A single post
-  type Post {
+# A single post
+type Post {
 
-    # Post ID
-    id: ID!
+  # Post ID
+  id: ID!
 
-    # User ID
-    userId: ID!
+  # User ID
+  userId: ID!
 
-    # User full name
-    userName: String!
+  # User full name
+  userName: String!
 
-    # Message content
-    message: String!
+  # Message content
+  message: String!
 
-    # Post type
-    type: String!
+  # Post type
+  type: String!
 
-    # Created time.
-    createdTime: Date!
-  }
+  # Created time.
+  createdTime: Date!
+}
 
-  # A user and his statistics
-  type User {
-    # User ID
-    userId: ID!
+# A user and his statistics
+type User {
+  # User ID
+  userId: ID!
 
-    # User name
-    userName: String!
+  # User name
+  userName: String!
 
-    # User statistics. Note that query { users {...}} doesn't return user stats.
-    # To fetch full stats data, use query { blog { authors {...}}}.
-    stats: UserStats
-  }
+  # User statistics. Note that query { users {...}} doesn't return user stats.
+  # To fetch full stats data, use query { blog { authors {...}}}.
+  stats: UserStats
+}
 
-  # User statistics
-  type UserStats {
+# User statistics
+type UserStats {
 
-    # Total number of posts
-    totalCount: Int!
+  # Total number of posts
+  totalCount: Int!
 
-    # Min length of posts
-    minLength: Int!
+  # Min length of posts
+  minLength: Int!
 
-    # Average length of posts
-    averageLength: Float!
+  # Average length of posts
+  averageLength: Float!
 
-    # Max length of posts
-    maxLength: Int!
-
-    # Posting frequency by month
-    frequencies: [Frequency!]!
-
-    # Collection of longest posts
-    longestPosts: [Post!]!
-  }
+  # Max length of posts
+  maxLength: Int!
 
   # Posting frequency by month
-  type Frequency {
-    # The first date of month
-    month: Date!
+  frequencies: [Frequency!]!
 
-    # The number of posts of user in the month
-    count: Int!
-  }
+  # Collection of longest posts
+  longestPosts: [Post!]!
+}
 
-  # Blog filter, used for query { blog (filter: {...}){ })}
-  input BlogFilter {
+# Posting frequency by month
+type Frequency {
+  # The first date of month
+  month: Date!
 
-    # User filter, can be null
-    userId: ID
+  # The number of posts of user in the month
+  count: Int!
+}
 
-    # Page filter, can be null
-    page: PageFilter
+# Blog filter, used for query { blog (filter: {...}){ })}
+input BlogFilter {
 
-    # Sorting by created time. Default is false.
-    sortByCreatedTimeAsc: Boolean
-  }
+  # User filter, can be null
+  userId: ID
 
-  # Page filter
-  input PageFilter {
-    # Zero-based page index
-    index: Int!
+  # Page filter, can be null
+  page: PageFilter
 
-    # Non-zero page size
-    size: Int!
-  }
+  # Sorting by created time. Default is false.
+  sortByCreatedTimeAsc: Boolean
+}
 
-  # The date time type. Serialized using Unix time stamp (number of seconds since 1.1.1970 UTC)  .
-  scalar Date
+# Page filter
+input PageFilter {
+  # Zero-based page index
+  index: Int!
+
+  # Non-zero page size
+  size: Int!
+}
+
+# The date time type. Serialized using Unix time stamp (number of seconds since 1.1.1970 UTC)  .
+scalar Date
 ```
 
 
-There are three requests used by the frontend's ***GraphQLClient*** for fetching data:
+There are three requests used by the frontend's ``GraphQLClient`` for fetching data:
 
 ```GraphQL
 # Fetch some posts of all or one single user.
@@ -290,11 +290,11 @@ query fetchUserIds {
 
 ## Backend class diagram
 
-The backend's class diagram below looks a bit more complicated than the previous one. In particular, there are a few business-logic classes. ***GraphQLServer***, ***GraphQLContext***, ***ApolloServer*** are used for resolving GraphQL requests. Every time the ***PostService*** is requesed to fetch data, it sends 10 concurrent requests to the REST API to reduce the waiting time. Each request should include a short-lived token provided by the ***AuthService***. To avoid duplicated registration via REST API the ***AuthService*** stores and reuses only one short-lived token until one of the concurrent fetching data processes notifies it about the token expiration. Because many expiration notifications can be sent from concurrent processes in a short period, some of these notifications can arrive after the new token has been already received, the ***AuthService*** sets a minimum expiration period after renewing token, during which it ignores all expiration notifications. 
+The backend's class diagram below looks a bit more complicated than the previous one. In particular, there are a few business-logic classes. ``GraphQLServer``, ``GraphQLContext``, ``ApolloServer`` are used for resolving GraphQL requests. Every time the ``PostService`` is requesed to fetch data, it sends 10 concurrent requests to the REST API to reduce the waiting time. Each request should include a short-lived token provided by the ``AuthService``. To avoid duplicated registration via REST API the ``AuthService`` stores and reuses only one short-lived token until one of the concurrent fetching data processes notifies it about the token expiration. Because many expiration notifications can be sent from concurrent processes in a short period, some of these notifications can arrive after the new token has been already received, the ``AuthService`` sets a minimum expiration period after renewing token, during which it ignores all expiration notifications. 
 
-After receiving the original posts, the ***PostService*** sends the posts and the original ***PageFilter*** to the static method ***Blog.createBlog***(). This method only filters and sorts the necessary data. It also stores the size of all posts before pagination in the field ***Blog.totalPostCount*** which is later will be used by the frontend to display the page number.
+After receiving the original posts, the ``PostService`` sends the posts and the original ``PageFilter`` to the static method ``Blog.createBlog()``. This method only filters and sorts the necessary data. It also stores the size of all posts before pagination in the field ``Blog.totalPostCount`` which is later will be used by the frontend to display the page number.
 
-Because not always clients need information about the Blog author list and their statistics, some original domain model fields were replaced with functions such as ***Blog.authors***(), ***User.stats***() to enable lazy loading. **Apollo Server**'s resolvers can automatically detect whether an object field is a value or a function. In the latter case, **Apollo Server**'s resolvers will call the function to get the value.
+Because not always clients need information about the Blog author list and their statistics, some original domain model fields were replaced with functions such as ``Blog.authors()``, ``User.stats()`` to enable lazy loading. ``ApolloServer``'s resolvers can automatically detect whether an object field is a value or a function. In the latter case, ``ApolloServer``'s resolvers will call the function to get the value.
 
 
 ![Backend class diagram](./docs/Backend.jpg)
@@ -330,7 +330,7 @@ Because users want to navigate between pages quickly while the page template rem
 
 The Dashboard page has two very different views: the pivot table with statistics for all users (see Figure 3) and the dashboard for a single user Figure 4). However, when someone opens the dashboard, he wants to switch quickly between dashboard pages without delay. The good thing is that these statistical data can be calculated and requested from backend all together in one ***query fetchFullStats*** (see above).  Moreover, this is the most optimal way because it avoids the duplication of fetching filtering and calculating data.
 
-Therefore, I used the *static-site generation* (SSG) approach for this page. It involves two specific **Next.js** methods: ***getStaticPaths()*** and ***getStaticProps()***. The first fetchs all user IDs and the seconds fetchs all the statistical data.
+Therefore, I used the *static-site generation* (SSG) approach for this page. It involves two specific **Next.js** methods: ``getStaticPaths()`` and ``getStaticProps()``. The first fetchs all user IDs and the seconds fetchs all the statistical data.
 
 
 <figure>
@@ -348,8 +348,24 @@ Therefore, I used the *static-site generation* (SSG) approach for this page. It 
 
 
 ## Unit test
-As mentioned, I have done the unit test mainly for the backend layer. Below is the unit test coverage report.
+As mentioned, I have done the unit test mainly for the backend application because most of the business logic units in the frontend application duplicate similar files of the backend. 
 
+### Integration test cases
+In addition to a unit test cases for utility classes located in ``src/utils/*.unit.test.ts``, there is a list of integration test cases described below:
+
+| Test case description | Test file | Test chain |
+| --- | --- | --- |
+| Test ``PostService``: a) with mocked auth service; b) with mocked data source^1^ | ``src/services/post-service.unit.test.ts`` | ``MockPostService`` (mock data source) >> ``MockAuthenticationService`` (mock token validation). |
+| Test ``GraphQLServer``: with mocked client and data service^1^ | ``test/integration/mock/graphql-server.int.test.ts`` | ``MockGraphQLClient`` >> ``GraphQLServer`` >> [``MockAuthenticationService`` + ``MockPostService``].
+| Test ``AuthenticationService`` | ``src/services/authentication-service.unit.test.ts`` | ``AuthenticationService`` >> Data Server API. |
+| Test ``PostService`` | ``test/integration/e2e/post-service.e2e.test.ts`` | [``AuthenticationService`` + ``PostService``] >> Data Server API.|
+| Test ``GraphQLServer`` | ``test/integration/e2e./graphql-server.e2e.test.ts`` | ``MockGraphQLClient`` >> ``GraphQLServer`` >> [``AuthenticationService`` + ``PostService``] >> Data Server API.
+ 
+ ^1^ With the input vs output data comparison.
+
+ ### Test coverage
+
+Below is the test coverage report generated by **Jest**.
 
 <figure>
 <img src="./docs/unit-test-report-1.png" />
