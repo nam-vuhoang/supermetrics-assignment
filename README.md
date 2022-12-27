@@ -355,13 +355,13 @@ In addition to a unit test cases for utility classes located in ``src/utils/*.un
 
 | Test case description | Test file | Test chain |
 | --- | --- | --- |
-| Test ``PostService``: a) with mocked auth service; b) with mocked data source^1^ | ``src/services/post-service.unit.test.ts`` | ``MockPostService`` (mock data source) >> ``MockAuthenticationService`` (mock token validation). |
-| Test ``GraphQLServer``: with mocked client and data service^1^ | ``test/integration/mock/graphql-server.int.test.ts`` | ``MockGraphQLClient`` >> ``GraphQLServer`` >> [``MockAuthenticationService`` + ``MockPostService``].
+| Test ``PostService``: a) with mocked auth service; b) with mocked data source[^1] | ``src/services/post-service.unit.test.ts`` | ``MockPostService`` (mock data source) >> ``MockAuthenticationService`` (mock token validation). |
+| Test ``GraphQLServer``: with mocked client and data service[^1] | ``test/integration/mock/graphql-server.int.test.ts`` | ``MockGraphQLClient`` >> ``GraphQLServer`` >> [``MockAuthenticationService`` + ``MockPostService``].
 | Test ``AuthenticationService`` | ``src/services/authentication-service.unit.test.ts`` | ``AuthenticationService`` >> Data Server API. |
 | Test ``PostService`` | ``test/integration/e2e/post-service.e2e.test.ts`` | [``AuthenticationService`` + ``PostService``] >> Data Server API.|
 | Test ``GraphQLServer`` | ``test/integration/e2e./graphql-server.e2e.test.ts`` | ``MockGraphQLClient`` >> ``GraphQLServer`` >> [``AuthenticationService`` + ``PostService``] >> Data Server API.
  
- ^1^ With the input vs output data comparison.
+ [^1] With the input vs output data comparison.
 
  ### Test coverage
 
