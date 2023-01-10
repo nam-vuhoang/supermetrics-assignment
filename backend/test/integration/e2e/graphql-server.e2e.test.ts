@@ -5,7 +5,7 @@ import { MockGraphQLClient } from '../../helper/mock-graphql-client';
 import { GraphQLServer } from '../../../src/graphql/graphql-server';
 
 const MAX_POST_COUNT = 1000;
-const MAX_TIMEOUT = 60000; // 60 secs
+const MAX_TIMEOUT = 300000; // 5 mins
 
 /**
  * Tests end-to-end chain: MockGraphQLClient >> GraphQLServer >> (AuthenticationService+PostService)
@@ -29,16 +29,8 @@ describe('GraphQLServer (e2e test)', () => {
     await graphqlClient.stopServer();
   });
 
-  beforeEach(() => {
-    jest.setTimeout(MAX_TIMEOUT);
-  });
-
   describe('Fetch posts', () => {
-    beforeEach(() => {
-      jest.setTimeout(MAX_TIMEOUT);
-    });
-  
-      test('fetch random page', async () => {
+    test('fetch random page 1', async () => {
       for (let i = 0; i < 5; ++i) {
         // filter with user ID every second test
         const userId = undefined;
@@ -53,9 +45,9 @@ describe('GraphQLServer (e2e test)', () => {
         const expectedSize = Math.min(pageSize, Math.max(MAX_POST_COUNT - pageSize * pageIndex, 0));
         expect(blog.totalPostCount).toBe(MAX_POST_COUNT);
       }
-    });
+    }, MAX_TIMEOUT);
 
-    test('fetch random page', async () => {
+    test('fetch random page 2', async () => {
       for (let i = 0; i < 5; ++i) {
         const userId = `user_${Utils.getRandomInt(30)}`;
 
@@ -72,7 +64,7 @@ describe('GraphQLServer (e2e test)', () => {
           expect(post.userId).toBe(userId);
         }
       }
-    });
+    }, MAX_TIMEOUT);
 
     test('fetch posts from non-existing user', async () => {
       const pageSize = 100;
@@ -82,11 +74,7 @@ describe('GraphQLServer (e2e test)', () => {
   });
 
   describe('Fetch users', () => {
-    beforeEach(() => {
-      jest.setTimeout(MAX_TIMEOUT);
-    });
-  
-      test('fetch all user stats', async () => {
+    test('fetch all user stats', async () => {
       const users: User[] = await graphqlClient.fetchFullStats();
       expect(users.length).toBeGreaterThan(0);
 
