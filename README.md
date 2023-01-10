@@ -44,6 +44,7 @@ npm run start
 
 ## Requirement analysis and assumptions
 According to the standard software development process, after analyzing the problem requirements, the development team and the client (or the product owner in an Agile process) usually make a list of assumptions to constrain the functional and non-functional scope of the software product. However, because this assignment is for evaluating my coding skills, not for real use, I had to define the product scope by myself. 
+
 In this section, I explain how I analyzed the problem requirements and made the technical and non-technical assumptions. 
 
 1.	UI pages:
@@ -51,13 +52,16 @@ In this section, I explain how I analyzed the problem requirements and made the 
     - Furthermore, I added some nice visualization features to enhance the user experience and facilitate navigation between the pages, such as expandable short post messages, helpful tooltips, navigation between sibling pages without refreshing, and so on.
 2.	Fetching and caching data:
     - The data server returns 10 pages with 100 posts per page. These posts are unordered and can be updated (added/deleted/modified) at any time. So, the only way to get up-to-date posts is to fetch all 10 pages when needed. Thanks to the small number and small size of the pages, this is not a big issue.
-    - However, because the posts are not updated frequently and users do require to see new posts and new statistical data immediately, some delay of a few seconds or minutes is allowed. Therefore, it is reasonable to use some caching mechanisms with periodical data revalidation. In particular, I set the silent data refreshing interval to 1 minute for the blog page, and 5 minutes for the dashboard page. In the backend, I also use some mechanisms for caching and de-duplicating concurrent outgoing GET requests. 
-3.	Date time zone:
-    - Currently, the field ***created_time*** in the original posts from the data server always uses the UTC zone. Therefore, I also use this time zone both for displaying time in the UI and for calculating the frequency statistics.
-4.	Security:
+    - However, taking into account the fact that the posts are not updated frequently and users do not require seeing new posts and new statistical data immediately, some delay of a few seconds or minutes is allowed. Therefore, it is reasonable to use some caching mechanisms with periodical data revalidation. In particular, I set the silent data refreshing interval to 1 minute for the blog page, and 5 minutes for the dashboard page. In the backend, I also use some mechanisms for caching and de-duplicating concurrent outgoing GET requests (see below). 
+3.  Sorting data:
+    - All posts on the blog page are sorted by creation time from newest to oldest. If needed, it is possible to add other sorting features to the frontend. 
+    - All users on the dashboard page are sorted by their full names in alphabet order.
+4.	Date time zone:
+    - Currently, the field ``created_time`` in the original posts from the data server always uses the UTC zone. Therefore, I also use this time zone both for displaying time in the UI and for calculating the frequency statistics.
+5.	Security:
     - Due to lack of time, authentication and authorization for the frontend and backend were not implemented. Hopefully, this is acceptable for this demo project.
     - I assume that the popular frameworks such as **Next.js** or **Apollo Server** are reliable enough and do not have serious vulnerabilities.
-5.	Unit test:
+6.	Unit test:
     - On the one hand, the test coverage for the backend is almost 100%. On the other hand, I implemented only a few unit tests for the frontend because two reasons. First, its business logic classes were copied from similar backend test cases. Second, I don’t have experience with writing automatic tests for React yet.
 
 
@@ -67,16 +71,16 @@ In this section, I explain how I analyzed the problem requirements and made the 
 The assignment requires building the backend with **Node.js+TypeScript** and the frontend with **React+TypeScript**. However, there are too many frameworks available in the market. In this section, I describe which major frameworks and libraries I have chosen for this project and why. Saying the truth, the choice was not easy for me because lack of knowledge before doing this assignment.
 
 1.	Frontend and backend communication – **GraphQL**:
-    - I chose to use GraphQL for communication between frontend and backend because it is much more powerful and flexible than RESTful API. (For instance, GraphQL allows me to handle many use cases with a very simple type schema which is used as the contract between the server and the client. Thanks to this schema, the server doesn’t need to care about such things as server states or application sessions, and the client can choose exactly the data amount and structure it needs at a certain time. Moreover, GraphQL allows me to focus on object-oriented design and programming on both sides and to use lazy loading for avoiding data calculation when not required.)
+    - I chose to use GraphQL for communication between frontend and backend because it is much more powerful and flexible than RESTful API. (For instance, GraphQL allows me to handle many use cases with a very simple type schema which is used as the contract between the server and the client. Thanks to this schema, the server doesn’t need to care about such things as server states or application sessions, and the client can choose exactly the data structure and amount it needs at a certain time. Moreover, GraphQL allows me to focus on object-oriented design and programming on both sides and to use lazy loading for avoiding data calculation when not required.)
 
 2. Backend – **Node.js** + **TypeScript** + **Apollo Server**:
-    - The backend is only responsible for fetching data from the server, calculating new data and sending this data to clients via a GraphQL endpoint. Therefore, I used the most basic **Node.js** framework with [**Apollo Server**](https://www.apollographql.com/docs/apollo-server/) and [**Apollo REST Data Source**](https://github.com/apollographql/datasource-rest).
-    - **Apollo Server** is one of the best libraries for implementing a GraphQL server as an add-on to a Node.js application. 
+    - The backend plays the role of middleware, it is only responsible for fetching data from the server, normalizing data, calculating statistics, and sending data to clients via a GraphQL endpoint. Therefore, I used the most basic **Node.js** framework with [**Apollo Server**](https://www.apollographql.com/docs/apollo-server/) and [**Apollo REST Data Source**](https://github.com/apollographql/datasource-rest).
+    - **Apollo Server** is one of the best-in-class libraries for implementing a GraphQL server as an add-on to a **Node.js** application. 
     - **Apollo REST Data Source** is used for fetching data from a REST API and exposing it via GraphQL within **Apollo Server**. In addition, it offers two layers of caching: in-memory "request deduplication" and HTTP browser-style cache.
 
 3. Frontend – **React** + **Next.js** + **TypeScript**:
-    - Because **React ** by itself is only a library, it is reasonable to use a React toolchain or framework instead. After some research, I decided to use   **Next.js** which is a popular, lightweight framework with some useful features such as routing, styling, server-side rendering, fast refreshing, etc.
-    - It is worth mentioning that I also spent a few days testing a new experimental Next.js framework, which is called [App Directory](https://beta.nextjs.org/docs/installation) (in opposition to the old Pages Directory). I would say that it offers many great innovative ideas and sooner or later it will be adopted as a Next.js standard. Unfortunately, some features I need are unavailable at this moment yet. 
+    - Because **React** by itself is only a library, it is reasonable to use a **React** toolchain or framework instead. After some research, I decided to use   **Next.js** which is a popular, lightweight framework with some useful features such as routing, styling, server-side rendering, fast refreshing, etc.
+    - It is worth mentioning that I also spent a few days testing a new experimental Next.js framework, which is called [App Directory](https://beta.nextjs.org/docs/installation) (in opposition to the old Pages Directory). I would say that it offers many great innovative ideas and sooner or later it will be adopted as a **Next.js** standard. Unfortunately, some features I need are unavailable at this moment yet. 
     
 4.	Unit test and logging – **Jest** + **Pino**
     - **Jest** is one of the most popular and easy-to-use unit test frameworks for JavaScript/TypeScript applications. 
@@ -85,7 +89,7 @@ The assignment requires building the backend with **Node.js+TypeScript** and the
 
 ## High-level design
 
-As can be seen in the picture below, the application consists of three layers: the *frontend* is a **Next.js** application, the *backend* is a **Node.js** application (*backend*), and the *data source layer* is the REST API provided by **SuperMetrics**.
+As can be seen in the picture below, the application consists of three layers: the *frontend* is a **Next.js** application, the *backend* is a **Node.js** application, and the *data source layer* is the REST API provided by **SuperMetrics**.
 
 The backend's ``GraphQLServer`` provides a GraphQL endpoint that can be used by the frontend's ``GraphQLClient``. Whenever the  ``GraphQLServer`` receives a request from the ``GraphQLClient``, it triggers the ``PostService`` to fetch necessary data from the REST API. 
 
@@ -290,11 +294,11 @@ query fetchUserIds {
 
 ## Backend class diagram
 
-The backend's class diagram below looks a bit more complicated than the previous one. In particular, there are a few business-logic classes. ``GraphQLServer``, ``GraphQLContext``, ``ApolloServer`` are used for resolving GraphQL requests. Every time the ``PostService`` is requesed to fetch data, it sends 10 concurrent requests to the REST API to reduce the waiting time. Each request should include a short-lived token provided by the ``AuthService``. To avoid duplicated registration via REST API the ``AuthService`` stores and reuses only one short-lived token until one of the concurrent fetching data processes notifies it about the token expiration. Because many expiration notifications can be sent from concurrent processes in a short period, some of these notifications can arrive after the new token has been already received, the ``AuthService`` sets a minimum expiration period after renewing token, during which it ignores all expiration notifications. 
+The backend's class diagram below looks a bit more complicated than the frontend's class diagram (see above). In particular, there are a few business-logic classes such as ``GraphQLServer``, ``GraphQLContext``, ``ApolloServer`` which are used for resolving GraphQL requests. Every time the ``PostService`` is requesed to fetch data, it sends 10 concurrent requests to the REST API to reduce the waiting time. Each request should include a short-lived token provided by the ``AuthService``. To avoid duplicated registration via REST API the ``AuthService`` stores and reuses only one short-lived token until one of the concurrent fetching data processes notifies it about the token expiration. Because many expiration notifications can be sent from concurrent processes in a short period, some of these notifications can arrive after the new token has been already received, the ``AuthService`` sets a minimum expiration period after renewing token, during which it ignores all expiration notifications. 
 
-After receiving the original posts, the ``PostService`` sends the posts and the original ``PageFilter`` to the static method ``Blog.createBlog()``. This method only filters and sorts the necessary data. It also stores the size of all posts before pagination in the field ``Blog.totalPostCount`` which is later will be used by the frontend to display the page number.
+After receiving the original posts, the ``PostService`` sends the posts and the original ``PageFilter`` to the static method ``Blog.createBlog()`` which filters, sorts and selects some posts based on the ``PageFilter``. Before selecting posts (pagination), method ``Blog.createBlog()`` stores the total post count in the field ``Blog.totalPostCount`` which later can be used by the frontend to display the page number.
 
-Because not always clients need information about the Blog author list and their statistics, some original domain model fields were replaced with functions such as ``Blog.authors()``, ``User.stats()`` to enable lazy loading. ``ApolloServer``'s resolvers can automatically detect whether an object field is a value or a function. In the latter case, ``ApolloServer``'s resolvers will call the function to get the value.
+Because not always clients need information about the Blog author list and their statistics, some original domain model fields were replaced with functions such as ``Blog.authors()`` (instead ``Blog.authors``), ``User.stats()`` (instead ``User.stats``) to enable lazy loading. ``ApolloServer``'s resolvers can automatically detect whether an object f.ield is a value or a function. In the latter case, ``ApolloServer``'s resolvers will call the function to get the value.
 
 
 ![Backend class diagram](./docs/Backend.jpg)
@@ -305,18 +309,18 @@ Because not always clients need information about the Blog author list and their
 
 **Next.js** provides two types of routing: *static* and *dynamic*. It also offers various ways of pre-rendering pages: *Static-site generation (SSG)*, *Server-side rendering (SSR)*, and *Client-side rendering (CSR)*.
 
-Thanks to the dynamic routing feature, I had to create only two Next.js pages for this assignment: the Blog Page, and the Dashboard Page. 
+Thanks to the dynamic routing feature, I had to create only *two* **Next.js** pages for this assignment: the Blog Page, and the Dashboard Page. 
 
 ### Blog page
 
 The Blog Page displays a collection of posts in a grid format with the pagination element in the page footer. The collection of posts can belong to many users or a single user (see two pictures below).
 
-Because users want to navigate between pages quickly while the page template remains the same, I have decided to use Client-side rendering (CSR) for the Blog Page. It means that Next.js pre-renders the page template (DOM tree) and sends it to the browser. The browser runs the script for fetching data directly from the backend (without sending via frontend server) and “hydrating” the page template with the new data. For client-side data fetching, I used a React hook library called SWR which handles caching, revalidation, refetching on intervals, and more. As mentioned earlier, I set a 1-minute interval for automatic silent data refresh on this page.
+Because users want to navigate between pages quickly while the page template remains the same, I have decided to use *Client-side rendering (CSR)* for the Blog Page. It means that **Next.js** pre-renders the page template (DOM tree) and sends it to the browser. The browser runs the script for fetching data directly from the backend (without sending via frontend server) and “hydrating” the page template with the new data. For client-side data fetching, I used a React hook library called **SWR** which handles caching, revalidation, refetching on intervals, and more. As mentioned earlier, I set a 1-minute interval for automatic silent data refresh on this page.
  
 
 <figure>
 <img src="./docs/frontend-ui-blog-1.png" />
-<figcaption align="center"><b>A blog page of all users.</b></figcaption>
+<figcaption align="center"><b>A blog page of multiple users.</b></figcaption>
 </figure>
 
 
@@ -328,9 +332,9 @@ Because users want to navigate between pages quickly while the page template rem
 
 ### Dashboard page
 
-The Dashboard page has two very different views: the pivot table with statistics for all users (see Figure 3) and the dashboard for a single user Figure 4). However, when someone opens the dashboard, he wants to switch quickly between dashboard pages without delay. The good thing is that these statistical data can be calculated and requested from backend all together in one ***query fetchFullStats*** (see above).  Moreover, this is the most optimal way because it avoids the duplication of fetching filtering and calculating data.
+The Dashboard page has two very different views: the pivot table with statistics for all users (see Figure 3) and the dashboard for a single user Figure 4). However, when someone opens the dashboard, he or she wants to switch quickly between dashboard pages without delay. The good thing is that these statistical data can be calculated and requested from backend all together by only one ``query fetchFullStats`` (see above).  Moreover, this is the most optimal way because it avoids the duplication of fetching filtering and calculating statistical data.
 
-Therefore, I used the *static-site generation* (SSG) approach for this page. It involves two specific **Next.js** methods: ``getStaticPaths()`` and ``getStaticProps()``. The first fetchs all user IDs and the seconds fetchs all the statistical data.
+Therefore, I used the *static-site generation (SSG)* approach for this page. It involves two specific **Next.js** methods: ``getStaticPaths()`` and ``getStaticProps()``. The first fetchs all user IDs and the seconds fetchs all the statistical data.
 
 
 <figure>
