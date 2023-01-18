@@ -2,7 +2,7 @@ import { RESTDataSource } from '@apollo/datasource-rest';
 import { Post } from '../models/post';
 import { HttpResponse } from '../models/http-response';
 import { logger } from '../utils/logger';
-import { GraphQLError, Token } from 'graphql';
+import { GraphQLError } from 'graphql';
 import { StatusCodes } from 'http-status-codes';
 import { BlogFilter } from '../models/blog-filter';
 import { Blog } from '../models/blog';
@@ -46,6 +46,8 @@ export class PostService extends RESTDataSource {
 
   private pageCount: number;
 
+  private token$: Promise<string>;
+
   constructor(
     public baseURL: string,
     private authenticationService: AuthenticationService,
@@ -56,6 +58,7 @@ export class PostService extends RESTDataSource {
     // cache get-request results
     this.memoizeGetRequests = true;
     this.pageCount = pageCount;
+    this.token$ = authenticationService.getToken();
   }
 
   /**
@@ -165,18 +168,16 @@ export class PostService extends RESTDataSource {
    * @returns
    */
   private async fetchRawData(pageNumber: string, retryCount: number = 0): Promise<RawPostData> {
-    return this.authenticationService
-      .getToken()
+    return this.token$
       .then((token) => this.internalFetchRawData(pageNumber, token))
       .catch((error: GraphQLError) => {
-        if (
-          (<any>error.extensions?.response)?.status === StatusCodes.UNAUTHORIZED &&
-          retryCount < PostService.MAX_RETRY_COUNT_IF_UNAUTHORIZED
-        ) {
+        const { status } = <any>error.extensions?.response;
+        if (status === StatusCodes.UNAUTHORIZED && retryCount < PostService.MAX_RETRY_COUNT_IF_UNAUTHORIZED) {
           logger.info('Re-fetching posts from page %d due to expired SL token', pageNumber);
 
           // notify authentication service about token expiration
           this.authenticationService.notifyTokenExpired();
+          this.token$ = this.authenticationService.getToken();
 
           // retry again (without any filter)
           return this.fetchRawData(pageNumber, ++retryCount);

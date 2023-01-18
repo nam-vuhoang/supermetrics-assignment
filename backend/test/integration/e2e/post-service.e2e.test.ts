@@ -122,7 +122,9 @@ describe('Class PostSerivce (with mock services)', () => {
       expect(e).toBeInstanceOf(GraphQLError);
       const { response } = (<GraphQLError>e).extensions;
       expect((<any>response).status).toBe(StatusCodes.UNAUTHORIZED); // 401
-      expect(authenticationService.retryCountAfterExpired).toBeGreaterThanOrEqual(pageCount);
+      expect(authenticationService.retryCountAfterExpired).toBeGreaterThanOrEqual(
+        PostService.MAX_RETRY_COUNT_IF_UNAUTHORIZED
+      );
     }
   });
 

@@ -1,4 +1,5 @@
 import { RESTDataSource } from '@apollo/datasource-rest';
+import { Mutex } from 'async-mutex';
 import { AccessToken } from '../models/access-token';
 import { ClientInfo } from '../models/client-info';
 import { HttpResponse } from '../models/http-response';
@@ -11,6 +12,8 @@ import { logger } from '../utils/logger';
 export class AuthenticationService extends RESTDataSource {
   private static readonly REQUEST_PATH = 'register';
   static readonly MIN_TOKEN_EXPIRATION_DURATION_IN_MILLISECONDS = 3000; // 3 secs
+
+  private mutex: Mutex;
 
   /**
    * Cache for the last loaded token.
@@ -34,6 +37,7 @@ export class AuthenticationService extends RESTDataSource {
    */
   constructor(public baseURL: string, private clientInfo: ClientInfo) {
     super();
+    this.mutex = new Mutex();
   }
 
   /**
@@ -43,14 +47,18 @@ export class AuthenticationService extends RESTDataSource {
    */
   async getToken(): Promise<string> {
     if (!this.token$ || this.isTokenExpired) {
-      logger.debug('Refreshing token');
-
-      this.token$ = this.post<HttpResponse<AccessToken>>(AuthenticationService.REQUEST_PATH, {
-        body: this.clientInfo,
-      }).then((response) => response.data.sl_token);
-
-      this.tokenUpdatedTime = Date.now();
-      this.isTokenExpired = false;
+      // https://www.npmjs.com/package/async-mutex
+      await this.mutex.runExclusive(() => {
+        // double check after acquiring the mutex
+        if (!this.token$ || this.isTokenExpired) {
+          logger.debug('Refreshing token');
+          this.token$ = this.post<HttpResponse<AccessToken>>(AuthenticationService.REQUEST_PATH, {
+            body: this.clientInfo,
+          }).then((response) => response.data.sl_token);
+          this.tokenUpdatedTime = Date.now();
+          this.isTokenExpired = false;
+        }
+      });
     }
 
     return this.token$;

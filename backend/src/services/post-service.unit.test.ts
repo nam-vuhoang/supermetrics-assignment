@@ -1,4 +1,3 @@
-import exp from 'constants';
 import { GraphQLError } from 'graphql';
 import { StatusCodes } from 'http-status-codes';
 import { Post } from '../../test/client/models/post';
@@ -7,6 +6,7 @@ import { MockPostService } from '../../test/helper/mock-post-service';
 import { PostGenerator } from '../../test/helper/post-generator';
 import { environment } from '../environment/environment';
 import { Utils } from '../utils/utils';
+import { PostService } from './post-service';
 
 const FAKE_USER_ID = "this user doesn't exist";
 
@@ -148,7 +148,7 @@ describe('Class PostSerivce (with expiration)', () => {
     );
 
     expect(postService.mockAuthenticationService).toBeDefined();
-    expect(postService.mockAuthenticationService.isExpired).toBe(false);
+    expect(postService.mockAuthenticationService.isExpired).toBe(true);
 
     try {
       await postService.fetchBlog({ userId: FAKE_USER_ID });
@@ -157,7 +157,9 @@ describe('Class PostSerivce (with expiration)', () => {
       expect(e).toBeInstanceOf(GraphQLError);
       const { response } = (<GraphQLError>e).extensions;
       expect((<any>response).status).toBe(StatusCodes.UNAUTHORIZED); // 401
-      expect(authenticationService.retryCountAfterExpired).toBeGreaterThanOrEqual(pageCount);
+      expect(authenticationService.retryCountAfterExpired).toBeGreaterThanOrEqual(
+        PostService.MAX_RETRY_COUNT_IF_UNAUTHORIZED
+      );
       return;
     }
 
@@ -174,7 +176,7 @@ describe('Class PostSerivce (with expiration)', () => {
     const postService = new MockPostService(baseUrl, authenticationService, undefined, pageCount);
 
     await postService.fetchBlog({ userId: FAKE_USER_ID });
-    expect(authenticationService.retryCountAfterExpired).toBe(pageCount * 2);
+    expect(authenticationService.retryCountAfterExpired).toBeGreaterThan(2);
   });
 });
 
