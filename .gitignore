@@ -1,3 +1,6 @@
 archive/
 **/*.vpp.bak_*
 **/*.vpp.lck
+README.html
+.gitignore
+README.pdf
