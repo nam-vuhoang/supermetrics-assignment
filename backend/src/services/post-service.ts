@@ -87,12 +87,11 @@ export class PostService extends RESTDataSource {
     const posts$: Promise<Post[]> = Promise.all(pages$).then((rawPosts) => rawPosts.flat().map(mapRawPostToPost));
 
     // Sort and paginate if needed
-    return posts$
-      .then((posts) => Blog.createBlog(posts, pageFilter, sortByCreatedTimeAsc))
-      .then((blog) => {
-        logger.debug('Returning %d posts', blog.size);
-        return blog;
-      });
+    return posts$.then((posts) => {
+      const blog = Blog.createBlog(posts, pageFilter, sortByCreatedTimeAsc);
+      logger.debug('Returning %d posts', blog.size);
+      return blog;
+    });
   }
 
   /**

@@ -3,7 +3,6 @@ import { Post } from './post';
 import { User } from './user';
 import { UserStats } from './user-stats';
 import { Utils } from '../utils/utils';
-import exp from 'constants';
 
 describe('Class Blog: constructor', () => {
   const size = 10;

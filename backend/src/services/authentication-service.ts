@@ -29,8 +29,8 @@ export class AuthenticationService extends RESTDataSource {
 
   /**
    * Create a parent RESTDatasource.
-   * @param baseURL 
-   * @param clientInfo 
+   * @param baseURL
+   * @param clientInfo
    */
   constructor(public baseURL: string, private clientInfo: ClientInfo) {
     super();
@@ -39,7 +39,7 @@ export class AuthenticationService extends RESTDataSource {
   /**
    * Returns the cached token if it exists and it is not marked as expired,
    * otherwise send the ClientInfo to the data server for querying a new token.
-   * @returns 
+   * @returns
    */
   async getToken(): Promise<string> {
     if (!this.token$ || this.isTokenExpired) {
@@ -58,11 +58,15 @@ export class AuthenticationService extends RESTDataSource {
 
   /**
    * Mark the token as expired if the token duration is more than the minimum expiration time.
-   * This method is used by PostService after failed getting Unauthorized error from the data attempt. 
+   * This method is used by PostService after failed getting Unauthorized error from the data attempt.
    */
   notifyTokenExpired(): void {
+    if (this.isTokenExpired) {
+      return;
+    }
+
     // wait at least a certain period before refreshing token
     const tokenDuration = Date.now() - this.tokenUpdatedTime;
-     this.isTokenExpired ||= tokenDuration > AuthenticationService.MIN_TOKEN_EXPIRATION_DURATION_IN_MILLISECONDS;
+    this.isTokenExpired = tokenDuration > AuthenticationService.MIN_TOKEN_EXPIRATION_DURATION_IN_MILLISECONDS;
   }
 }
