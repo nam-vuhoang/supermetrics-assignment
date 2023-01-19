@@ -74,8 +74,11 @@ export const GRAPHQ_SCHEMA = gql`
     # Min length of posts
     minLength: Int!
 
-    # Average length of posts
-    averageLength: Float!
+    # Average length of posts (rounded)
+    averageLength: Int!
+
+    # Median length of posts (rounded)
+    medianLength: Int!
 
     # Max length of posts
     maxLength: Int!

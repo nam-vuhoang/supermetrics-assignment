@@ -5,8 +5,8 @@ import { User } from '../models/user';
 import { logger } from '../../../src/utils/logger';
 import { Utils } from '../../../src/utils/utils';
 
-import { gql } from 'graphql-tag';  // Use 'gql' from 'graphql-request' on client side
-export declare type Query = string | DocumentNode;  // This t
+import { gql } from 'graphql-tag'; // Use 'gql' from 'graphql-request' on client side
+export declare type Query = string | DocumentNode; // This t
 
 export interface Variables {
   [name: string]: any;
@@ -16,7 +16,6 @@ export interface Variables {
  * Provides services for fetching data from GraphQL Server.
  */
 export abstract class AbstractGraphQLClient {
-
   /**
    * Fetch the raw query data.
    * @param query
@@ -32,9 +31,7 @@ export abstract class AbstractGraphQLClient {
    * @returns
    */
   private async fetchBlog(query: Query, variables?: Variables): Promise<Blog> {
-    return this.fetchQuery<{ blog: Blog }>(query, variables).then(
-      (data) => data.blog
-    );
+    return this.fetchQuery<{ blog: Blog }>(query, variables).then((data) => data.blog);
   }
 
   /**
@@ -49,17 +46,10 @@ export abstract class AbstractGraphQLClient {
     pageSize: number;
     userId: string | null;
   }): Promise<{ posts: Post[]; totalPostCount: number }> {
-    logger.debug(
-      `[GraphQL] Fetching posts with filter ${JSON.stringify(filter)}...`
-    );
+    logger.debug(`[GraphQL] Fetching posts with filter ${JSON.stringify(filter)}...`);
     const query = gql`
       query fetchPosts($pageIndex: Int!, $pageSize: Int!, $userId: ID) {
-        blog(
-          filter: {
-            page: { index: $pageIndex, size: $pageSize }
-            userId: $userId
-          }
-        ) {
+        blog(filter: { page: { index: $pageIndex, size: $pageSize }, userId: $userId }) {
           posts {
             id
             userId
@@ -112,6 +102,7 @@ export abstract class AbstractGraphQLClient {
             userName
             stats {
               averageLength
+              medianLength
               minLength
               maxLength
               totalCount

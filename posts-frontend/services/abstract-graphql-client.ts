@@ -15,14 +15,16 @@ export interface Variables {
  * Provides services for fetching data from GraphQL Server.
  */
 export abstract class AbstractGraphQLClient {
-
   /**
    * Fetch the raw query data.
    * @param query
    * @param variables
    * @returns
    */
-  protected abstract fetchQuery<T>(query: Query, variables?: Variables): Promise<T>;
+  protected abstract fetchQuery<T>(
+    query: Query,
+    variables?: Variables
+  ): Promise<T>;
 
   /**
    * Fetch the blog data.
@@ -111,6 +113,7 @@ export abstract class AbstractGraphQLClient {
             userName
             stats {
               averageLength
+              medianLength
               minLength
               maxLength
               totalCount

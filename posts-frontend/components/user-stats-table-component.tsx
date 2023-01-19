@@ -95,13 +95,13 @@ export default function UserStatsTableComponent({
     ),
     addNumberCellRender(
       {
-        field: 'averageLength',
-        headerName: 'Av. length',
-        valueGetter: (params) => (params.row as User).stats.averageLength,
+        field: 'medianLength',
+        headerName: 'Med. length',
+        valueGetter: (params) => (params.row as User).stats.medianLength,
         width: 90,
       },
       'max',
-      Utils.getArrayMax(users.map((u) => u.stats.averageLength))
+      Utils.getArrayMax(users.map((u) => u.stats.medianLength))
     ),
     addNumberCellRender(
       {

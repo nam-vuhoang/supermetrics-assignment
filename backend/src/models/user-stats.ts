@@ -16,6 +16,11 @@ export interface UserStats {
   averageLength: number;
 
   /**
+   * Median post length
+   */
+  medianLength: number;
+
+  /**
    * Min post length
    */
   minLength: number;

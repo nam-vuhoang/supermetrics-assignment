@@ -54,6 +54,12 @@ export default function PostLengthStatsComponent({
                 </TableCell>
               </TableRow>
               <TableRow>
+                <TableCell className="bold nowrap padding-small" sx={{ pr: 1 }}>Med. length</TableCell>
+                <TableCell className="bold nowrap right" sx={{ pl: 1 }}>
+                  {user.stats.medianLength} characters
+                </TableCell>
+              </TableRow>
+              <TableRow>
                 <TableCell sx={{ pr: 1 }}>Av. length</TableCell>
                 <TableCell className="right" sx={{ pl: 1 }}>
                   {user.stats.averageLength} characters
