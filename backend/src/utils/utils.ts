@@ -82,6 +82,21 @@ export class Utils {
   }
 
   /**
+   * Get array max value.
+   * @param items
+   * @returns
+   */
+  static getArrayMedian(items: Array<number>): number {
+    if (items.length === 0) {
+      return 0;
+    }
+
+    Utils.sortArray(items, (x) => x);
+    const medianIndex = (items.length - 1) / 2;
+    return (items[Math.floor(medianIndex)] + items[Math.ceil(medianIndex)]) / 2;
+  }
+
+  /**
    * Get random integer between 0 (inclusive) and limit (exclusive).
    * @param limit
    * @returns

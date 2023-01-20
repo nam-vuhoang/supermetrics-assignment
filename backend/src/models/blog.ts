@@ -81,10 +81,9 @@ export class Blog {
     let frequencies = [];
     let totalLength = 0;
 
-    userPosts.forEach((p) => {
-      totalLength += p.message.length;
+    userPosts.forEach(({ message, createdTime }) => {
+      totalLength += message.length;
 
-      const { createdTime } = p;
       const createdMonth = Utils.getMonthUTC(createdTime);
       const frequency = frequencies.find((f) => f.month.getTime() === createdMonth.getTime());
 
@@ -97,19 +96,16 @@ export class Blog {
 
     const totalCount = userPosts.length;
     const maxLength = userPosts[totalCount - 1]?.message.length || 0;
-    const medianIndex = Math.floor((totalCount - 1) / 2);
+    const medianIndex = (totalCount - 1) / 2;
 
     return {
       totalCount,
       minLength: userPosts[0]?.message.length || 0,
       maxLength,
       averageLength: Math.round(totalLength / totalCount),
-      medianLength:
-        totalCount % 2 === 0
-          ? Math.round((userPosts[medianIndex].message.length + userPosts[medianIndex + 1].message.length) / 2)
-          : userPosts[medianIndex].message.length,
+      medianLength: Math.round(Utils.getArrayMedian(userPosts.map((p) => p.message.length))),
       frequencies: Utils.sortArray(frequencies, (f) => f.month.getTime()),
-      longestPosts: () => this.posts.filter((p) => p.userId === userId && p.message.length === maxLength),
+      longestPosts: () => userPosts.filter((p) => p.message.length === maxLength),
     };
   }
 }

@@ -46,7 +46,7 @@ describe('test number utils', () => {
     expect(Utils.getArraySum(noItems)).toBe(0);
   });
 
-  test('min array', () => {
+  test('min of array', () => {
     let min: number = Number.POSITIVE_INFINITY;
     for (let item of items) {
       min = Math.min(min, item);
@@ -55,11 +55,11 @@ describe('test number utils', () => {
     expect(Utils.getArrayMin(items)).toBeCloseTo(min);
   });
 
-  test('min empty array', () => {
+  test('min of empty array', () => {
     expect(Utils.getArrayMin(noItems)).toBe(Number.POSITIVE_INFINITY);
   });
 
-  test('max array', () => {
+  test('max of array', () => {
     let max: number = Number.NEGATIVE_INFINITY;
     for (let item of items) {
       max = Math.max(max, item);
@@ -68,7 +68,16 @@ describe('test number utils', () => {
     expect(Utils.getArrayMax(items)).toBeCloseTo(max);
   });
 
-  test('max empty array', () => {
+  test('median of array', () => {
+    expect(Utils.getArrayMedian([3, 13, 7, 5, 21, 23, 23, 40, 23, 14, 12, 56, 23, 29])).toBeCloseTo(22);
+    expect(Utils.getArrayMedian([63, 3, 99])).toBeCloseTo(63);
+  });
+
+  test('median of empty array 2', () => {
+    expect(Utils.getArrayMedian(noItems)).toBe(0);
+  });
+
+  test('max of empty array', () => {
     expect(Utils.getArrayMax(noItems)).toBe(Number.NEGATIVE_INFINITY);
   });
 
