@@ -104,9 +104,6 @@ export default function UserDashboard({
         <UserListMenu
           href="/dashboard/"
           users={users}
-          itemTooltip={(userName) =>
-            `Click to see ${userName}'s dashboard page`
-          }
           allUsersItemName="Pivot table"
           allUsersItemTooltip="Click to see the dashboard for all users"
         />

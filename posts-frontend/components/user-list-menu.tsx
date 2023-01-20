@@ -18,13 +18,11 @@ import IfElseElement from './utils/if-else-element';
 export default function UserListMenu({
   href,
   users,
-  itemTooltip,
   allUsersItemName,
   allUsersItemTooltip,
 }: {
   href: string;
   users: User[];
-  itemTooltip: (userName: string) => string;
   allUsersItemName?: string;
   allUsersItemTooltip: string;
 }) {
@@ -53,14 +51,9 @@ export default function UserListMenu({
             <TableCell sx={{ borderBottomWidth: allUsersItemName && 0 }}>
               {users.map((u) => (
                 <div key={u.userId}>
-                  <Tooltip title={itemTooltip(u.userName)}>
-                    <Link
-                      href={`${href}${encodeURIComponent(u.userId)}`}
-                      shallow
-                    >
-                      <Typography color="primary">{u.userName}</Typography>
-                    </Link>
-                  </Tooltip>
+                  <Link href={`${href}${encodeURIComponent(u.userId)}`} shallow>
+                    <Typography color="primary">{u.userName}</Typography>
+                  </Link>
                 </div>
               ))}
             </TableCell>
