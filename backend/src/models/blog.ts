@@ -96,7 +96,6 @@ export class Blog {
 
     const totalCount = userPosts.length;
     const maxLength = userPosts[totalCount - 1]?.message.length || 0;
-    const medianIndex = (totalCount - 1) / 2;
 
     return {
       totalCount,
