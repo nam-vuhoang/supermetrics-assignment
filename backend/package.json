@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "compile": "tsc",
-    "start": "node --experimental-specifier-resolution=node --loader ts-node/esm ./src/index | pino-pretty",
+    "start": "tsx ./src/index | pino-pretty",
     "dev": "concurrently \"tsc --watch\" \"nodemon --exec \"\"npm run start\"\"\"",
     "test": "jest --coverage --coverageDirectory='coverage'",
     "test:watch": "jest --watch"
@@ -34,6 +34,7 @@
     "nodemon": "^2.0.20",
     "ts-jest": "^29.0.3",
     "ts-node": "^10.9.1",
+    "tsx": "^3.14.0",
     "typescript": "^4.9.4"
   }
 }
