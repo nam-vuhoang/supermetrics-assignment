@@ -2,13 +2,19 @@
   "compilerOptions": {
     "rootDirs": ["src"],
     "outDir": "dist",
-    "lib": ["es2020"],
-    "target": "es2022",
-    "module": "esnext",
+    "lib": ["esnext"],
+    "target": "ESNext",
+    "module": "ESNext",
     "moduleResolution": "node",
     "esModuleInterop": true,
     "types": ["node", "jest"],
-    "sourceMap": true
+    "sourceMap": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "isolatedModules": false,
+    "strict": false,
+    "noImplicitAny": false,
+    "useUnknownInCatchVariables": true
   },
   "include": ["src/**/*", "test/**/*"],
   "exclude": ["node_modules"],
