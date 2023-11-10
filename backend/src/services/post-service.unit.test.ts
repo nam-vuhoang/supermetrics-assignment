@@ -205,8 +205,8 @@ describe('Class PostSerivce (with wrong page)', () => {
       await postService.fetchBlog();
     } catch (e) {
       expect(e).toBeInstanceOf(GraphQLError);
-      expect(e.message).toMatch(/Invalid data: expected page \d+, but got page \d+./);
-      expect(e.extensions).toStrictEqual({
+      expect((<GraphQLError>e).message).toMatch(/Invalid data: expected page \d+, but got page \d+./);
+      expect((<GraphQLError>e).extensions).toStrictEqual({
         code: 'DATA_SERVER_ERROR',
         argumentName: 'pageIndex',
       });
@@ -230,7 +230,7 @@ describe('Class PostSerivce (with wrong page)', () => {
       await postService.fetchBlog({ page: { index: -1, size: 10 } });
     } catch (e) {
       expect(e).toBeInstanceOf(EvalError);
-      expect(e.message).toMatch(/Invalid page index:/);
+      expect((<EvalError>e).message).toMatch(/Invalid page index:/);
       return;
     }
 
@@ -251,7 +251,7 @@ describe('Class PostSerivce (with wrong page)', () => {
       await postService.fetchBlog({ page: { index: 1, size: 0 } });
     } catch (e) {
       expect(e).toBeInstanceOf(EvalError);
-      expect(e.message).toMatch(/Invalid page size:./);
+      expect((<EvalError>e).message).toMatch(/Invalid page size:./);
       return;
     }
 
