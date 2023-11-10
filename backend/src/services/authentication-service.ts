@@ -4,6 +4,8 @@ import { AccessToken } from '../models/access-token';
 import { ClientInfo } from '../models/client-info';
 import { HttpResponse } from '../models/http-response';
 import { logger } from '../utils/logger';
+import { GraphQLError } from 'graphql';
+import { StatusCodes } from 'http-status-codes';
 
 /**
  * Authentication service. Responsible for querying token from the data server.
@@ -54,7 +56,14 @@ export class AuthenticationService extends RESTDataSource {
           logger.debug('Refreshing token');
           this.token$ = this.post<HttpResponse<AccessToken>>(AuthenticationService.REQUEST_PATH, {
             body: this.clientInfo,
-          }).then((response) => response.data.sl_token);
+          })
+            .then((response) => response.data.sl_token)
+            .catch((error: GraphQLError) => {
+              throw {
+                ...error,
+                message: `Data server error while fetching auth token: ${error.message}.`,
+              };
+            });
           this.tokenUpdatedTime = Date.now();
           this.isTokenExpired = false;
         }
