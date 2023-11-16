@@ -198,6 +198,11 @@ export class PostService extends RESTDataSource {
         sl_token: token,
         page: pageNumber.toString(),
       },
-    }).then((response) => response.data);
+    })
+      .then((response) => response.data)
+      .catch((error: GraphQLError) => {
+        logger.error(error);
+        throw error;
+      });
   }
 }

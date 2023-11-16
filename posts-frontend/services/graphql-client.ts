@@ -1,6 +1,12 @@
 import { logger } from '../utils/logger';
 import { BackendError } from '../utils/backend-error';
-import { AbstractGraphQLClient, Query, Variables } from './abstract-graphql-client';
+import {
+  AbstractGraphQLClient,
+  Query,
+  Variables,
+} from './abstract-graphql-client';
+import { GraphQLError } from 'graphql';
+import { GraphQLResponse } from 'graphql-request/build/esm/types';
 
 /**
  * Provides services for fetching data from GraphQL Server.
@@ -61,8 +67,12 @@ export class GraphQLClient extends AbstractGraphQLClient {
         }
         return res.json(); // Promise<any>
       })
-      .then((res: any) => res.data)
+      .then((res: GraphQLResponse<T>) => {
+        if (res.errors) { // GraphQLError[]
+          throw new Error(res.errors.map((e: GraphQLError) => e.message).toString());
+        }
+        return <T>res.data;
+      })
       .finally(() => logger.debug('[GraphQL] Done.'));
   }
-
 }
