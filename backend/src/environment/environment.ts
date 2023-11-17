@@ -11,6 +11,7 @@ function loadConfig() {
       port: EnvironmentUtils.requireIntegerEnvParam('PORT'),
     },
     dataServer: {
+      useMock: EnvironmentUtils.requireBooleanEnvParam('DATA_SERVER_USE_MOCK'), 
       baseUrl: EnvironmentUtils.requireStringEnvParam('DATA_SERVER_BASE_URL'),
       clientInfo: {
         client_id: EnvironmentUtils.requireStringEnvParam('DATA_SERVER_CLIENT_ID'),

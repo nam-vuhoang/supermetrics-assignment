@@ -2,10 +2,10 @@ import { environment } from '../../../src/environment/environment';
 import { Utils } from '../../../src/utils/utils';
 import { User } from '../../client/models/user';
 import { Kind } from 'graphql';
-import { MockGraphQLClient } from '../../helper/mock-graphql-client';
-import { MockAuthenticationService } from '../../helper/mock-authentication-service';
-import { MockPostService } from '../../helper/mock-post-service';
-import { PostGenerator } from '../../helper/post-generator';
+import { MockGraphQLClient } from '../../../src/services/mock-services/mock-graphql-client';
+import { MockAuthenticationService } from '../../../src/services/mock-services/mock-authentication-service';
+import { MockPostService } from '../../../src/services/mock-services/mock-post-service';
+import { PostGenerator } from '../../../src/services/mock-services/post-generator';
 import { Post } from '../../client/models/post';
 import { GraphQLServer } from '../../../src/graphql/graphql-server';
 import { GRAPHQL_RESOLVERS } from '../../../src/graphql/graphql-resolvers';
@@ -114,7 +114,8 @@ describe('GraphQLServer (with MockPostService)', () => {
     });
 
     test('fetch single user stats', async () => {
-      const userId = 'user_1';
+      const pageId = Utils.getRandomInt(pagePosts.length);
+      const userId = pagePosts[pageId][Utils.getRandomInt(pagePosts[pageId].length)].userId;
       const users: User[] = await graphqlClient.fetchFullStats({ userId });
       expect(users.length).toBeGreaterThan(0);
 

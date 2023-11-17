@@ -1,7 +1,7 @@
 import { environment } from '../../../src/environment/environment';
 import { Utils } from '../../../src/utils/utils';
 import { User } from '../../client/models/user';
-import { MockGraphQLClient } from '../../helper/mock-graphql-client';
+import { MockGraphQLClient } from '../../../src/services/mock-services/mock-graphql-client';
 import { GraphQLServer } from '../../../src/graphql/graphql-server';
 
 const MAX_POST_COUNT = 1000;

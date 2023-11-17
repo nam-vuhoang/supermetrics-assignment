@@ -30,4 +30,14 @@ export class EnvironmentUtils {
 
     throw new EvalError(`Environment param '${name}' must be an integer: '${stringValue}'.`);
   }
+
+  /**
+   * Check if a environment param is undefined. If no, then throw an EvalError.
+   * @param name
+   * @returns
+   */
+  static requireBooleanEnvParam(name: string): boolean {
+    const stringValue = EnvironmentUtils.requireStringEnvParam(name);
+    return Boolean(stringValue);
+  }
 }

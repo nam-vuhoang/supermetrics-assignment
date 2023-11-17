@@ -4,7 +4,7 @@ import { environment } from '../../../src/environment/environment';
 import { AuthenticationService } from '../../../src/services/authentication-service';
 import { PostService } from '../../../src/services/post-service';
 import { Utils } from '../../../src/utils/utils';
-import { MockAuthenticationService } from '../../helper/mock-authentication-service';
+import { MockAuthenticationService } from '../../../src/services/mock-services/mock-authentication-service';
 
 const MAX_POST_COUNT = 1000;
 const FAKE_USER_ID = 'this user doesnt exist';

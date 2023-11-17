@@ -1,9 +1,9 @@
 import { KeyValueCache } from '@apollo/utils.keyvaluecache';
 import { GraphQLError } from 'graphql';
 import { StatusCodes } from 'http-status-codes';
-import { AuthenticationService } from '../../src/services/authentication-service';
-import { PostService, RawPostData } from '../../src/services/post-service';
-import { Post } from '../client/models/post';
+import { AuthenticationService } from '../authentication-service';
+import { PostService, RawPostData } from '../post-service';
+import { Post } from '../../../test/client/models/post';
 import { MockAuthenticationService } from './mock-authentication-service';
 import { PostGenerator } from './post-generator';
 
@@ -17,14 +17,14 @@ export class MockPostService extends PostService {
   public mockAuthenticationService?: MockAuthenticationService;
 
   constructor(
-    baseURL: string,
+    baseUrl: string,
     authenticationService: AuthenticationService,
     cache: KeyValueCache | undefined,
     pageCount: number,
     mockPages?: Post[][],
     private returnWrongPage?: boolean
   ) {
-    super(baseURL, authenticationService, cache, pageCount);
+    super(baseUrl, authenticationService, cache, pageCount);
     if (authenticationService && authenticationService instanceof MockAuthenticationService) {
       this.mockAuthenticationService = authenticationService;
     }
@@ -33,9 +33,9 @@ export class MockPostService extends PostService {
 
   /**
    * Returns the specified page from the mock pages.
-   * @param pageNumber 
-   * @param token 
-   * @returns 
+   * @param pageNumber
+   * @param token
+   * @returns
    */
   protected async internalFetchRawData(pageNumber: string, token: string): Promise<RawPostData> {
     if (this.mockAuthenticationService && this.mockAuthenticationService.isExpired) {

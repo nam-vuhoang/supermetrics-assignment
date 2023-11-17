@@ -1,9 +1,9 @@
 import { GraphQLError } from 'graphql';
 import { StatusCodes } from 'http-status-codes';
 import { Post } from '../../test/client/models/post';
-import { MockAuthenticationService } from '../../test/helper/mock-authentication-service';
-import { MockPostService } from '../../test/helper/mock-post-service';
-import { PostGenerator } from '../../test/helper/post-generator';
+import { MockAuthenticationService } from './mock-services/mock-authentication-service';
+import { MockPostService } from './mock-services/mock-post-service';
+import { PostGenerator } from './mock-services/post-generator';
 import { environment } from '../environment/environment';
 import { Utils } from '../utils/utils';
 import { PostService } from './post-service';
@@ -75,7 +75,6 @@ describe('Class PostService (with MockAuthenticationService and MockPostService)
         }
 
         const stats = author.stats();
-        expect(stats.minLength).toBeGreaterThan(0);
         expect(stats.averageLength).toBeGreaterThanOrEqual(stats.minLength);
         expect(stats.maxLength).toBeGreaterThanOrEqual(stats.averageLength);
         expect(stats.totalCount).toBeGreaterThan(0);

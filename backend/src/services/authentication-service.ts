@@ -59,10 +59,8 @@ export class AuthenticationService extends RESTDataSource {
           })
             .then((response) => response.data.sl_token)
             .catch((error: GraphQLError) => {
-              throw {
-                ...error,
-                message: `Data server error while fetching auth token: ${error.message}.`,
-              };
+              error.message = `Data server error while fetching auth token: ${error.message}.`;
+              throw error;
             });
           this.tokenUpdatedTime = Date.now();
           this.isTokenExpired = false;

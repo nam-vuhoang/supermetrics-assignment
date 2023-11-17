@@ -1,4 +1,4 @@
-import { AuthenticationService } from '../../src/services/authentication-service';
+import { AuthenticationService } from '../authentication-service';
 
 /**
  * Mocks AuthenticationService by adding feature to set and reset the token expiration.

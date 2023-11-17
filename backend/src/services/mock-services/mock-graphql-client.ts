@@ -1,8 +1,8 @@
 import { VariableValues } from '@apollo/server/dist/esm/externalTypes/graphql';
 import assert from 'assert';
 import { DocumentNode } from 'graphql';
-import { GraphQLServer } from '../../src/graphql/graphql-server';
-import { AbstractGraphQLClient } from '../client/services/abstract-graphql-client';
+import { GraphQLServer } from '../../graphql/graphql-server';
+import { AbstractGraphQLClient } from '../../../test/client/services/abstract-graphql-client';
 
 /**
  * A mock GraphQLClient that connects to a specified GraphQLServer for querying data.
